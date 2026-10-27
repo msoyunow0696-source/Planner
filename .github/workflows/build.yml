@@ -2,6 +2,7 @@ name: Build APK
 
 on:
   push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -13,6 +14,33 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install web tools (three.js, esbuild, puppeteer-core)
+        run: npm install --no-audit --no-fund
+
+      - name: Test stair calculations
+        run: npm test
+
+      - name: Bundle stair builder
+        run: npm run build:stairs
+
+      - name: Smoke test in Chrome
+        run: npm run smoke
+
+      - name: Publish screenshots to ci-screenshots branch
+        if: always()
+        run: |
+          [ -d screenshots ] || exit 0
+          cd screenshots
+          git init -q -b ci-screenshots
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add -A && git commit -q -m "Screenshots for ${GITHUB_SHA::7}"
+          git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" ci-screenshots
+
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
@@ -22,21 +50,25 @@ jobs:
         with:
           gradle-version: '8.14.3'
 
-      - name: Build APK
+      - name: Build APKs
         run: gradle assembleDebug --no-daemon
+
+      - name: Collect APKs
+        run: |
+          cp app/build/outputs/apk/debug/app-debug.apk MyTasks.apk
+          cp stairs/build/outputs/apk/debug/stairs-debug.apk StairBuilder.apk
 
       - uses: actions/upload-artifact@v4
         with:
-          name: MyTasks-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
-
-      - name: Rename APK
-        run: cp app/build/outputs/apk/debug/app-debug.apk MyTasks.apk
+          name: apks
+          path: "*.apk"
 
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: build-${{ github.run_number }}
-          name: Мои задачи — сборка ${{ github.run_number }}
-          files: MyTasks.apk
+          name: Сборка ${{ github.run_number }}
+          files: |
+            MyTasks.apk
+            StairBuilder.apk
           make_latest: true

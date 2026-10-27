@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <!-- ступени -->
+    <path android:fillColor="#FFAA00"
+        android:pathData="M32,74 L32,64 L44,64 L44,54 L56,54 L56,44 L68,44 L68,34 L76,34 L76,74 Z" />
+    <!-- подступенки -->
+    <path android:fillColor="#5599FF"
+        android:pathData="M32,74 L76,74 L76,77 L32,77 Z" />
+</vector>

@@ -1,16 +1,22 @@
-# Мои задачи — Android
+# Planner — Android-приложения
 
-Android-приложение (WebView) на основе `app/src/main/assets/index.html`.
+| Приложение | Модуль | Исходник интерфейса |
+|---|---|---|
+| **Мои задачи** | `app/` | `app/src/main/assets/index.html` |
+| **Конструктор лестниц** | `stairs/` | `web/stairs/` (index.html, main.js, model.js) |
 
-## Сборка на GitHub (без компьютера)
-1. Загрузите содержимое этой папки в репозиторий GitHub (вместе с папкой `.github`).
-2. Откройте вкладку **Actions** → **Build APK**: сборка запускается сама при каждом push (или кнопкой *Run workflow*).
-3. Через 3–5 минут внизу страницы сборки появится артефакт **MyTasks-apk**. Скачайте zip, внутри `app-debug.apk`.
-4. Установите APK на телефон (разрешите установку из неизвестных источников).
+## Готовые APK
+Каждый push в `main` запускает GitHub Actions: тесты → сборка → публикация в **Releases**
+(`MyTasks.apk`, `StairBuilder.apk`). Скриншоты конструктора из теста — в ветке `ci-screenshots`.
 
-## Сборка в Android Studio
-File → Open → выберите эту папку → Build → Build APK(s).
+## Конструктор лестниц
+- `model.js` — расчёт геометрии (мм), без зависимостей; покрыт тестами `npm test`.
+- `main.js` — 3D (three.js 0.152), 2D-чертежи и интерфейс; собирается в `stairs/src/main/assets/app.js`:
+  ```
+  npm install
+  npm run build:stairs
+  ```
+- `npm run smoke` — проверка собранной страницы в Chrome.
 
-## Как поменять интерфейс
-Правьте `app/src/main/assets/index.html` и собирайте заново.
-Задачи хранятся в localStorage внутри приложения; для переноса используйте Экспорт/Импорт.
+## Сборка локально
+`npm install && npm run build:stairs`, затем Android Studio → Open → Build APK(s).

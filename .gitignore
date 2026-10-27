@@ -3,3 +3,7 @@ build/
 local.properties
 *.iml
 .idea/
+node_modules/
+stairs/src/main/assets/app.js
+stairs/src/main/assets/index.html
+package-lock.json

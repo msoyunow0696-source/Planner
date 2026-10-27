@@ -1,0 +1,15 @@
+{
+  "name": "planner-web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:stairs": "esbuild web/stairs/main.js --bundle --format=iife --minify --target=chrome80 --outfile=stairs/src/main/assets/app.js && cp web/stairs/index.html stairs/src/main/assets/index.html",
+    "test": "node --test tests/stairs-model.test.mjs",
+    "smoke": "node tests/stairs-smoke.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0",
+    "puppeteer-core": "^23.0.0",
+    "three": "0.152.0"
+  }
+}
