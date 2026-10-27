@@ -57,6 +57,7 @@ jobs:
         run: |
           cp app/build/outputs/apk/debug/app-debug.apk MyTasks.apk
           cp stairs/build/outputs/apk/debug/stairs-debug.apk StairBuilder.apk
+          cp mashyn/build/outputs/apk/debug/mashyn-debug.apk MashynBazar.apk
 
       - uses: actions/upload-artifact@v4
         with:
@@ -71,4 +72,5 @@ jobs:
           files: |
             MyTasks.apk
             StairBuilder.apk
+            MashynBazar.apk
           make_latest: true
