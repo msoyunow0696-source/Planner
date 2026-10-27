@@ -2,7 +2,15 @@
 // Открывает страницу в размере телефона, перебирает типы лестниц и проверяет,
 // что нет ошибок JavaScript, 3D-сцена рисует геометрию, а чертежи не пустые.
 import puppeteer from 'puppeteer-core';
-import { existsSync, mkdirSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+
+// Весь вывод дублируем в screenshots/log.txt (он публикуется вместе со скриншотами)
+const logLines = [];
+for (const k of ['log', 'error']) {
+  const orig = console[k].bind(console);
+  console[k] = (...a) => { logLines.push(a.map(x => typeof x === 'string' ? x : JSON.stringify(x)).join(' ')); orig(...a); };
+}
+const flushLog = () => { try { writeFileSync('screenshots/log.txt', logLines.join('\n') + '\n'); } catch {} };
 import { resolve } from 'node:path';
 
 const chrome = process.env.CHROME_PATH ||
@@ -88,10 +96,13 @@ try {
   await page.setViewport({ width: 1366, height: 800 });
   await new Promise(r => setTimeout(r, 600));
   await page.screenshot({ path: 'screenshots/desktop.png' });
+} catch (e) {
+  errors.push('test: ' + (e && e.stack || e));
 } finally {
   await browser.close();
 }
 
 if (errors.length) { console.error('\nОшибки страницы:\n' + errors.join('\n')); failed = true; }
 console.log(failed ? '\n✗ SMOKE FAILED' : '\n✓ SMOKE OK');
+flushLog();
 process.exit(failed ? 1 : 0);

@@ -235,8 +235,12 @@ function fitCamera(m) {
   const size = Math.max(e.maxX - e.minX, e.maxZ - e.minZ, H) / 1000;
   const target = new THREE.Vector3(cx, cy * 0.8, cz);
   controls.target.copy(target);
-  const k = isMobile() && innerWidth < innerHeight ? 2.8 : 2.1;   // в портретной ориентации отодвигаем камеру
-  camera.position.copy(target).add(new THREE.Vector3(0.75, 0.6, 1.1).normalize().multiplyScalar(size * k + 1));
+  // Расстояние, при котором вся лестница влезает и по высоте, и по ширине экрана
+  const radius = 0.5 * Math.hypot(e.maxX - e.minX, e.maxZ - e.minZ, H) / 1000 + 0.3;
+  const halfV = THREE.MathUtils.degToRad(camera.fov / 2);
+  const halfH = Math.atan(Math.tan(halfV) * camera.aspect);
+  const dist = radius / Math.sin(Math.min(halfV, halfH)) * 1.05;
+  camera.position.copy(target).add(new THREE.Vector3(0.75, 0.6, 1.1).normalize().multiplyScalar(dist));
   camera.far = size * 30 + 30;
   camera.updateProjectionMatrix();
   controls.minDistance = 0.5;
