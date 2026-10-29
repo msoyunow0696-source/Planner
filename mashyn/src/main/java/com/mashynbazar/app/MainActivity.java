@@ -1,11 +1,15 @@
 package com.mashynbazar.app;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
@@ -17,6 +21,7 @@ import android.widget.Toast;
 public class MainActivity extends Activity {
 
     private static final int REQ_PICK = 2001;
+    private static final int REQ_NOTIFY = 2002;
 
     private WebView webView;
     private ValueCallback<Uri[]> fileCallback;
@@ -35,6 +40,9 @@ public class MainActivity extends Activity {
         s.setDatabaseEnabled(true);
         s.setAllowFileAccess(true);
         s.setTextZoom(100);
+
+        // Мост для уведомлений: страница сообщает о входе и выходе из аккаунта
+        webView.addJavascriptInterface(new NotifyBridge(), "MBAndroid");
 
         webView.setWebViewClient(new WebViewClient() {
             // Звонки, WhatsApp и внешние сайты открываем в других приложениях телефона
@@ -69,6 +77,41 @@ public class MainActivity extends Activity {
         } else {
             webView.loadUrl("file:///android_asset/index.html");
         }
+    }
+
+    private class NotifyBridge {
+        @JavascriptInterface
+        public String deviceKey() { return NotifyJob.deviceKey(MainActivity.this); }
+
+        @JavascriptInterface
+        public void enable(double since) {
+            NotifyJob.enable(MainActivity.this, (long) since);
+            // Android 13+ спрашивает разрешение на уведомления
+            if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                runOnUiThread(() -> requestPermissions(new String[]{ Manifest.permission.POST_NOTIFICATIONS }, REQ_NOTIFY));
+            }
+        }
+
+        @JavascriptInterface
+        public void disable() { NotifyJob.disable(MainActivity.this); }
+
+        @JavascriptInterface
+        public void seen(double time) { NotifyJob.markSeen(MainActivity.this, (long) time); }
+
+        /** Приложение открыли нажатием на уведомление (страница спрашивает один раз при запуске). */
+        @JavascriptInterface
+        public boolean openedFromNotif() {
+            boolean v = getIntent().getBooleanExtra("openNotifs", false);
+            getIntent().removeExtra("openNotifs");
+            return v;
+        }
+    }
+
+    // Нажали на уведомление — открываем список уведомлений в приложении
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (intent.getBooleanExtra("openNotifs", false)) webView.evaluateJavascript("window.mbOpenNotifs && window.mbOpenNotifs()", null);
     }
 
     private boolean openExternal(Uri uri) {

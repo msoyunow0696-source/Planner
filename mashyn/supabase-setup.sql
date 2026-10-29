@@ -168,3 +168,43 @@ $$;
 
 revoke execute on function public.mb_reset_password(uuid, text) from anon;
 revoke execute on function public.mb_delete_me() from anon;
+
+-- =====================================================
+-- УВЕДОМЛЕНИЯ, КОГДА ПРИЛОЖЕНИЕ ЗАКРЫТО
+-- Телефон после входа регистрирует свой секретный ключ.
+-- Фоновая проверка в Android раз в ~15 минут спрашивает по этому ключу
+-- новые непрочитанные уведомления своего пользователя.
+-- =====================================================
+create table if not exists public.mb_devices (
+    key text primary key check (length(key) >= 32),
+    uid uuid not null references auth.users(id) on delete cascade,
+    created_at timestamptz not null default now()
+);
+-- Политик нет: таблица доступна только через функции ниже
+alter table public.mb_devices enable row level security;
+
+create or replace function public.mb_register_device(p_key text)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+    if auth.uid() is null then raise exception 'Нужно войти'; end if;
+    insert into public.mb_devices (key, uid) values (p_key, auth.uid())
+    on conflict (key) do update set uid = excluded.uid, created_at = now();
+end;
+$$;
+
+create or replace function public.mb_unregister_device(p_key text)
+returns void language sql security definer set search_path = public as $$
+    delete from public.mb_devices where key = p_key;
+$$;
+
+create or replace function public.mb_device_notifs(p_key text, p_since bigint)
+returns table (n_id text, n_text text, n_time bigint) language sql stable security definer set search_path = public as $$
+    select r.id, r.data->>'text', (r.data->>'time')::bigint
+    from public.mb_records r join public.mb_devices d on d.uid = r.owner
+    where d.key = p_key and r.coll = 'notifs'
+      and not coalesce((r.data->>'read')::boolean, false)
+      and (r.data->>'time')::bigint > p_since
+    order by 3 limit 20;
+$$;
+
+revoke execute on function public.mb_register_device(text) from anon;
