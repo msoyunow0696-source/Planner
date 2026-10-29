@@ -158,7 +158,16 @@ select.inp option{background:var(--bg1);color:var(--text)}
 .gal-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
 .gal-track::-webkit-scrollbar{display:none}
 .gal-track>*{flex:0 0 100%;scroll-snap-align:center;aspect-ratio:16/10;max-width:100%}
-.gal-track img,.gal-track svg{width:100%;height:100%;object-fit:cover;display:block}.gal-dots{position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:center;gap:6px}
+.gal-track img,.gal-track svg{width:100%;height:100%;object-fit:cover;display:block}.gal-track img{cursor:zoom-in}
+.zoom{position:fixed;inset:0;z-index:200;background:#000}
+.zoom-track{display:flex;height:100%;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
+.zoom-track::-webkit-scrollbar{display:none}
+.zoom-slide{flex:0 0 100%;height:100%;scroll-snap-align:center;display:grid;place-items:center;overflow:hidden}
+.zoom-slide img{max-width:100%;max-height:100%;object-fit:contain;touch-action:pan-x;user-select:none}
+.zoom-x{position:absolute;top:14px;right:14px;width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.15);color:#fff;display:grid;place-items:center}
+.zoom-x svg{width:22px;height:22px}
+.zoom-n{position:absolute;bottom:18px;left:0;right:0;text-align:center;color:#fff;font-size:.9rem;opacity:.8}
+.gal-dots{position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:center;gap:6px}
 .gal-dots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.45)}
 .gal-dots i.on{background:#fff;width:18px;border-radius:4px}
 .price-big{font-family:var(--font-d);font-size:1.6rem;font-weight:800;letter-spacing:-.02em}
@@ -728,7 +737,7 @@ let stack = [{name:'home'}];
 const state = {filters:{}, sort:'new', q:'', jobKind:'all', draft:null, plan:{sec:'cars',m:1,tier:0,acct:null}};
 function go(name, arg, replace){ if (replace) stack[stack.length-1]={name,arg}; else stack.push({name,arg}); render(); window.scrollTo(0,0); }
 function root(name){ stack=[{name}]; render(); window.scrollTo(0,0); }
-function back(){ if ($('#sheet').hidden===false){ closeSheet(); return true; } if (stack.length>1){ stack.pop(); render(); return true; } return false; }
+function back(){ if ($('#zoom')){ closeZoom(); return true; } if ($('#sheet').hidden===false){ closeSheet(); return true; } if (stack.length>1){ stack.pop(); render(); return true; } return false; }
 window.mbBack = back;   // для кнопки «Назад» в Android
 
 function render(){
@@ -895,6 +904,7 @@ const SCREENS = {
         <span style="flex:1"><b>${p.n}</b><br><span class="small dim">${p.d}</span></span><b class="num">${p.price} TMT</b></button>`).join('')}<div class="tiny dim">Цены продвижения — пример, их можно изменить.</div></div>`:''}
     `, after(){
       const g=$('#gal'), d=$('#gdots'); if(g&&d) g.addEventListener('scroll',()=>{ const i=Math.round(g.scrollLeft/g.clientWidth); [...d.children].forEach((x,j)=>x.classList.toggle('on',i===j)); },{passive:true});
+      if (g && l.photos?.length) g.addEventListener('click', ()=> openZoom(l.photos, Math.round(g.scrollLeft/g.clientWidth)));
     }};
   },
 
@@ -1196,6 +1206,47 @@ function compress(file){
     }; img.src = r.result; };
     r.readAsDataURL(file);
   });
+}
+
+/* Просмотр фото на весь экран: листать, приближать двумя пальцами или двойным касанием */
+function openZoom(photos, start){
+  closeZoom();
+  const z = document.createElement('div');
+  z.id = 'zoom'; z.className = 'zoom';
+  z.innerHTML = `<div class="zoom-track">${photos.map(p=>`<div class="zoom-slide"><img src="${esc(p)}" alt="" draggable="false"></div>`).join('')}</div>
+    <button class="zoom-x" aria-label="Закрыть">${ic('x')}</button>${photos.length>1?`<div class="zoom-n num"></div>`:''}`;
+  document.body.appendChild(z);
+  const track = z.querySelector('.zoom-track'), n = z.querySelector('.zoom-n');
+  const showN = () => { if (n) n.textContent = `${Math.round(track.scrollLeft/track.clientWidth)+1} / ${photos.length}`; };
+  track.scrollLeft = start*track.clientWidth; showN();
+  track.addEventListener('scroll', showN, {passive:true});
+  z.querySelector('.zoom-x').addEventListener('click', closeZoom);
+  z.querySelectorAll('.zoom-slide img').forEach(img => pinch(img, track));
+}
+function closeZoom(){ $('#zoom')?.remove(); }
+
+function pinch(img, track){
+  let k = 1, x = 0, y = 0, start = null, lastTap = 0;
+  // Пока фото приближено, свайп двигает его, а не листает к следующему
+  const apply = () => { img.style.transform = `translate(${x}px,${y}px) scale(${k})`; track.style.overflowX = k>1 ? 'hidden' : 'auto'; img.style.touchAction = k>1 ? 'none' : 'pan-x'; };
+  const clamp = () => { if (k<=1){ k=1; x=0; y=0; return; } k=Math.min(k,5); const mx=img.clientWidth*(k-1)/2, my=img.clientHeight*(k-1)/2; x=Math.max(-mx,Math.min(mx,x)); y=Math.max(-my,Math.min(my,y)); };
+  const dist = t => Math.hypot(t[0].clientX-t[1].clientX, t[0].clientY-t[1].clientY);
+  img.addEventListener('touchstart', e => {
+    const t = e.touches;
+    if (t.length===2) start = {d:dist(t), k};
+    else if (t.length===1){
+      if (Date.now()-lastTap < 300){ k = k>1 ? 1 : 2.5; x=0; y=0; clamp(); apply(); lastTap=0; start=null; return; }
+      lastTap = Date.now(); start = {px:t[0].clientX-x, py:t[0].clientY-y};
+    }
+  }, {passive:true});
+  img.addEventListener('touchmove', e => {
+    const t = e.touches; if (!start) return;
+    if (t.length===2 && start.d){ e.preventDefault(); k = start.k*dist(t)/start.d; clamp(); apply(); }
+    else if (t.length===1 && k>1 && start.px!=null){ e.preventDefault(); x = t[0].clientX-start.px; y = t[0].clientY-start.py; clamp(); apply(); }
+  }, {passive:false});
+  img.addEventListener('touchend', e => { if (!e.touches.length) start = null; });
+  // На компьютере: двойной щелчок приближает
+  img.addEventListener('dblclick', () => { k = k>1 ? 1 : 2.5; x=0; y=0; apply(); });
 }
 
 /* ================== Бот-модератор ================== */
