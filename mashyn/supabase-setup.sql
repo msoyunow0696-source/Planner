@@ -208,3 +208,6 @@ returns table (n_id text, n_text text, n_time bigint) language sql stable securi
 $$;
 
 revoke execute on function public.mb_register_device(text) from anon;
+
+-- Старый сайт «Автомаркет» ставил свой триггер на auth.users и ломал регистрацию в приложении
+drop trigger if exists on_auth_user_created on auth.users;

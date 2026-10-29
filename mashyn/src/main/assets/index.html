@@ -686,6 +686,16 @@ function persist(){
 // Сначала дописываем свои изменения, потом берём свежие данные
 async function refresh(){ await syncing; await pull(); }
 
+// Вход в Supabase есть, а профиля в приложении нет (регистрация оборвалась) — создаём его из данных регистрации
+async function ensureProfile(){
+  const {data:{session}} = await sb.auth.getSession();
+  if (!session || me()) return;
+  const m = session.user.user_metadata || {};
+  if (!m.phone) return;
+  S.users.push({id:session.user.id,name:m.name||'Пользователь',phone:m.phone,email:m.email||'',type:'person',company:'',role:'user',created:now(),freeUsed:false,blocked:false});
+  S.session = session.user.id; persist(); await refresh();
+}
+
 /* Уведомления, когда приложение закрыто (только в Android-приложении, MBAndroid — мост из MainActivity) */
 const NB = window.MBAndroid || null;
 async function deviceOn(){
@@ -1310,7 +1320,7 @@ async function doLogin(){
   if (f.until > Date.now()) return err.textContent = `Слишком много попыток. Подождите ${Math.ceil((f.until-Date.now())/6e4)} мин.`;
   const phone = by==='phone' ? key : (await sb.rpc('mb_phone_for_email', {p_email:key})).data;
   const ok = phone && !(await sb.auth.signInWithPassword({email:loginOf(phone), password:$('#a_pw').value})).error;
-  if (ok) await refresh();
+  if (ok){ await refresh(); await ensureProfile(); }
   const u = me();
   if (!ok || !u){ f.n++; if (f.n>=5){ f.until=Date.now()+5*6e4; f.n=0; } S.fails[key]=f; persist(); return err.textContent = f.until>Date.now() ? 'Вход заблокирован на 5 минут после 5 ошибок' : `Неверный ${by==='phone'?'номер':'адрес'} или пароль. Осталось попыток: ${5-f.n}`; }
   if (u.blocked){ await sb.auth.signOut(); await refresh(); return err.textContent='Аккаунт заблокирован. Напишите в поддержку.'; }
@@ -1559,7 +1569,7 @@ document.addEventListener('keydown', e => { if (e.key==='Escape') back(); if ((e
   LANG = S.settings.lang;
   document.body.dataset.t = S.settings.theme;
   render();
-  try { await pull(); tick(); } catch (e){ console.warn(e); toast('Нет связи с сервером. Проверьте интернет.'); }
+  try { await pull(); await ensureProfile(); tick(); } catch (e){ console.warn(e); toast('Нет связи с сервером. Проверьте интернет.'); }
   render();
   deviceOn();
   if (NB && NB.openedFromNotif()) notifSheet();
