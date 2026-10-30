@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Объявление — Alpha Drive</title>
+<meta name="description" content="Объявление в Alpha Drive — автомаркет Туркменистана">
+<meta property="og:title" content="Объявление в Alpha Drive">
+<meta property="og:description" content="Машины, техника и работа — в одном месте. Откройте, чтобы посмотреть фото и цену.">
+<meta property="og:image" content="https://msoyunow0696-source.github.io/Planner/logo.png">
+<link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@600;800&display=swap">
+<style>
+/* Страница одного объявления — сюда ведёт ссылка «Поделиться» из приложения */
+:root{--bg1:#0a0a0a;--bg3:#121210;--card:rgba(255,255,255,.07);--card2:rgba(255,255,255,.12);--line:rgba(255,255,255,.14);--text:#fffbea;--dim:#bdb595;--accent:#ffd60a;--accent2:#ffb703;--ok:#34d399;--bad:#ff6b7a;
+  --font-d:'Unbounded','Arial Black',system-ui,sans-serif;--font-b:'Onest',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+*{box-sizing:border-box;margin:0}
+body{min-height:100vh;font-family:var(--font-b);color:var(--text);line-height:1.5;background:radial-gradient(900px 500px at 80% -10%,rgba(255,183,3,.14),transparent 60%),linear-gradient(160deg,var(--bg1),var(--bg3))}
+.wrap{max-width:560px;margin:0 auto;padding:0 16px 32px}
+.top{display:flex;align-items:center;justify-content:space-between;padding:16px 0}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--font-d);font-weight:800;text-decoration:none;color:inherit}
+.brand img{width:36px;height:36px;border-radius:11px}
+.brand b{color:var(--accent)}
+.lang{display:flex;gap:4px}
+.lang a{color:var(--dim);font:600 .78rem var(--font-b);text-decoration:none;padding:7px 9px;border-radius:9px}
+.lang a.on{background:var(--card2);color:var(--text)}
+.gal{position:relative;border-radius:22px;overflow:hidden;background:var(--card)}
+.track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
+.track::-webkit-scrollbar{display:none}
+.track>*{flex:0 0 100%;aspect-ratio:16/10;scroll-snap-align:center;object-fit:cover;display:block;width:100%;background:#000}
+.track video{object-fit:contain}
+.count{position:absolute;right:12px;bottom:12px;background:rgba(0,0,0,.6);border-radius:10px;padding:3px 9px;font-size:.8rem}
+h1{font-family:var(--font-d);font-weight:600;font-size:1.3rem;line-height:1.3;margin-top:16px}
+.price{font-family:var(--font-d);font-weight:800;font-size:1.6rem;color:var(--accent);margin-top:6px}
+.meta{color:var(--dim);font-size:.9rem;margin-top:4px}
+.specs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:16px}
+.spec{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.spec .k{font-size:.72rem;color:var(--dim);text-transform:uppercase;letter-spacing:.04em}
+.spec .v{font-weight:600;overflow-wrap:anywhere}
+.ok{color:var(--ok)}.bad{color:var(--bad)}
+.desc{margin-top:16px;white-space:pre-wrap;color:#e9e3c8}
+.btns{display:flex;flex-direction:column;gap:10px;margin-top:22px}
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;min-height:54px;border-radius:16px;text-decoration:none;font-weight:700;font-size:1rem;color:#141100;background:linear-gradient(135deg,var(--accent),var(--accent2))}
+.btn.ghost{background:var(--card);color:var(--text);border:1px solid var(--line)}
+.note{color:var(--dim);font-size:.85rem;text-align:center;margin-top:12px}
+.empty{text-align:center;padding:60px 10px;color:var(--dim)}
+.empty .i{font-size:3rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top"><a class="brand" href="./"><img src="logo.png" alt=""><span>Alpha <b>Drive</b></span></a><nav class="lang" id="lang"></nav></header>
+  <main id="main"><div class="empty"><div class="i">⏳</div></div></main>
+</div>
+<script>
+const API = 'https://qjllrvbkwglgcnxteenx.supabase.co/rest/v1/mb_records';
+const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqbGxydmJrd2dsZ2NueHRlZW54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyOTg3NjQsImV4cCI6MjEwODg3NDc2NH0.sg3XKEJZhXAf6n9cR3PvMQXTFpbXID3wNEB3lr7a9Ao';
+const STORE = 'https://qjllrvbkwglgcnxteenx.supabase.co/storage/v1/object/public/';
+const q = new URLSearchParams(location.search);
+const ID = (q.get('id') || '').replace(/[^a-z0-9-]/gi, '');
+let L = ['ru','tm','en'].includes(q.get('lang')) ? q.get('lang') : (navigator.language||'').startsWith('tk') ? 'tm' : 'ru';
+
+const TXT = {
+  ru:{web:'Открыть на сайте', open:'Открыть в приложении', get:'Скачать Alpha Drive', note:'Номер продавца, звонок и WhatsApp — после бесплатной регистрации на сайте или в приложении.',
+      none:'Объявление не найдено', noneP:'Возможно, его сняли с публикации.', net:'Нет связи с сервером. Проверьте интернет.', back:'Смотреть все объявления',
+      brand:'Марка', model:'Модель', year:'Год', km:'Пробег', fuel:'Топливо', gear:'Коробка', body:'Кузов', engine:'Двигатель', credit:'Кредит', swap:'Обмен', yes:'✓ Есть', no:'✗ Нет', neg:'Договорная', kmU:'км', video:'видео'},
+  tm:{web:'Saýtda aç', open:'Programmada aç', get:'Alpha Drive-y ýükle', note:'Satyjynyň belgisi, jaň we WhatsApp — saýtda ýa-da programmada mugt hasaba alnandan soň.',
+      none:'Bildiriş tapylmady', noneP:'Belki, ol aýrylandyr.', net:'Serwer bilen baglanyşyk ýok. Interneti barlaň.', back:'Ähli bildirişlere seret',
+      brand:'Marka', model:'Model', year:'Ýyly', km:'Geçen ýoly', fuel:'Ýangyç', gear:'Geçiriji', body:'Kuzow', engine:'Hereketlendiriji', credit:'Kredit', swap:'Çalyşmak', yes:'✓ Bar', no:'✗ Ýok', neg:'Ylalaşyk boýunça', kmU:'km', video:'wideo'},
+  en:{web:'Open on the website', open:'Open in the app', get:'Download Alpha Drive', note:'The seller\'s phone, call and WhatsApp are shown after free sign-up on the website or in the app.',
+      none:'Listing not found', noneP:'It may have been removed.', net:'No connection to the server. Check the internet.', back:'See all listings',
+      brand:'Make', model:'Model', year:'Year', km:'Mileage', fuel:'Fuel', gear:'Gearbox', body:'Body', engine:'Engine', credit:'Credit', swap:'Trade-in', yes:'✓ Yes', no:'✗ No', neg:'Negotiable', kmU:'km', video:'video'}
+};
+const t = k => TXT[L][k];
+// Значения из объявления (топливо, коробка, кузов, регионы) на туркменском и английском
+const VAL = {
+  'Бензин':['Benzin','Petrol'], 'Дизель':['Dizel','Diesel'], 'Газ/бензин':['Gaz/benzin','Gas/petrol'], 'Гибрид':['Gibrid','Hybrid'], 'Электро':['Elektrik','Electric'],
+  'АКПП':['Awtomat','Automatic'], 'МКПП':['Mehaniki','Manual'], 'Вариатор':['Wariator','CVT'], 'Робот':['Robot','Robotic'],
+  'Седан':['Sedan','Sedan'], 'Внедорожник':['Ýolsuzlyk ulagy','SUV'], 'Хэтчбек':['Hetçbek','Hatchback'], 'Универсал':['Uniwersal','Estate'], 'Минивэн':['Miniwen','Minivan'], 'Пикап':['Pikap','Pickup'],
+  'Ашхабад':['Aşgabat','Ashgabat'], 'Аркадаг':['Arkadag','Arkadag'], 'Ахалский велаят':['Ahal welaýaty','Ahal province'], 'Балканский велаят':['Balkan welaýaty','Balkan province'],
+  'Дашогузский велаят':['Daşoguz welaýaty','Dashoguz province'], 'Лебапский велаят':['Lebap welaýaty','Lebap province'], 'Марыйский велаят':['Mary welaýaty','Mary province'],
+  'Багтыярлык':['Bagtyýarlyk','Bagtyyarlyk'], 'Беркарарлык':['Berkararlyk','Berkararlyk'], 'Бузмеин':['Büzmeýin','Buzmeyin'], 'Копетдаг':['Köpetdag','Kopetdag'],
+  'Мары':['Mary','Mary'], 'Дашогуз':['Daşoguz','Dashoguz'], 'Туркменабат':['Türkmenabat','Turkmenabat'], 'Балканабат':['Balkanabat','Balkanabat'], 'Туркменбаши':['Türkmenbaşy','Turkmenbashi']
+};
+const tv = v => L==='ru' || !VAL[v] ? v : VAL[v][L==='tm'?0:1];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = n => Number(n||0).toLocaleString('ru-RU').replace(/,/g,' ');
+const safe = (u, bucket) => typeof u === 'string' && u.startsWith(STORE + bucket + '/') ? u : '';
+
+let item = null;
+async function load(){
+  if (!ID) { item = {error:'none'}; return; }
+  try {
+    const r = await fetch(`${API}?coll=eq.listings&id=eq.${encodeURIComponent(ID)}&select=data`, {headers:{apikey:KEY, Authorization:'Bearer '+KEY}});
+    const rows = await r.json();
+    item = rows[0]?.data || {error:'none'};
+    if (item.status && item.status !== 'active') item = {error:'none'};
+  } catch { item = {error:'net'}; }
+}
+
+function draw(){
+  document.documentElement.lang = L==='tm' ? 'tk' : L;
+  document.getElementById('lang').innerHTML = ['tm','ru','en'].map(x=>`<a href="#" data-l="${x}" class="${x===L?'on':''}">${x.toUpperCase()}</a>`).join('');
+  const main = document.getElementById('main');
+  const appLink = `alphadrive://l/${ID}`;
+  if (item.error){
+    main.innerHTML = `<div class="empty"><div class="i">${item.error==='net'?'📡':'🔍'}</div><h1>${item.error==='net'?t('net'):t('none')}</h1><p>${item.error==='net'?'':t('noneP')}</p></div>
+      <div class="btns"><a class="btn" href="./">${t('back')}</a></div>`;
+    return;
+  }
+  const l = item, s = l.specs || {};
+  document.title = `${l.title} — Alpha Drive`;
+  const photos = (l.photos||[]).map(p=>safe(p,'media')).filter(Boolean);
+  const vid = safe(l.video, 'video');
+  const slides = photos.map(p=>`<img src="${esc(p)}" alt="">`).concat(vid ? [`<video src="${esc(vid)}" controls playsinline preload="metadata"></video>`] : []);
+  const price = !l.price || l.unit==='договорная' ? t('neg') : (l.unit==='от'?'от ':'') + fmt(l.price) + ' TMT';
+  const val = (k,v) => k==='credit'||k==='swap' ? `<span class="${v==='yes'?'ok':'bad'}">${v==='yes'?t('yes'):t('no')}</span>` : k==='km' ? fmt(v)+' '+t('kmU') : esc(tv(v));
+  const keys = ['brand','model','year','km','fuel','gear','body','engine','credit','swap'].filter(k => s[k]!=null && s[k]!=='');
+  main.innerHTML = `
+    ${slides.length?`<div class="gal"><div class="track" id="tr">${slides.join('')}</div><span class="count" id="cnt">1 / ${slides.length}</span></div>`:''}
+    <h1>${esc(l.title)}</h1>
+    <div class="price">${esc(price)}</div>
+    <div class="meta">📍 ${esc([l.place, l.reg].filter(Boolean).map(tv).join(', '))}${vid?' · ▶ '+t('video'):''}</div>
+    ${keys.length?`<div class="specs">${keys.map(k=>`<div class="spec"><div class="k">${t(k)}</div><div class="v">${val(k,s[k])}</div></div>`).join('')}</div>`:''}
+    ${l.desc?`<p class="desc">${esc(l.desc)}</p>`:''}
+    <div class="btns"><a class="btn" href="app/#l=${ID}">🌐 ${t('web')}</a><a class="btn ghost" href="${appLink}">📲 ${t('open')}</a><a class="btn ghost" href="./">⬇️ ${t('get')}</a></div>
+    <p class="note">${t('note')}</p>`;
+  const tr = document.getElementById('tr'), cnt = document.getElementById('cnt');
+  tr && tr.addEventListener('scroll', () => { cnt.textContent = `${Math.round(tr.scrollLeft/tr.clientWidth)+1} / ${slides.length}`; }, {passive:true});
+}
+
+document.getElementById('lang').addEventListener('click', e => { const a = e.target.closest('[data-l]'); if (!a) return; e.preventDefault(); L = a.dataset.l; draw(); });
+load().then(draw);
+</script>
+</body>
+</html>

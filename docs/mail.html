@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Alpha Drive — почта и пароль</title>
+<link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@600;800&display=swap">
+<style>
+/* Сюда ведут кнопки из писем: подтверждение почты и новый пароль */
+:root{--bg1:#0a0a0a;--bg3:#121210;--card:rgba(255,255,255,.07);--line:rgba(255,255,255,.14);--text:#fffbea;--dim:#bdb595;--accent:#ffd60a;--accent2:#ffb703;--ok:#34d399;--bad:#ff6b7a;
+  --font-d:'Unbounded','Arial Black',system-ui,sans-serif;--font-b:'Onest',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+*{box-sizing:border-box;margin:0}
+body{min-height:100vh;font-family:var(--font-b);color:var(--text);background:radial-gradient(900px 500px at 80% -10%,rgba(255,183,3,.14),transparent 60%),linear-gradient(160deg,var(--bg1),var(--bg3));
+  display:grid;place-items:center;padding:24px 16px}
+.box{width:100%;max-width:420px;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:26px;display:flex;flex-direction:column;gap:14px}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--font-d);font-weight:800}
+.brand img{width:38px;height:38px;border-radius:12px}
+.brand b{color:var(--accent)}
+h1{font-family:var(--font-d);font-weight:600;font-size:1.25rem;line-height:1.3}
+p{color:var(--dim);line-height:1.5}
+.icon{font-size:2.6rem}
+label{font-size:.85rem;color:var(--dim);display:block;margin-bottom:6px}
+input{width:100%;min-height:48px;padding:0 14px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--text);font:inherit;font-size:1rem}
+input:focus{outline:2px solid var(--accent);outline-offset:1px}
+button{min-height:52px;border:0;border-radius:16px;font:700 1rem var(--font-b);color:#141100;background:linear-gradient(135deg,var(--accent),var(--accent2));cursor:pointer}
+button:disabled{opacity:.6}
+.err{color:var(--bad);font-size:.9rem;min-height:1.2em}
+.ok{color:var(--ok)}
+.lang{display:flex;gap:6px;margin-left:auto}
+.lang a{color:var(--dim);font:600 .78rem var(--font-b);text-decoration:none;padding:6px 8px;border-radius:8px}
+.lang a.on{background:rgba(255,255,255,.12);color:var(--text)}
+</style>
+</head>
+<body>
+<main class="box" id="box"><div class="brand"><img src="logo.png" alt=""><span>Alpha <b>Drive</b></span></div><p>…</p></main>
+<script>
+const FN = 'https://qjllrvbkwglgcnxteenx.supabase.co/functions/v1/mail';
+const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqbGxydmJrd2dsZ2NueHRlZW54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyOTg3NjQsImV4cCI6MjEwODg3NDc2NH0.sg3XKEJZhXAf6n9cR3PvMQXTFpbXID3wNEB3lr7a9Ao';
+const q = new URLSearchParams(location.search);
+let L = ['ru','tm','en'].includes(q.get('lang')) ? q.get('lang') : 'ru';
+
+const TXT = {
+  ru:{wait:'Проверяем ссылку…', okT:'Почта подтверждена', okP:'Готово! Теперь можно входить в Alpha Drive по почте и восстанавливать пароль через письмо. Вернитесь в приложение.',
+      badT:'Ссылка устарела', badP:'Ссылка уже использована или прошло больше 24 часов. Отправьте новое письмо из приложения.',
+      takenP:'Эту почту уже подтвердил другой аккаунт.', netP:'Нет связи с сервером. Проверьте интернет и обновите страницу.',
+      resetT:'Новый пароль', pw:'Новый пароль', pw2:'Повторите пароль', save:'Сохранить пароль', short:'Пароль должен быть не короче 6 символов', diff:'Пароли не совпадают',
+      doneT:'Пароль изменён', doneP:'Войдите в приложение Alpha Drive с новым паролем.', noT:'Ссылка не найдена', noP:'Откройте страницу по кнопке из письма.'},
+  tm:{wait:'Salgylanma barlanýar…', okT:'E-poçta tassyklandy', okP:'Taýýar! Indi Alpha Drive-a e-poçta bilen girip we paroly hat arkaly dikeldip bilersiňiz. Programma gaýdyp geliň.',
+      badT:'Salgylanmanyň möhleti geçdi', badP:'Salgylanma eýýäm ulanyldy ýa-da 24 sagatdan köp wagt geçdi. Programmadan täze hat iberiň.',
+      takenP:'Bu e-poçtany eýýäm başga hasap tassyklady.', netP:'Serwer bilen baglanyşyk ýok. Interneti barlap, sahypany täzeläň.',
+      resetT:'Täze parol', pw:'Täze parol', pw2:'Paroly gaýtalaň', save:'Paroly ýatda sakla', short:'Parol 6 harpdan gysga bolmaly däl', diff:'Parollar gabat gelmeýär',
+      doneT:'Parol çalşyldy', doneP:'Alpha Drive programmasyna täze parol bilen giriň.', noT:'Salgylanma tapylmady', noP:'Sahypany hatdaky düwme arkaly açyň.'},
+  en:{wait:'Checking the link…', okT:'Email confirmed', okP:'Done! You can now sign in to Alpha Drive with email and recover your password by email. Go back to the app.',
+      badT:'The link has expired', badP:'The link was already used or more than 24 hours have passed. Send a new email from the app.',
+      takenP:'Another account has already confirmed this email.', netP:'No connection to the server. Check the internet and reload the page.',
+      resetT:'New password', pw:'New password', pw2:'Repeat password', save:'Save password', short:'The password must be at least 6 characters', diff:'Passwords do not match',
+      doneT:'Password changed', doneP:'Sign in to the Alpha Drive app with your new password.', noT:'Link not found', noP:'Open this page using the button in the email.'}
+};
+const t = k => TXT[L][k];
+const head = () => `<div class="brand"><img src="logo.png" alt=""><span>Alpha <b>Drive</b></span><nav class="lang">${['tm','ru','en'].map(x=>`<a href="#" data-l="${x}" class="${x===L?'on':''}">${x.toUpperCase()}</a>`).join('')}</nav></div>`;
+const box = document.getElementById('box');
+const show = (icon, title, text, cls='') => { box.innerHTML = head() + `<div class="icon">${icon}</div><h1 class="${cls}">${title}</h1><p>${text}</p>`; };
+box.addEventListener('click', e => { const a = e.target.closest('[data-l]'); if (!a) return; e.preventDefault(); L = a.dataset.l; run(); });
+
+async function call(body){
+  const r = await fetch(FN, {method:'POST', headers:{'Content-Type':'application/json', apikey:KEY, Authorization:'Bearer '+KEY}, body:JSON.stringify(body)});
+  return r.json();
+}
+
+let verified = null;
+async function run(){
+  document.documentElement.lang = L==='tm' ? 'tk' : L;
+  if (q.get('verify')){
+    if (verified) return showVerify(verified);
+    show('⏳', t('wait'), '');
+    try { verified = await call({action:'verify', token:q.get('verify')}); } catch { verified = {error:'net'}; }
+    showVerify(verified);
+  } else if (q.get('reset')){
+    if (box.dataset.done) return show('✅', t('doneT'), t('doneP'), 'ok');
+    box.innerHTML = head() + `<h1>${t('resetT')}</h1><form id="f" style="display:flex;flex-direction:column;gap:12px">
+      <div><label for="pw">${t('pw')}</label><input id="pw" type="password" autocomplete="new-password" minlength="6" required></div>
+      <div><label for="pw2">${t('pw2')}</label><input id="pw2" type="password" autocomplete="new-password" required></div>
+      <div class="err" id="err"></div><button id="b">${t('save')}</button></form>`;
+    document.getElementById('f').addEventListener('submit', async e => {
+      e.preventDefault();
+      const pw = document.getElementById('pw').value, pw2 = document.getElementById('pw2').value, err = document.getElementById('err'), b = document.getElementById('b');
+      if (pw.length < 6) return err.textContent = t('short');
+      if (pw !== pw2) return err.textContent = t('diff');
+      b.disabled = true;
+      let r; try { r = await call({action:'reset', token:q.get('reset'), password:pw}); } catch { r = {error:'net'}; }
+      if (r.ok){ box.dataset.done = 1; show('✅', t('doneT'), t('doneP'), 'ok'); }
+      else if (r.error==='net') { err.textContent = t('netP'); b.disabled = false; }
+      else show('⌛', t('badT'), t('badP'));
+    });
+  } else show('🔗', t('noT'), t('noP'));
+}
+function showVerify(r){
+  if (r.ok) show('✅', t('okT'), t('okP') + (r.email ? `<br><br><b style="color:var(--text)">${r.email.replace(/[<>&]/g,'')}</b>` : ''), 'ok');
+  else if (r.error==='taken') show('⚠️', t('badT'), t('takenP'));
+  else if (r.error==='net') show('📡', t('badT'), t('netP'));
+  else show('⌛', t('badT'), t('badP'));
+}
+run();
+</script>
+</body>
+</html>

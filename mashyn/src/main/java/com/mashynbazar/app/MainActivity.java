@@ -53,17 +53,19 @@ public class MainActivity extends Activity {
         });
 
         webView.setWebChromeClient(new WebChromeClient() {
-            // Выбор фото для объявления (можно несколько)
+            // Выбор фото (можно несколько) или одного видео для объявления
             @Override
             public boolean onShowFileChooser(WebView view, ValueCallback<Uri[]> callback, FileChooserParams params) {
                 if (fileCallback != null) fileCallback.onReceiveValue(null);
                 fileCallback = callback;
+                String[] accept = params.getAcceptTypes();
+                boolean video = accept != null && accept.length > 0 && accept[0].startsWith("video");
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.setType("image/*");
+                intent.setType(video ? "video/*" : "image/*");
                 intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, params.getMode() == FileChooserParams.MODE_OPEN_MULTIPLE);
                 try {
-                    startActivityForResult(Intent.createChooser(intent, "Выберите фото"), REQ_PICK);
+                    startActivityForResult(Intent.createChooser(intent, video ? "Выберите видео" : "Выберите фото"), REQ_PICK);
                 } catch (ActivityNotFoundException e) {
                     fileCallback = null;
                     return false;
@@ -98,6 +100,21 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void seen(double time) { NotifyJob.markSeen(MainActivity.this, (long) time); }
 
+        /** Обычное меню «Поделиться» телефона: IMO, Telegram, WhatsApp и любые другие приложения. */
+        @JavascriptInterface
+        public void share(String text) {
+            Intent send = new Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, text);
+            startActivity(Intent.createChooser(send, "Поделиться объявлением"));
+        }
+
+        /** Приложение открыли по ссылке alphadrive://l/<id> — id объявления (страница спрашивает один раз при запуске). */
+        @JavascriptInterface
+        public String openedListing() {
+            String id = listingId(getIntent());
+            getIntent().setData(null);
+            return id;
+        }
+
         /** Приложение открыли нажатием на уведомление (страница спрашивает один раз при запуске). */
         @JavascriptInterface
         public boolean openedFromNotif() {
@@ -107,11 +124,21 @@ public class MainActivity extends Activity {
         }
     }
 
-    // Нажали на уведомление — открываем список уведомлений в приложении
+    // Ссылка вида alphadrive://l/<id> → id объявления (только буквы, цифры и дефис)
+    private static String listingId(Intent intent) {
+        Uri data = intent == null ? null : intent.getData();
+        if (data == null || !"alphadrive".equals(data.getScheme()) || !"l".equals(data.getHost())) return "";
+        String id = data.getLastPathSegment();
+        return id != null && id.matches("[A-Za-z0-9-]{1,64}") ? id : "";
+    }
+
+    // Приложение уже открыто: нажали на уведомление или на ссылку объявления
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         if (intent.getBooleanExtra("openNotifs", false)) webView.evaluateJavascript("window.mbOpenNotifs && window.mbOpenNotifs()", null);
+        String id = listingId(intent);
+        if (!id.isEmpty()) webView.evaluateJavascript("window.mbOpenListing && window.mbOpenListing('" + id + "')", null);
     }
 
     private boolean openExternal(Uri uri) {

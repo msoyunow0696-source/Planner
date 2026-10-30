@@ -48,6 +48,7 @@ h1 span{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-b
 .btn{display:inline-flex;align-items:center;gap:12px;min-height:58px;padding:0 26px;border-radius:18px;text-decoration:none;font-weight:700;font-size:1.05rem;color:#141100;
   background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 12px 32px -10px rgba(255,214,10,.45);transition:transform .15s}
 .btn:hover{transform:translateY(-2px)}
+.btn.ghost{background:var(--card);color:var(--text);border:1px solid var(--line);box-shadow:none}
 .btn:active{transform:none}
 .btn small{display:block;font-weight:500;font-size:.78rem;opacity:.85}
 .ver{color:var(--dim);font-size:.85rem}
@@ -111,6 +112,10 @@ footer{border-top:1px solid var(--line);padding:22px 0 32px;color:var(--dim);fon
           <svg class="i" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
           <span><span data-t="btn">Скачать для Android</span><small data-t="free">Бесплатно · APK</small></span>
         </a>
+        <a class="btn ghost" href="app/">
+          <svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></svg>
+          <span><span data-t="webBtn">Веб-версия</span><small data-t="webSub">iPhone и компьютер · без установки</small></span>
+        </a>
         <span class="ver" id="ver"></span>
       </div>
     </div>
@@ -145,7 +150,7 @@ footer{border-top:1px solid var(--line);padding:22px 0 32px;color:var(--dim);fon
 const TM = {
   h1:'Maşynlar, tehnika we iş — <span>bir ýerde</span>',
   lead:'Türkmenistanyň ähli ýerinde awtoulag satyň we satyn alyň, ýörite tehnika sargyt ediň, şaý, awtoserwis we sürüji işini tapyň.',
-  btn:'Android üçin ýükle', free:'Mugt · APK',
+  btn:'Android üçin ýükle', free:'Mugt · APK', webBtn:'Web-wersiýa', webSub:'iPhone we kompýuter · gurnamazdan',
   qrT:'Kompýuterde açdyňyzmy?', qrP:'Telefonyň kamerasyny koda tutuň — bu sahypa açylar we programmany ýükläp bilersiňiz.',
   featT:'Programmada näme bar', f1:'Awtoulaglar we getirmek', f1p:'Türkmenistandaky we daşary ýurtdan maşynlar, doly bahasy bilen',
   f2:'Tehnika we hyzmatlar', f2p:'Kranlar, samoswallar, ewakuatorlar, refrižeratorlar',
