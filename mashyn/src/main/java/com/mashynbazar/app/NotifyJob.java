@@ -115,7 +115,7 @@ public class NotifyJob extends JobService {
         if (list.length() == 0) return;
 
         NotificationManager nm = getSystemService(NotificationManager.class);
-        nm.createNotificationChannel(new NotificationChannel(CHANNEL, "Уведомления Maşyn Bazar", NotificationManager.IMPORTANCE_DEFAULT));
+        nm.createNotificationChannel(new NotificationChannel(CHANNEL, "Уведомления Alpha Drive", NotificationManager.IMPORTANCE_DEFAULT));
         PendingIntent open = PendingIntent.getActivity(this, 0,
             new Intent(this, MainActivity.class).putExtra("openNotifs", true).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP),
             PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
@@ -126,7 +126,7 @@ public class NotifyJob extends JobService {
             newest = Math.max(newest, n.optLong("n_time"));
             Notification note = new Notification.Builder(this, CHANNEL)
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setContentTitle("Maşyn Bazar")
+                .setContentTitle("Alpha Drive")
                 .setContentText(n.optString("n_text"))
                 .setStyle(new Notification.BigTextStyle().bigText(n.optString("n_text")))
                 .setContentIntent(open)

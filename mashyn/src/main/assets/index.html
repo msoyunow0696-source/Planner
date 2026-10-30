@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}img{max-width:100%}</style></head><body>
-<title>Maşyn Bazar</title>
+<title>Alpha Drive</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@500;700;800&display=swap">
@@ -18,6 +18,7 @@
   --shadow:0 10px 30px rgba(0,0,0,.35);
   color-scheme:dark;
 }
+body[data-t="alpha"]{--bg1:#0a0a0a;--bg2:#1f1c10;--bg3:#121210;--accent:#ffd60a;--accent2:#ffb703;--text:#fffbea;--dim:#bdb595;--on:#141100;--glow:rgba(255,214,10,.28)}
 body[data-t="emerald"]{--bg1:#01140e;--bg2:#0b4a36;--bg3:#04271c;--accent:#e9c45b;--accent2:#34d399;--text:#eafff6;--dim:#9ccab9;--on:#1f1700;--glow:rgba(233,196,91,.3)}
 body[data-t="gold"]{--bg1:#070707;--bg2:#2e230b;--bg3:#121008;--accent:#f6c343;--accent2:#ff9f1c;--text:#fff8e8;--dim:#c2b28e;--on:#1b1200;--glow:rgba(246,195,67,.3)}
 body[data-t="ocean"]{--bg1:#03101c;--bg2:#0b4466;--bg3:#061f33;--accent:#3fe3f7;--accent2:#6ee7b7;--text:#e9fbff;--dim:#92bccc;--on:#00262f;--glow:rgba(63,227,247,.3)}
@@ -45,6 +46,7 @@ h2{font-size:1.15rem}h3{font-size:1rem}
 .logo{font-family:var(--font-d);font-weight:800;font-size:1.15rem;letter-spacing:-.02em;display:flex;align-items:center;gap:8px;white-space:nowrap}
 .logo b{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
 .logo-mark{width:30px;height:30px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;color:var(--on);flex:none}
+img.logo-mark{object-fit:cover;background:#121210}
 .top-title{font-family:var(--font-d);font-weight:700;font-size:1rem;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .icon-btn{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;background:var(--card);border:1px solid var(--line);flex:none;position:relative}
 .icon-btn svg{width:20px;height:20px}
@@ -227,7 +229,7 @@ body[data-t="light"] .sheet-foot{background:#fff}
 .menu button:last-child{border:0}
 .menu svg{width:20px;height:20px;color:var(--accent);flex:none}
 .menu .grow{flex:1;min-width:0}
-.themes{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.themes{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
 .th-sw{aspect-ratio:1;max-width:100%;border-radius:14px;border:2px solid transparent;position:relative;overflow:hidden}
 .th-sw.on{border-color:var(--text)}
 .th-sw span{position:absolute;right:6px;bottom:6px;width:14px;height:14px;border-radius:50%}
@@ -550,6 +552,7 @@ const PROMOS = [
 const REASONS = ['Мошенничество','Неверная цена','Уже продано','Оскорбления','Спам','Другое'];
 const DAY = 864e5;
 const THEMES = [
+  {k:'alpha',n:'Alpha',a:'#0a0a0a',b:'#1f1c10',c:'#ffd60a'},
   {k:'night',n:'Ночь',a:'#0f0c29',b:'#302b63',c:'#a78bfa'},
   {k:'emerald',n:'Изумруд',a:'#01140e',b:'#0b4a36',c:'#e9c45b'},
   {k:'gold',n:'Золото',a:'#070707',b:'#2e230b',c:'#f6c343'},
@@ -628,7 +631,7 @@ const loginOf = phone => String(phone).replace(/\D/g,'') + '@phone.mashyn.app';
 const ser = (coll, r) => JSON.stringify(r, (k, v) => k.startsWith('_') || (coll==='users' && k==='email') ? undefined : v);
 const sharedSettings = () => { const {theme, lang, ...rest} = S.settings; return rest; };
 
-function saveLocal(){ try{ localStorage.setItem(LS, JSON.stringify({favs:S.favs, fails:S.fails, theme:S.settings.theme, lang:S.settings.lang})); }catch{} }
+function saveLocal(){ try{ localStorage.setItem(LS, JSON.stringify({favs:S.favs, fails:S.fails, theme:S.settings.theme, lang:S.settings.lang, alpha:1})); }catch{} }
 
 async function pull(){
   const rows = [];
@@ -777,7 +780,7 @@ function renderBar(title){
   const unread = u ? S.notifs.filter(n=>n.uid===u.id && !n.read).length : 0;
   const left = stack.length>1
     ? `<button class="icon-btn" data-a="back" aria-label="${t('back')}">${ic('back')}</button><div class="top-title">${esc(title||'')}</div>`
-    : `<div class="logo"><span class="logo-mark">${ic('car','style="width:18px;height:18px"')}</span><span>Maşyn <b>Bazar</b></span></div><div class="spacer"></div>`;
+    : `<div class="logo"><img class="logo-mark" src="logo.png" alt=""><span>Alpha <b>Drive</b></span></div><div class="spacer"></div>`;
   $('#appbar').innerHTML = `<div class="wrap">${left}
     <button class="icon-btn" data-a="lang" aria-label="${t('language')}" style="font-weight:700;font-size:.72rem">${LANG==='ru'?'RU':'TM'}</button>
     <button class="icon-btn" data-a="notifs" aria-label="${t('notifs')}">${ic('bell')}${unread?'<span class="dot"></span>':''}</button></div>`;
@@ -1060,7 +1063,7 @@ const SCREENS = {
     const by = state.authBy || 'phone';
     return {title: reg?t('register'):t('login'), html:`
       <div class="col" style="align-items:center;text-align:center;gap:8px;padding-top:6px"><div class="logo-mark" style="width:58px;height:58px;border-radius:20px">${ic('car','style="width:30px;height:30px"')}</div>
-        <h1 style="font-size:1.3rem">${reg?'Создать аккаунт':'Вход в Maşyn Bazar'}</h1><p class="small dim" style="margin:0">${reg?'Регистрация бесплатная. Платить нужно только за объявления.':'Войдите по номеру телефона или почте'}</p></div>
+        <h1 style="font-size:1.3rem">${reg?'Создать аккаунт':'Вход в Alpha Drive'}</h1><p class="small dim" style="margin:0">${reg?'Регистрация бесплатная. Платить нужно только за объявления.':'Войдите по номеру телефона или почте'}</p></div>
       <div class="seg"><button class="${!reg?'on':''}" data-a="auth" data-v="login">${t('login')}</button><button class="${reg?'on':''}" data-a="auth" data-v="register">${t('register')}</button></div>
       <form id="authf" class="col" novalidate>
         ${reg?`<div class="field"><label for="a_name">${t('name')}</label><input class="inp" id="a_name" autocomplete="name" placeholder="Мердан"></div>
@@ -1565,7 +1568,7 @@ document.addEventListener('keydown', e => { if (e.key==='Escape') back(); if ((e
   try { local = JSON.parse(localStorage.getItem(LS)) || {}; } catch {}
   try { localStorage.removeItem('mb_store_v1'); } catch {}   // старые демо-данные прототипа
   S = {users:[], listings:[], comments:[], complaints:[], payments:[], subs:[], notifs:[], session:null,
-    favs:local.favs||{}, fails:local.fails||{}, settings:{...DEFAULT_SETTINGS, theme:local.theme||'night', lang:local.lang||'ru'}};
+    favs:local.favs||{}, fails:local.fails||{}, settings:{...DEFAULT_SETTINGS, theme:local.alpha&&local.theme||'alpha', lang:local.lang||'ru'}};
   LANG = S.settings.lang;
   document.body.dataset.t = S.settings.theme;
   render();
