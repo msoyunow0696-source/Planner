@@ -238,7 +238,7 @@ const FEATURE_ACTIONS = {
    статистика продавца и «Поделиться»
    ===================================================== */
 const APP_VERSION = '1.2';
-const SITE_URL = 'https://msoyunow0696-source.github.io/Planner/';
+const SITE_URL = 'https://alphadrive.pages.dev/';
 
 /* ================== Поддержка ================== */
 const SUP_TOPICS = ['Вопрос', 'Проблема в приложении', 'Оплата', 'Мошенник или обман', 'Предложение'];

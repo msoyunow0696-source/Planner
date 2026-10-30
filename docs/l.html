@@ -7,7 +7,7 @@
 <meta name="description" content="Объявление в Alpha Drive — автомаркет Туркменистана">
 <meta property="og:title" content="Объявление в Alpha Drive">
 <meta property="og:description" content="Машины, техника и работа — в одном месте. Откройте, чтобы посмотреть фото и цену.">
-<meta property="og:image" content="https://msoyunow0696-source.github.io/Planner/logo.png">
+<meta property="og:image" content="https://alphadrive.pages.dev/logo.png">
 <link rel="icon" href="logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@600;800&display=swap">
@@ -64,13 +64,13 @@ let L = ['ru','tm','en'].includes(q.get('lang')) ? q.get('lang') : (navigator.la
 const TXT = {
   ru:{web:'Открыть на сайте', open:'Открыть в приложении', get:'Скачать Alpha Drive', note:'Номер продавца, звонок и WhatsApp — после бесплатной регистрации на сайте или в приложении.',
       none:'Объявление не найдено', noneP:'Возможно, его сняли с публикации.', net:'Нет связи с сервером. Проверьте интернет.', back:'Смотреть все объявления',
-      brand:'Марка', model:'Модель', year:'Год', km:'Пробег', fuel:'Топливо', gear:'Коробка', body:'Кузов', engine:'Двигатель', credit:'Кредит', swap:'Обмен', yes:'✓ Есть', no:'✗ Нет', neg:'Договорная', kmU:'км', video:'видео'},
+      brand:'Марка', model:'Модель', year:'Год', km:'Пробег', fuel:'Топливо', gear:'Коробка', body:'Кузов', engine:'Двигатель', credit:'Кредит', swap:'Обмен', yes:'✓ Есть', no:'✗ Нет', neg:'Договорная', kmU:'км', video:'видео', from:'от {n} TMT'},
   tm:{web:'Saýtda aç', open:'Programmada aç', get:'Alpha Drive-y ýükle', note:'Satyjynyň belgisi, jaň we WhatsApp — saýtda ýa-da programmada mugt hasaba alnandan soň.',
       none:'Bildiriş tapylmady', noneP:'Belki, ol aýrylandyr.', net:'Serwer bilen baglanyşyk ýok. Interneti barlaň.', back:'Ähli bildirişlere seret',
-      brand:'Marka', model:'Model', year:'Ýyly', km:'Geçen ýoly', fuel:'Ýangyç', gear:'Geçiriji', body:'Kuzow', engine:'Hereketlendiriji', credit:'Kredit', swap:'Çalyşmak', yes:'✓ Bar', no:'✗ Ýok', neg:'Ylalaşyk boýunça', kmU:'km', video:'wideo'},
+      brand:'Marka', model:'Model', year:'Ýyly', km:'Geçen ýoly', fuel:'Ýangyç', gear:'Geçiriji', body:'Kuzow', engine:'Hereketlendiriji', credit:'Kredit', swap:'Çalyşmak', yes:'✓ Bar', no:'✗ Ýok', neg:'Ylalaşyk boýunça', kmU:'km', video:'wideo', from:'{n} TMT-den'},
   en:{web:'Open on the website', open:'Open in the app', get:'Download Alpha Drive', note:'The seller\'s phone, call and WhatsApp are shown after free sign-up on the website or in the app.',
       none:'Listing not found', noneP:'It may have been removed.', net:'No connection to the server. Check the internet.', back:'See all listings',
-      brand:'Make', model:'Model', year:'Year', km:'Mileage', fuel:'Fuel', gear:'Gearbox', body:'Body', engine:'Engine', credit:'Credit', swap:'Trade-in', yes:'✓ Yes', no:'✗ No', neg:'Negotiable', kmU:'km', video:'video'}
+      brand:'Make', model:'Model', year:'Year', km:'Mileage', fuel:'Fuel', gear:'Gearbox', body:'Body', engine:'Engine', credit:'Credit', swap:'Trade-in', yes:'✓ Yes', no:'✗ No', neg:'Negotiable', kmU:'km', video:'video', from:'from {n} TMT'}
 };
 const t = k => TXT[L][k];
 // Значения из объявления (топливо, коробка, кузов, регионы) на туркменском и английском
@@ -81,7 +81,9 @@ const VAL = {
   'Ашхабад':['Aşgabat','Ashgabat'], 'Аркадаг':['Arkadag','Arkadag'], 'Ахалский велаят':['Ahal welaýaty','Ahal province'], 'Балканский велаят':['Balkan welaýaty','Balkan province'],
   'Дашогузский велаят':['Daşoguz welaýaty','Dashoguz province'], 'Лебапский велаят':['Lebap welaýaty','Lebap province'], 'Марыйский велаят':['Mary welaýaty','Mary province'],
   'Багтыярлык':['Bagtyýarlyk','Bagtyyarlyk'], 'Беркарарлык':['Berkararlyk','Berkararlyk'], 'Бузмеин':['Büzmeýin','Buzmeyin'], 'Копетдаг':['Köpetdag','Kopetdag'],
-  'Мары':['Mary','Mary'], 'Дашогуз':['Daşoguz','Dashoguz'], 'Туркменабат':['Türkmenabat','Turkmenabat'], 'Балканабат':['Balkanabat','Balkanabat'], 'Туркменбаши':['Türkmenbaşy','Turkmenbashi']
+  'Мары':['Mary','Mary'], 'Дашогуз':['Daşoguz','Dashoguz'], 'Туркменабат':['Türkmenabat','Turkmenabat'], 'Балканабат':['Balkanabat','Balkanabat'], 'Туркменбаши':['Türkmenbaşy','Turkmenbashi'],
+  // Этрапы — те же названия, что в приложении (i18n.js)
+  'Ак бугдайский этрап':['Ak bugdaý etraby','Ak Bugday district'], 'Алтынасырский этрап':['Altyn asyr etraby','Altyn Asyr district'], 'Бабадайханский этрап':['Babadaýhan etraby','Babadayhan district'], 'Бахарденский этрап':['Bäherden etraby','Baherden district'], 'Гёкдепинский этрап':['Gökdepe etraby','Gokdepe district'], 'Каахкинский этрап':['Kaka etraby','Kaka district'], 'Сарахский этрап':['Sarahs etraby','Sarahs district'], 'Тедженский этрап':['Tejen etraby','Tejen district'], 'Берекетский этрап':['Bereket etraby','Bereket district'], 'Магтымгулыйский этрап':['Magtymguly etraby','Magtymguly district'], 'Туркменбашинский этрап':['Türkmenbaşy etraby','Turkmenbashi district'], 'Эсенгулыйский этрап':['Esenguly etraby','Esenguly district'], 'Гызыларбатский этрап':['Gyzylarbat etraby','Gyzylarbat district'], 'Этрекский этрап':['Etrek etraby','Etrek district'], 'Акдепинский этрап':['Akdepe etraby','Akdepe district'], 'Болдумсазский этрап':['Boldumsaz etraby','Boldumsaz district'], 'Гёроглынский этрап':['Görogly etraby','Gorogly district'], 'Губадагский этрап':['Gubadag etraby','Gubadag district'], 'Кёнеургенчский этрап':['Köneürgenç etraby','Koneurgench district'], 'Рухубелентский этрап':['Ruhubelent etraby','Ruhubelent district'], 'Шабатский этрап':['Şabat etraby','Shabat district'], 'Гарашсызлыкский этрап':['Garaşsyzlyk etraby','Garashsyzlyk district'], 'Этрап Сапармурата Туркменбаши':['S. A. Nyýazow adyndaky etrap','Saparmurat Turkmenbashi district'], 'Дарганатинский этрап':['Darganata etraby','Darganata district'], 'Довлетлийский этрап':['Döwletli etraby','Dowletli district'], 'Дянёвский этрап':['Dänew etraby','Danew district'], 'Керкинский этрап':['Kerki etraby','Kerki district'], 'Койтендагский этрап':['Köýtendag etraby','Koytendag district'], 'Саятский этрап':['Saýat etraby','Sayat district'], 'Фарабский этрап':['Farap etraby','Farap district'], 'Халачский этрап':['Halaç etraby','Halach district'], 'Ходжамбазский этрап':['Hojambaz etraby','Hojambaz district'], 'Чарджевский этрап':['Çärjew etraby','Charjew district'], 'Гарабекевюлский этрап':['Garabekewül etraby','Garabekewul district'], 'Байрамалийский этрап':['Baýramaly etraby','Bayramaly district'], 'Векильбазарский этрап':['Wekilbazar etraby','Wekilbazar district'], 'Марыйский этрап':['Mary etraby','Mary district'], 'Мургапский этрап':['Murgap etraby','Murgap district'], 'Огузханский этрап':['Oguzhan etraby','Oguzhan district'], 'Сакарчагинский этрап':['Sakarçäge etraby','Sakarchage district'], 'Тагтабазарский этрап':['Tagtabazar etraby','Tagtabazar district'], 'Туркменгалинский этрап':['Türkmengala etraby','Turkmengala district'], 'Ёлётенский этрап':['Ýolöten etraby','Yoloten district'], 'Гарагумский этрап':['Garagum etraby','Garagum district']
 };
 const tv = v => L==='ru' || !VAL[v] ? v : VAL[v][L==='tm'?0:1];
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -114,7 +116,7 @@ function draw(){
   const photos = (l.photos||[]).map(p=>safe(p,'media')).filter(Boolean);
   const vid = safe(l.video, 'video');
   const slides = photos.map(p=>`<img src="${esc(p)}" alt="">`).concat(vid ? [`<video src="${esc(vid)}" controls playsinline preload="metadata"></video>`] : []);
-  const price = !l.price || l.unit==='договорная' ? t('neg') : (l.unit==='от'?'от ':'') + fmt(l.price) + ' TMT';
+  const price = !l.price || l.unit==='договорная' ? t('neg') : (l.unit==='от' ? t('from').replace('{n}', fmt(l.price)) : fmt(l.price) + ' TMT');
   const val = (k,v) => k==='credit'||k==='swap' ? `<span class="${v==='yes'?'ok':'bad'}">${v==='yes'?t('yes'):t('no')}</span>` : k==='km' ? fmt(v)+' '+t('kmU') : esc(tv(v));
   const keys = ['brand','model','year','km','fuel','gear','body','engine','credit','swap'].filter(k => s[k]!=null && s[k]!=='');
   main.innerHTML = `

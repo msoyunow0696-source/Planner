@@ -593,6 +593,19 @@ const THEMES = [
 /* ================== Утилиты ================== */
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+// Коды стран для регистрации: Туркменистан первым, дальше — где чаще живут и работают туркменистанцы
+const COUNTRIES = [
+  {cc:'993', flag:'🇹🇲', ph:'65 123456', re:/^6\d{7}$/},
+  {cc:'7', flag:'🇷🇺', ph:'900 123 45 67', re:/^[3-9]\d{9}$/},
+  {cc:'90', flag:'🇹🇷', ph:'532 123 45 67', re:/^5\d{9}$/},
+  {cc:'998', flag:'🇺🇿', ph:'90 123 45 67', re:/^\d{9}$/},
+  {cc:'971', flag:'🇦🇪', ph:'50 123 4567', re:/^5\d{8}$/},
+  {cc:'375', flag:'🇧🇾', ph:'29 123 45 67', re:/^\d{9}$/},
+  {cc:'380', flag:'🇺🇦', ph:'50 123 45 67', re:/^\d{9}$/}
+];
+const ccOf = cc => COUNTRIES.find(c=>c.cc===cc) || COUNTRIES[0];
+// Те же слова, что запрещает сервер: нельзя выдавать себя за администрацию
+const RESERVED_NAME = /(admin|админ|модератор|moderator|поддержк|support|alpha ?drive|administrator|администрац)/i;
 const fmt = n => Number(n||0).toLocaleString('ru-RU').replace(/,/g,' ');
 const now = () => Date.now() + (S?.settings?.shift||0);
 const uid = () => Math.random().toString(36).slice(2,12);
@@ -1119,7 +1132,7 @@ const SCREENS = {
           <div class="field"><label>Тип аккаунта</label><div class="seg"><button type="button" class="${(state.acType||'person')==='person'?'on':''}" data-a="actype" data-v="person">Частное лицо</button><button type="button" class="${state.acType==='company'?'on':''}" data-a="actype" data-v="company">Компания</button></div></div>
           ${state.acType==='company'?`<div class="field"><label for="a_comp">Название компании</label><input class="inp" id="a_comp" placeholder="Aşgabat Motors"></div>`:''}`:''}
         ${!reg?`<div class="seg"><button type="button" class="${by==='phone'?'on':''}" data-a="authby" data-v="phone">По телефону</button><button type="button" class="${by==='email'?'on':''}" data-a="authby" data-v="email">По почте</button></div>`:''}
-        ${reg||by==='phone'?`<div class="field"><label for="a_phone">${t('phone')}</label><div class="row"><span class="chip" style="min-height:48px;border-radius:14px">+993</span><input class="inp num" id="a_phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="65 123456" maxlength="11"></div></div>`:''}
+        ${reg||by==='phone'?`<div class="field"><label for="a_phone">${t('phone')}</label><div class="row"><select class="inp" id="a_cc" aria-label="Код страны" style="flex:0 0 auto;width:auto;min-width:104px">${COUNTRIES.map(c=>`<option value="${c.cc}" ${(state.cc||'993')===c.cc?'selected':''}>${c.flag} +${c.cc}</option>`).join('')}</select><input class="inp num" id="a_phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="${ccOf(state.cc).ph}" maxlength="16" style="flex:1;min-width:0"></div></div>`:''}
         ${reg||by==='email'?`<div class="field"><label for="a_email">${t('email')}${reg?' (по желанию — придёт письмо для подтверждения)':''}</label><input class="inp" id="a_email" type="email" autocomplete="email" placeholder="merdan@mail.tm"></div>`:''}
         <div class="field"><label for="a_pw">${t('password')}</label><div class="pw"><input class="inp" id="a_pw" type="password" autocomplete="${reg?'new-password':'current-password'}" placeholder="Не короче 6 символов"><button type="button" class="eye" data-a="eye" data-v="a_pw" aria-label="Показать пароль">${ic('eye')}</button></div></div>
         ${reg?`<div class="field"><label for="a_pw2">Повторите пароль</label><div class="pw"><input class="inp" id="a_pw2" type="password" autocomplete="new-password"><button type="button" class="eye" data-a="eye" data-v="a_pw2" aria-label="Показать пароль">${ic('eye')}</button></div></div>`:''}
@@ -1128,7 +1141,8 @@ const SCREENS = {
         ${!reg?`<button type="button" class="link small" data-a="forgot">Забыли пароль?</button>`:''}
       </form>
       <div class="demo-note">Аккаунт работает на любом телефоне: объявления, комментарии и подписки хранятся на сервере.</div>`,
-      after(){ $('#authf').addEventListener('submit', e=>{ e.preventDefault(); reg?doRegister():doLogin(); }); }};
+      after(){ $('#authf').addEventListener('submit', e=>{ e.preventDefault(); reg?doRegister():doLogin(); });
+        const cc=$('#a_cc'); cc && cc.addEventListener('change', ()=>{ state.cc=cc.value; $('#a_phone').placeholder=ccOf(cc.value).ph; }); }};
   },
 
   profile(){
@@ -1245,7 +1259,8 @@ const guest = () => `<div class="card pad col" style="align-items:center;text-al
   <div class="ava" style="width:64px;height:64px;border-radius:22px">${ic('lock','style="width:28px;height:28px"')}</div>
   <h2>${t('guestTitle')}</h2><p class="small dim" style="margin:0">${t('guestP')}</p>
   <div class="grid2" style="width:100%"><button class="btn" data-a="auth" data-v="login">${t('login')}</button><button class="btn ghost" data-a="auth" data-v="register">${t('register')}</button></div></div>`;
-const fmtPhone = p => { const d = String(p||'').replace(/\D/g,''); if (d.startsWith('993') && d.length===11) return `+993 ${d.slice(3,5)} ${d.slice(5)}`; return p||''; };
+const fmtPhone = p => { const d = String(p||'').replace(/\D/g,''); if (d.startsWith('993') && d.length===11) return `+993 ${d.slice(3,5)} ${d.slice(5)}`;
+  const c = [...COUNTRIES].sort((a,b)=>b.cc.length-a.cc.length).find(x=>d.startsWith(x.cc)); return c ? `+${c.cc} ${d.slice(c.cc.length)}` : (p||''); };
 const maxPhotos = () => 10;
 const newOrder = o => Object.assign({id:uid(),code:'MB-'+(1000+Math.floor(Math.random()*9000)),uid:me().id,status:'new',time:now()}, o);
 function statusText(l){
@@ -1353,9 +1368,10 @@ function botCheck(text, user, l){
 async function doRegister(){
   const err = $('#a_err'); err.textContent='';
   const name=$('#a_name').value.trim(), ph=$('#a_phone').value.replace(/\D/g,''), em=$('#a_email').value.trim(), pw=$('#a_pw').value, pw2=$('#a_pw2').value;
-  const phone = '+993'+ph;
+  const c = ccOf($('#a_cc').value), phone = '+'+c.cc+ph;
   if (name.length<2) return err.textContent='Введите имя';
-  if (!/^6\d{7}$/.test(ph)) return err.textContent='Номер — 8 цифр и начинается с 6, например 65 123456';
+  if (RESERVED_NAME.test(name)) return err.textContent='Это имя занято. Выберите другое.';
+  if (!c.re.test(ph)) return err.textContent=`Проверьте номер. Пример: +${c.cc} ${c.ph}`;
   if (em && !/^\S+@\S+\.\S+$/.test(em)) return err.textContent='Проверьте адрес почты';
   if (pw.length<6) return err.textContent='Пароль должен быть не короче 6 символов';
   if (pw!==pw2) return err.textContent='Пароли не совпадают';
@@ -1377,7 +1393,7 @@ async function doRegister(){
 async function doLogin(){
   const err = $('#a_err'); err.textContent='';
   const by = state.authBy||'phone';
-  const key = by==='phone' ? '+993'+$('#a_phone').value.replace(/\D/g,'') : $('#a_email').value.trim().toLowerCase();
+  const key = by==='phone' ? '+'+ccOf($('#a_cc').value).cc+$('#a_phone').value.replace(/\D/g,'') : $('#a_email').value.trim().toLowerCase();
   const f = S.fails[key] || {n:0,until:0};
   if (f.until > Date.now()) return err.textContent = `Слишком много попыток. Подождите ${Math.ceil((f.until-Date.now())/6e4)} мин.`;
   const phone = by==='phone' ? key : (await sb.rpc('mb_phone_for_email', {p_email:key})).data;

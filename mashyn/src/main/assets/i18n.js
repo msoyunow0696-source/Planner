@@ -631,3 +631,5 @@ Object.assign(TR, {
   'Скопировать ссылку':['Salgylanmany göçür','Copy link'], 'Отправить ссылку (IMO, Telegram, WhatsApp…)':['Salgylanmany iber (IMO, Telegram, WhatsApp…)','Send link (IMO, Telegram, WhatsApp…)']
 });
 Object.assign(TR, {'Скачать приложение для Android':['Android üçin programmany ýükle','Download the Android app']});
+Object.assign(TR, {'Код страны':['Ýurduň kody','Country code']});
+TR_RE.push([/^Проверьте номер\. Пример: (\+\d+ [\d ]+)$/, (m,n) => ['Belgini barlaň. Mysal: '+n, 'Check the number. Example: '+n]]);
