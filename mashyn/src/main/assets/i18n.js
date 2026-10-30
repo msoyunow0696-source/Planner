@@ -63,7 +63,7 @@ const TR = {
   'Начните вводить':['Ýazyp başlaň','Start typing'], 'Найти марку':['Marka tap','Find make'],
   'Марка — можно несколько':['Marka — birnäçesini saýlap bolýar','Make — you can pick several'],
   'Вся страна':['Ähli ýurt','Whole country'], 'Весь регион':['Ähli sebit','Whole region'],
-  'Город или этрап':['Şäher ýa-da etrap','City or district'], 'Сначала выберите регион':['Ilki sebiti saýlaň','Choose a region first'],
+  'Город или этрап':['Şäher ýa-da etrap','City or district'], 'Теги для поиска':['Gözleg üçin tegler','Search tags'], 'Покупатели не видят теги, но по ним найдут ваше объявление.':['Alyjylar tegleri görmeýär, ýöne olar boýunça bildirişiňizi tapar.','Tags are hidden from buyers, but help them find your listing.'], 'Сначала выберите регион':['Ilki sebiti saýlaň','Choose a region first'],
   'Сначала выберите марку':['Ilki markany saýlaň','Choose a make first'], 'Нет в списке? Впишите сами':['Sanawda ýokmy? Özüňiz ýazyň','Not on the list? Type it in'],
   'Например, Haima':['Meselem, Haima','For example, Haima'], 'Например, Camry Hybrid':['Meselem, Camry Hybrid','For example, Camry Hybrid'],
   'Впишите название':['Adyny ýazyň','Type the name'],

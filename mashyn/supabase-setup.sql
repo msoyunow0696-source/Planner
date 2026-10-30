@@ -584,3 +584,17 @@ $$;
 update auth.users set raw_user_meta_data = raw_user_meta_data || '{"email_verified":"true"}'
 where id = (select owner from public.mb_records where coll = 'users' and data->>'role' = 'admin' limit 1)
   and raw_user_meta_data->>'email' = 'msoyunow0696@gmail.com';
+
+-- ====== Скрытые теги для поиска (data.tags) — не больше 200 символов ======
+create or replace function public.mb_tags_guard() returns trigger language plpgsql as $$
+begin
+    if new.coll = 'listings' and new.data ? 'tags' then
+        if jsonb_typeof(new.data->'tags') <> 'string' or length(new.data->>'tags') > 200 then
+            raise exception 'Теги: не больше 200 символов';
+        end if;
+    end if;
+    return new;
+end $$;
+drop trigger if exists mb_tags_guard on public.mb_records;
+create trigger mb_tags_guard before insert or update on public.mb_records
+    for each row execute function public.mb_tags_guard();

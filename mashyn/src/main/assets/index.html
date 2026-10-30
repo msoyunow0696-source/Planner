@@ -491,6 +491,27 @@ const SECTIONS = [
   {k:'cars',icon:'car'},{k:'import',icon:'globe'},{k:'tech',icon:'truck'},{k:'jobs',icon:'wheel'},
   {k:'parts',icon:'gear'},{k:'rent',icon:'key'},{k:'sto',icon:'wrench'}
 ];
+// Скрытые теги для поиска: их не видно в объявлении, но по ним оно находится.
+// Слова раздела на трёх языках + марки кириллицей + перевод значений (топливо, регион…) + теги продавца.
+const SEC_TAGS = {
+  cars:'авто машина машины автомобиль легковая тачка продажа cars car auto vehicle maşyn maşynlar awto awtoulag ulag satlyk',
+  import:'авто машина пригон из-за рубежа импорт растаможка cars car auto import maşyn awto daşary ýurt getirmek',
+  tech:'спецтехника техника грузовик перевозка груз доставка truck trucks special vehicle tehnika ýük ulag ýük maşyny daşamak',
+  jobs:'работа вакансия водитель шофёр резюме job jobs driver vacancy iş sürüji şofýor wakansiýa',
+  parts:'запчасти запчасть детали шины диски масло parts spare auto parts tyres zapçast ätiýaçlyk şaý şaýlar teker',
+  rent:'аренда прокат авто машина напрокат rent rental car hire kärende kärendesine maşyn',
+  sto:'сто автосервис сервис ремонт диагностика шиномонтаж мастер service repair car service garage abatlaýyş awtoserwis ussa'
+};
+const BRAND_CYR = {Toyota:'тойота',Lexus:'лексус',Hyundai:'хендай хундай хюндай',Kia:'киа',Mercedes:'мерседес мерс','Mercedes-Benz':'мерседес мерс',BMW:'бмв бэха',Chevrolet:'шевроле шевролет',
+  Nissan:'ниссан',Honda:'хонда',Mitsubishi:'митсубиси мицубиси',Lada:'лада ваз жигули',VAZ:'ваз лада',Volkswagen:'фольксваген вольксваген',Ford:'форд',Opel:'опель',Mazda:'мазда',
+  Audi:'ауди',Daewoo:'дэу деу',Gaz:'газ газель',GAZ:'газ газель',Kamaz:'камаз',KAMAZ:'камаз',MAN:'ман',Volvo:'вольво',Scania:'скания',Isuzu:'исузу',Subaru:'субару',Suzuki:'сузуки',
+  Renault:'рено',Peugeot:'пежо',Skoda:'шкода',Infiniti:'инфинити','Land Rover':'ленд ровер','Range Rover':'рендж ровер',Geely:'джили',Chery:'чери',Haval:'хавал',Tesla:'тесла',Porsche:'порше'};
+const searchText = l => {
+  const sp = Object.values(l.specs||{}).filter(v=>typeof v!=='object');
+  const vals = [l.title, l.reg, l.place||'', l.tags||'', ...sp];
+  const tr = vals.flatMap(v => (typeof TR!=='undefined' && TR[v]) || []);
+  return [...vals, ...tr, SEC_TAGS[l.sec]||'', BRAND_CYR[l.specs?.brand]||''].join(' ').toLowerCase();
+};
 const UNITS = {
   tech:['за час','за смену','за рейс','за км','за тонну','договорная'],
   rent:['за сутки','за день','за час'],
@@ -890,7 +911,7 @@ const SCREENS = {
     const f = state.filters[sec] || {};
     let arr = S.listings.filter(l => visible(l) && (sec==='all' || l.sec===sec));
     const q = state.q.toLowerCase();
-    if (q) arr = arr.filter(l => (l.title+' '+Object.values(l.specs||{}).join(' ')+' '+l.reg+' '+(l.place||'')).toLowerCase().includes(q));
+    if (q){ const words = q.split(/\s+/).filter(Boolean); arr = arr.filter(l => { const h = searchText(l); return words.every(w => h.includes(w)); }); }
     if (sec==='jobs' && state.jobKind!=='all') arr = arr.filter(l=>l.specs?.kind===state.jobKind);
     if (f.reg) arr = arr.filter(l=>l.reg===f.reg);
     if (f.place) arr = arr.filter(l=>l.place===f.place);
@@ -1028,6 +1049,7 @@ const SCREENS = {
       <div class="col"><div class="field"><label for="d_reg">Регион *</label><select class="inp" id="d_reg">${REGIONS.map(r=>`<option value="${esc(r.k)}" ${d.reg===r.k?'selected':''}>${esc(r.k)}</option>`).join('')}</select></div>
         <div class="field"><label for="d_place">Город или этрап</label><select class="inp" id="d_place">${placeOptions(d.reg, d.place)}</select></div></div>
       <div class="field"><label for="d_desc">${t('descr')}</label><textarea class="inp" id="d_desc" maxlength="2000" placeholder="Состояние, комплектация, условия">${esc(d.desc||'')}</textarea></div>
+      <div class="field"><label for="d_tags">Теги для поиска</label><input class="inp" id="d_tags" maxlength="200" placeholder="тойота, камри, семейная, cars" value="${esc(d.tags||'')}"><div class="small dim">Покупатели не видят теги, но по ним найдут ваше объявление.</div></div>
       <div class="field"><label>Фото (${d.photos.length} из ${maxPh})</label><div class="photo-grid">
         ${d.photos.map((p,i)=>`<div class="ph"><img src="${p}" alt=""><button data-a="delph" data-v="${i}" aria-label="Удалить фото">×</button></div>`).join('')}
         ${d.photos.length<maxPh?`<label class="photo-add">${ic('photo')}<span>Добавить</span><input type="file" id="d_ph" accept="image/*" multiple hidden></label>`:''}</div>
@@ -1043,7 +1065,7 @@ const SCREENS = {
         document.querySelectorAll('[data-f]').forEach(el=>el.addEventListener('change',()=>{ d.specs[el.dataset.f] = el.type==='checkbox' ? (el.checked?'Да':'') : el.value; }));
         $('#d_reg').addEventListener('change', e=>{ d.reg=e.target.value; d.place=''; $('#d_place').innerHTML = placeOptions(d.reg,''); });
         $('#d_place').addEventListener('change', e=>{ d.place=e.target.value; });
-        ['title','price','unit','desc'].forEach(k=>{ const el=$('#d_'+k); el && el.addEventListener('input',()=>{ d[k]=el.value; }); });
+        ['title','price','unit','desc','tags'].forEach(k=>{ const el=$('#d_'+k); el && el.addEventListener('input',()=>{ d[k]=el.value; }); });
         const vid=$('#d_vid'); vid && vid.addEventListener('change', async ()=>{ const f=vid.files[0]; if (f && await checkVideo(f)){ d.video=f; render(); } });
         const ph=$('#d_ph'); ph && ph.addEventListener('change', async ()=>{
           for (const file of [...ph.files].slice(0, maxPh - d.photos.length)){ try{ d.photos.push(await compress(file)); }catch{ toast('Не удалось прочитать фото'); } }
@@ -1492,7 +1514,7 @@ async function publish(){
   if (state.publishing) return;
   const u = me(), d = state.draft, err = $('#d_err'); err.textContent='';
   const sec = d.sec, specs = {...d.specs};
-  d.title = $('#d_title').value.trim(); d.desc = $('#d_desc').value.trim(); d.reg = $('#d_reg').value; d.place = $('#d_place').value;
+  d.title = $('#d_title').value.trim(); d.desc = $('#d_desc').value.trim(); d.tags = ($('#d_tags')?.value||'').replace(/\s+/g,' ').trim().slice(0,200); d.reg = $('#d_reg').value; d.place = $('#d_place').value;
   if ($('#d_price')) d.price = $('#d_price').value; if ($('#d_unit')) d.unit = $('#d_unit').value;
   if (d.title.length<5) return err.textContent='Заголовок: минимум 5 символов';
   for (const f of FIELDS[sec]) if (f.req && !specs[f.k]) return err.textContent=`Заполните поле «${f.l}»`;
@@ -1513,9 +1535,9 @@ async function publish(){
   catch { return err.textContent = 'Не удалось загрузить фото или видео. Проверьте интернет и попробуйте ещё раз.'; }
   finally { state.publishing = false; }
   err.textContent = '';
-  const l = {id:uid(),sec,uid:u.id,title:d.title,price,unit:d.unit||'',reg:d.reg||REGIONS[0].k,place:d.place||'',specs,desc:d.desc,photos,video,created:now(),views:0,likes:[],dislikes:[],
+  const l = {id:uid(),sec,uid:u.id,title:d.title,price,unit:d.unit||'',reg:d.reg||REGIONS[0].k,place:d.place||'',specs,desc:d.desc,tags:d.tags||'',photos,video,created:now(),views:0,likes:[],dislikes:[],
     art:{k:({cars:'sedan',import:'sedan',rent:'sedan',parts:'gear',sto:'wrench',jobs:'job'})[sec] || (/(кран)/i.test(specs.ttype||'')?'crane':/реф/i.test(specs.ttype||'')?'fridge':'truck'), c:['#7c6cf0','#e67e22','#16a085','#2e86de','#c0392b'][Math.floor(Math.random()*5)]}};
-  const flags = botCheck(d.title+' '+d.desc, u, l);
+  const flags = botCheck(d.title+' '+d.desc+' '+(d.tags||''), u, l);
   let msg;
   const mode = S.settings.mode;
   if (seek){ l.until=now()+30*DAY; l.status='active'; msg='Резюме опубликовано бесплатно на 30 дней'; }
