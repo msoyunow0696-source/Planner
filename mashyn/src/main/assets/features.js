@@ -10,10 +10,11 @@ const CAR_SECS = ['cars', 'import'];
 
 /* ================== Цена на рынке ================== */
 // Похожие объявления: та же марка и модель, год ±2
-function marketStats({brand, model, year, exclude}){
+function marketStats({brand, model, year, exclude, moto}){
   if (!brand) return null;
   const m = (model||'').trim().toLowerCase();
-  const prices = S.listings.filter(l => visible(l) && CAR_SECS.includes(l.sec) && l.id!==exclude && l.price>0
+  // Проданные за полгода тоже считаем — это реальные цены сделок. Мотоциклы сравниваем только с мотоциклами.
+  const prices = S.listings.filter(l => (visible(l) || (l.status==='sold' && l.soldAt > now()-180*DAY)) && (moto ? l.sec==='moto' : CAR_SECS.includes(l.sec)) && l.id!==exclude && l.price>0
       && l.specs?.brand===brand && (!m || (l.specs.model||'').toLowerCase()===m)
       && (!year || !l.specs.year || Math.abs(l.specs.year - year) <= 2))
     .map(l => l.price).sort((a,b) => a-b);
@@ -25,8 +26,8 @@ function marketStats({brand, model, year, exclude}){
 
 // Оценка цены конкретного объявления относительно рынка
 function priceVerdict(l){
-  if (!CAR_SECS.includes(l.sec) || !l.price) return null;
-  const st = marketStats({brand:l.specs?.brand, model:l.specs?.model, year:l.specs?.year, exclude:l.id});
+  if (!(CAR_SECS.includes(l.sec) || l.sec==='moto') || !l.price) return null;
+  const st = marketStats({brand:l.specs?.brand, model:l.specs?.model, year:l.specs?.year, exclude:l.id, moto:l.sec==='moto'});
   if (!st || st.n < 2) return null;
   const d = Math.round((l.price - st.med) / st.med * 100);
   const kind = d <= -10 ? 'low' : d >= 10 ? 'high' : 'fair';
@@ -151,7 +152,7 @@ const FEATURE_SCREENS = {
       <div class="hero" style="min-height:0"><h1 style="font-size:1.2rem">Сколько стоит моя машина?</h1><p>Средняя цена по похожим объявлениям в приложении</p></div>
       <div class="col">
         <div class="field"><label for="e_brand">Марка</label><select class="inp" id="e_brand"><option value="">Не выбрано</option>${brands.map(b=>`<option ${e.brand===b?'selected':''}>${esc(b)}</option>`).join('')}</select></div>
-        <div class="grid2"><div class="field"><label for="e_model">Модель</label><input class="inp" id="e_model" list="e_models" value="${esc(e.model||'')}" placeholder="Camry"><datalist id="e_models">${(e.brand?modelsOf(e.brand):[]).map(m=>`<option value="${esc(m)}">`).join('')}</datalist></div>
+        <div class="grid2"><div class="field"><label for="e_model">Модель</label><input class="inp" id="e_model" list="e_models" value="${esc(e.model||'')}" placeholder="Camry"><datalist id="e_models">${(e.brand?modelsOf(e.brand,'cars'):[]).map(m=>`<option value="${esc(m)}">`).join('')}</datalist></div>
           <div class="field"><label for="e_year">Год выпуска</label><input class="inp num" id="e_year" type="number" inputmode="numeric" value="${e.year||''}" placeholder="2018"></div></div>
         <button class="btn" data-a="estgo">${ic('search')}Узнать цену</button></div>
       ${!st ? '' : st.n ? `<div class="card pad col" style="gap:10px">
@@ -237,7 +238,7 @@ const FEATURE_ACTIONS = {
    Поддержка, «О приложении», информационная панель,
    статистика продавца и «Поделиться»
    ===================================================== */
-const APP_VERSION = '1.2';
+const APP_VERSION = '1.3';
 const SITE_URL = 'https://alphadrive.pages.dev/';
 
 /* ================== Поддержка ================== */
@@ -250,6 +251,9 @@ const FAQ = [
   ['Я забыл пароль', 'Напишите нам ниже или позвоните. Администратор проверит номер и выдаст новый пароль.'],
   ['Как не попасть на мошенника?', 'Не переводите предоплату незнакомым. Смотрите машину вживую, проверяйте документы и VIN. На подозрительное объявление нажмите «Пожаловаться».'],
   ['Как узнать о новых машинах первым?', 'Откройте раздел, настройте фильтры и нажмите «Сообщить о новых по этому поиску». Уведомление придёт, даже если приложение закрыто.'],
+  ['Как написать продавцу?', 'Откройте объявление и нажмите «Написать». Вся переписка — в Профиль → «Сообщения». Не переводите предоплату до осмотра машины.'],
+  ['Как изменить цену или отметить «Продано»?', 'Профиль → Мои объявления: кнопка «Цена» меняет цену, кнопка «Продано» убирает объявление в архив. Если снизите цену, те, кто добавил объявление в избранное, получат уведомление.'],
+  ['Как оставить отзыв о продавце?', 'Нажмите на имя продавца в объявлении. Отзыв можно оставить после переписки с ним или комментария к его объявлению.'],
   ['Как удалить аккаунт?', 'Профиль → внизу кнопка «Удалить аккаунт». Все ваши объявления тоже удалятся.']
 ];
 const supPhone = () => S.settings.supPhone || S.settings.tmNumber || '';
@@ -333,9 +337,9 @@ Object.assign(FEATURE_SCREENS, {
     return {title:'О приложении', html:`
       <div class="col" style="align-items:center;text-align:center;gap:8px;padding-top:6px"><img src="logo.png" alt="" style="width:84px;height:84px;border-radius:24px">
         <h1 style="font-size:1.4rem">Alpha <span style="color:var(--accent)">Drive</span></h1><span class="small dim">Версия ${APP_VERSION}</span></div>
-      <div class="card pad col" style="gap:6px"><p style="margin:0">Alpha Drive — автомаркет Туркменистана. Только машины и всё, что с ними связано: продажа, пригон из-за рубежа, запчасти, спецтехника, аренда, СТО и работа для водителей.</p></div>
+      <div class="card pad col" style="gap:6px"><p style="margin:0">Alpha Drive — автомаркет Туркменистана. Только машины и всё, что с ними связано: продажа авто и мотоциклов, пригон из-за рубежа, запчасти, спецтехника, аренда, СТО и работа для водителей.</p></div>
       <div class="card pad col" style="gap:8px"><h3>Что умеет приложение</h3>
-        ${['Объявления о машинах с фото, VIN и ✓ кредитом / обменом','Оценка цены: дешевле или дороже рынка','Уведомления о новых машинах по вашему поиску','Сравнение 2–3 машин рядом','Проверенные продавцы и автосалоны','Три языка: Türkmençe, Русский, English'].map(x=>`<div class="row small" style="gap:8px">${ic('check','style="width:18px;height:18px;color:var(--ok);flex:none"')}<span>${x}</span></div>`).join('')}</div>
+        ${['Объявления о машинах с фото, VIN и ✓ кредитом / обменом','Мотоциклы, скутеры и квадроциклы — отдельный раздел','Новые и с пробегом — переключатель в один клик','Чат с продавцом прямо в приложении','Оценка цены: дешевле или дороже рынка','История цены и отметка «Цена снижена»','Отзывы и рейтинг продавцов','Уведомления о новых машинах по вашему поиску','Сравнение 2–3 машин рядом','Проверенные продавцы и автосалоны','Три языка: Türkmençe, Русский, English'].map(x=>`<div class="row small" style="gap:8px">${ic('check','style="width:18px;height:18px;color:var(--ok);flex:none"')}<span>${x}</span></div>`).join('')}</div>
       <details class="faq"><summary>Правила размещения</summary><div class="small dim col" style="gap:6px">
         <span>1. Только настоящие машины, запчасти и услуги. Без одежды, техники для дома и прочего.</span>
         <span>2. Фото — только вашей машины. Чужие фото из интернета запрещены.</span>

@@ -432,6 +432,8 @@ begin
                 if not (
                     (old.data->>'status' = 'active' and new.data->>'status' = 'expired')
                     or (old.data->>'status' in ('expired', 'nosub') and new.data->>'status' = 'active' and free_mode)
+                    -- Продавец сам отмечает «Продано»
+                    or (old.data->>'status' in ('active', 'expired') and new.data->>'status' = 'sold')
                 ) then
                     raise exception 'Статус объявления меняет модератор';
                 end if;
@@ -598,3 +600,76 @@ end $$;
 drop trigger if exists mb_tags_guard on public.mb_records;
 create trigger mb_tags_guard before insert or update on public.mb_records
     for each row execute function public.mb_tags_guard();
+
+-- =====================================================
+-- ЧАТ И ОТЗЫВЫ
+-- msgs    — сообщения покупатель ↔ продавец: uid (кто), to (кому), lid (объявление), text, time
+-- reviews — отзывы о продавце: uid (автор), to (продавец), stars 1–5, text, time
+-- Сообщение видят только двое. Отзыв видят все, оставить можно один раз
+-- и только тому, с кем переписывались или чьё объявление комментировали.
+-- =====================================================
+drop policy if exists "mb: читать" on public.mb_records;
+create policy "mb: читать" on public.mb_records for select using (
+    coll in ('users', 'listings', 'comments', 'settings', 'reviews') or owner = auth.uid() or public.mb_is_staff()
+    or (coll = 'msgs' and data->>'to' = auth.uid()::text)
+);
+
+drop policy if exists "mb: добавлять" on public.mb_records;
+create policy "mb: добавлять" on public.mb_records for insert to authenticated with check (
+    (coll = 'users' and id = auth.uid()::text)
+    or (coll in ('listings', 'comments', 'complaints', 'payments', 'alerts', 'support', 'msgs', 'reviews') and data->>'uid' = auth.uid()::text)
+    or (coll = 'notifs' and (data->>'uid' = auth.uid()::text or public.mb_is_staff()))
+    or (coll = 'subs' and public.mb_is_staff())
+    or (coll = 'settings' and public.mb_is_admin())
+);
+
+create or replace function public.mb_chat_guard() returns trigger language plpgsql security definer set search_path = public as $$
+declare
+    me uuid := auth.uid();
+    other text := new.data->>'to';
+begin
+    if new.coll not in ('msgs', 'reviews') or pg_trigger_depth() > 1 then return new; end if;
+    if tg_op = 'UPDATE' and not public.mb_is_staff() then raise exception 'Сообщение и отзыв изменить нельзя'; end if;
+    if tg_op <> 'INSERT' then return new; end if;
+    if other is null or other = me::text or not exists (select 1 from public.mb_records where coll = 'users' and id = other) then
+        raise exception 'Получатель не найден';
+    end if;
+    if exists (select 1 from public.mb_records where coll = 'users' and id = me::text and coalesce((data->>'blocked')::boolean, false)) then
+        raise exception 'Аккаунт заблокирован';
+    end if;
+    if new.coll = 'msgs' then
+        if length(coalesce(new.data->>'text', '')) not between 1 and 1000 then raise exception 'Сообщение: до 1000 символов'; end if;
+        if public.mb_recent('msgs', me, '1 hour') >= 60 then raise exception 'Слишком много сообщений. Подождите немного.'; end if;
+    else
+        if coalesce((new.data->>'stars')::int, 0) not between 1 and 5 then raise exception 'Оценка: от 1 до 5 звёзд'; end if;
+        if length(coalesce(new.data->>'text', '')) > 500 then raise exception 'Отзыв: до 500 символов'; end if;
+        if exists (select 1 from public.mb_records where coll = 'reviews' and owner = me and data->>'to' = other) then
+            raise exception 'Вы уже оставили отзыв этому продавцу';
+        end if;
+        if not exists (select 1 from public.mb_records m where m.coll = 'msgs'
+                         and ((m.owner = me and m.data->>'to' = other) or (m.owner::text = other and m.data->>'to' = me::text)))
+           and not exists (select 1 from public.mb_records c join public.mb_records l on l.coll = 'listings' and l.id = c.data->>'lid'
+                         where c.coll = 'comments' and c.owner = me and l.owner::text = other) then
+            raise exception 'Отзыв можно оставить после переписки с продавцом';
+        end if;
+    end if;
+    return new;
+end $$;
+drop trigger if exists mb_chat_guard on public.mb_records;
+create trigger mb_chat_guard before insert or update on public.mb_records
+    for each row execute function public.mb_chat_guard();
+
+-- Новое сообщение — уведомление получателю (придёт и при закрытом приложении)
+create or replace function public.mb_msg_notify() returns trigger language plpgsql security definer set search_path = public as $$
+begin
+    if new.coll <> 'msgs' then return new; end if;
+    insert into public.mb_records (coll, id, data) values ('notifs', gen_random_uuid()::text, jsonb_build_object(
+        'id', gen_random_uuid()::text, 'uid', new.data->>'to', 'read', false, 'chat', (new.data->>'lid') || '|' || (new.data->>'uid'),
+        'time', (extract(epoch from now()) * 1000)::bigint,
+        'text', 'Сообщение от ' || coalesce((select data->>'name' from public.mb_records where coll = 'users' and id = new.data->>'uid'), '?')
+                || ': ' || left(new.data->>'text', 80)));
+    return new;
+end $$;
+drop trigger if exists mb_msg_notify on public.mb_records;
+create trigger mb_msg_notify after insert on public.mb_records
+    for each row execute function public.mb_msg_notify();
