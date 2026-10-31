@@ -238,8 +238,36 @@ const FEATURE_ACTIONS = {
    Поддержка, «О приложении», информационная панель,
    статистика продавца и «Поделиться»
    ===================================================== */
-const APP_VERSION = '1.3';
+const APP_VERSION = '1.4';
 const SITE_URL = 'https://alphadrive.pages.dev/';
+
+/* ===== «Доступна новая версия» — только в Android-приложении =====
+   Номер сборки APK = номер выпуска build-N на GitHub. Раз в сутки сверяемся с последним выпуском;
+   «Обновить» открывает файл в браузере телефона, он скачивает новый APK. */
+const APK_URL = 'https://github.com/msoyunow0696-source/Planner/releases/latest/download/MashynBazar.apk';
+const myBuild = () => NB && NB.versionCode ? NB.versionCode() : 0;
+let newBuild = 0;   // номер новой сборки, если она есть
+async function checkAppUpdate(force){
+  const mine = myBuild(); if (!mine) return null;
+  const last = lsGet('mb_updcheck', {t:0, n:0});
+  if (force || now() - last.t > DAY){
+    const r = await fetch('https://api.github.com/repos/msoyunow0696-source/Planner/releases/latest');
+    if (!r.ok) throw new Error('GitHub ' + r.status);
+    last.n = Number(String((await r.json()).tag_name || '').replace('build-', '')) || 0; last.t = now();
+    lsSet('mb_updcheck', last);
+  }
+  newBuild = last.n > mine ? last.n : 0;
+  return newBuild;
+}
+// Карточка на главной; «×» прячет её на 3 дня
+function updateCard(){
+  if (!newBuild || lsGet('mb_updhide', 0) > now() - 3*DAY) return '';
+  return `<div class="card pad col" style="gap:12px;border-color:var(--ok)">
+    <div class="row" style="gap:12px;align-items:flex-start"><img src="app-192.png" alt="" style="width:46px;height:46px;border-radius:12px;flex:none">
+      <span style="flex:1;min-width:0"><b>Доступна новая версия Alpha Drive</b><br><span class="small dim">Скачайте и установите поверх старой — объявления и аккаунт сохранятся</span></span>
+      <button class="icon-btn" data-a="updhide" aria-label="Скрыть">${ic('x')}</button></div>
+    <a class="btn sm" href="${APK_URL}" style="text-decoration:none">${ICON_INSTALL}Обновить</a></div>`;
+}
 
 /* ================== Поддержка ================== */
 const SUP_TOPICS = ['Вопрос', 'Проблема в приложении', 'Оплата', 'Мошенник или обман', 'Предложение'];
@@ -336,10 +364,10 @@ Object.assign(FEATURE_SCREENS, {
   about(){
     return {title:'О приложении', html:`
       <div class="col" style="align-items:center;text-align:center;gap:8px;padding-top:6px"><img src="logo.png" alt="" style="width:84px;height:84px;border-radius:24px">
-        <h1 style="font-size:1.4rem">Alpha <span style="color:var(--accent)">Drive</span></h1><span class="small dim">Версия ${APP_VERSION}</span></div>
+        <h1 style="font-size:1.4rem">Alpha <span style="color:var(--accent)">Drive</span></h1><span class="small dim">Версия ${APP_VERSION}${myBuild()?` (${myBuild()})`:''}</span></div>
       <div class="card pad col" style="gap:6px"><p style="margin:0">Alpha Drive — автомаркет Туркменистана. Только машины и всё, что с ними связано: продажа авто и мотоциклов, пригон из-за рубежа, запчасти, спецтехника, аренда, СТО и работа для водителей.</p></div>
       <div class="card pad col" style="gap:8px"><h3>Что умеет приложение</h3>
-        ${['Объявления о машинах с фото, VIN и ✓ кредитом / обменом','Мотоциклы, скутеры и квадроциклы — отдельный раздел','Новые и с пробегом — переключатель в один клик','Чат с продавцом прямо в приложении','Оценка цены: дешевле или дороже рынка','История цены и отметка «Цена снижена»','Отзывы и рейтинг продавцов','Уведомления о новых машинах по вашему поиску','Сравнение 2–3 машин рядом','Проверенные продавцы и автосалоны','Три языка: Türkmençe, Русский, English'].map(x=>`<div class="row small" style="gap:8px">${ic('check','style="width:18px;height:18px;color:var(--ok);flex:none"')}<span>${x}</span></div>`).join('')}</div>
+        ${['Объявления о машинах с фото, VIN и ✓ кредитом / обменом','Мотоциклы, скутеры и квадроциклы — отдельный раздел','Новые и с пробегом — переключатель в один клик','Чат с продавцом прямо в приложении','Оценка цены: дешевле или дороже рынка','История цены и отметка «Цена снижена»','Отзывы и рейтинг продавцов','Уведомления о новых машинах по вашему поиску','Сравнение 2–3 машин рядом','Проверенные продавцы и автосалоны','Установка на iPhone и компьютер, уведомления даже при закрытом приложении','Потяните ленту вниз — объявления обновятся','Три языка: Türkmençe, Русский, English'].map(x=>`<div class="row small" style="gap:8px">${ic('check','style="width:18px;height:18px;color:var(--ok);flex:none"')}<span>${x}</span></div>`).join('')}</div>
       <details class="faq"><summary>Правила размещения</summary><div class="small dim col" style="gap:6px">
         <span>1. Только настоящие машины, запчасти и услуги. Без одежды, техники для дома и прочего.</span>
         <span>2. Фото — только вашей машины. Чужие фото из интернета запрещены.</span>
@@ -497,6 +525,8 @@ Object.assign(FEATURE_SCREENS, {
         <button data-a="about">${ic('shield')}<span class="grow">О приложении<br><span class="tiny dim">Правила размещения, конфиденциальность, версия ${APP_VERSION}</span></span></button>
         <button data-a="reload">${ic('up')}<span class="grow">Обновить данные</span></button>
         ${NB ? '' : `<a href="${SITE_URL}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:12px">${ic('plus')}<span class="grow">Скачать приложение для Android</span></a>`}
+        ${!myBuild() ? '' : newBuild ? `<a href="${APK_URL}" style="display:flex;align-items:center;gap:12px">${ICON_INSTALL}<span class="grow">Обновить приложение<br><span class="tiny dim">Доступна новая версия</span></span></a>`
+          : `<button data-a="updcheck">${ic('up')}<span class="grow">Проверить обновления</span></button>`}
         ${CMP.length?`<button data-a="cmpclear">${ic('trash')}<span class="grow">Очистить сравнение (${CMP.length})</span></button>`:''}
       </div>
       <span class="tiny dim" style="text-align:center">Alpha Drive · ${APP_VERSION}</span>`};
@@ -511,8 +541,28 @@ Object.assign(FEATURE_ACTIONS, {
     if (k==='notifs'){ if (!NB){ if (on==='1') pushOn(); else pushOff(); } else if (on==='1') deviceOn(); else NB.disable(); }
     render();
   },
-  cmpclear(){ CMP = []; saveCmp(); toast('Список сравнения очищен'); render(); }
+  cmpclear(){ CMP = []; saveCmp(); toast('Список сравнения очищен'); render(); },
+  updhide(){ lsSet('mb_updhide', now()); render(); },
+  async updcheck(){
+    try { toast(await checkAppUpdate(true) ? 'Доступна новая версия' : 'У вас последняя версия'); }
+    catch (e){ console.warn(e); toast('Не удалось проверить обновления. Проверьте интернет.'); }
+    render();
+  }
 });
+
+Object.assign(TR, {
+  'Доступна новая версия Alpha Drive':['Alpha Drive-yň täze wersiýasy çykdy','A new version of Alpha Drive is available'],
+  'Скачайте и установите поверх старой — объявления и аккаунт сохранятся':['Ýükläp, köne wersiýanyň üstünden guruň — bildirişler we hasap saklanar','Download and install over the old one — your listings and account stay'],
+  'Обновить':['Täzelemek','Update'],
+  'Обновить приложение':['Programmany täzelemek','Update the app'],
+  'Доступна новая версия':['Täze wersiýa çykdy','A new version is available'],
+  'Проверить обновления':['Täzelenmäni barlamak','Check for updates'],
+  'У вас последняя версия':['Sizde iň soňky wersiýa','You have the latest version'],
+  'Не удалось проверить обновления. Проверьте интернет.':['Täzelenmäni barlap bolmady. Interneti barlaň.','Could not check for updates. Check your internet.'],
+  'Установка на iPhone и компьютер, уведомления даже при закрытом приложении':['iPhone-a we kompýutere gurmak, programma ýapyk bolsa-da habarnamalar','Install on iPhone and computer, notifications even when the app is closed'],
+  'Потяните ленту вниз — объявления обновятся':['Sahypany aşak çekiň — bildirişler täzelener','Pull the feed down to refresh listings']
+});
+TR_RE.push([/^Версия ([\d.]+) \((\d+)\)$/, (m,v,n) => ['Wersiýa '+v+' ('+n+')', 'Version '+v+' ('+n+')']]);
 
 /* ================== «Поделиться» объявлением ================== */
 // Отправляется прямая ссылка на объявление: страница на сайте, а с неё — «Открыть в приложении»

@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.ClipData;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
@@ -99,6 +100,15 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public void seen(double time) { NotifyJob.markSeen(MainActivity.this, (long) time); }
+
+        /** Номер сборки (= build-N на GitHub) — для «Доступна новая версия». */
+        @JavascriptInterface
+        public int versionCode() {
+            try {
+                PackageInfo p = getPackageManager().getPackageInfo(getPackageName(), 0);
+                return Build.VERSION.SDK_INT >= 28 ? (int) p.getLongVersionCode() : p.versionCode;
+            } catch (PackageManager.NameNotFoundException e) { return 0; }
+        }
 
         /** «Да» в вопросе «Выйти из приложения?» (кнопка «Назад» на главной). */
         @JavascriptInterface

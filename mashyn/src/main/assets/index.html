@@ -991,7 +991,7 @@ const SCREENS = {
     const fresh = rank(vis).slice(0,8);
     return {html:`
       <label class="search">${ic('search')}<input id="q_home" type="search" placeholder="${t('searchPh')}" enterkeyhint="search" aria-label="Поиск"></label>
-      ${installCard()}
+      ${updateCard()}${installCard()}
       <div class="hero"><h1>${t('heroT')}</h1><p>${S.settings.mode==='free'?t('heroFree'):t('heroP')}</p><button class="btn sm" data-a="tab" data-v="post">${ic('plus')}${t('heroBtn')}</button><div class="art">${art('suv','#ffffff',7,true)}</div></div>
       <div class="cats">${SECTIONS.map(s=>`<button class="cat" data-a="sec" data-v="${s.k}"><span class="ci">${ic(s.icon)}</span>${t('s_'+s.k)}</button>`).join('')}
         <button class="cat" data-a="sec" data-v="all"><span class="ci">${ic('list')}</span>${t('all')}</button></div>
@@ -1797,6 +1797,7 @@ document.addEventListener('keydown', e => { if (e.key==='Escape') back(); if ((e
   try { await pull(); await ensureProfile(); tick(); checkFavPrices(); } catch (e){ console.warn(e); toast('Нет связи с сервером. Проверьте интернет.'); }
   render();
   deviceOn();
+  checkAppUpdate().then(n => n && render()).catch(e => console.warn(e));   // Android: вышла ли новая сборка
   if (NB && NB.openedFromNotif()) notifSheet();
   if (NB && NB.openedListing){ const lid = NB.openedListing(); if (lid) mbOpenListing(lid); }
   // Веб-версия: ссылка на объявление вида app/#l=<id> (и при открытии, и когда сайт уже открыт)

@@ -4,7 +4,7 @@
    открывается из сохранённой копии. Запросы к Supabase, фото и шрифты
    (другие адреса) не трогаем. В Android-приложении не используется.
    ===================================================== */
-const CACHE = 'alpha-drive-1.3';
+const CACHE = 'alpha-drive-1.4';
 // './', а не 'index.html': на сайте index.html отвечает переадресацией на ./
 const SHELL = ['./', 'supabase.js', 'i18n.js', 'features.js', 'features-plus.js', 'pwa.js', 'refresh.js',
   'manifest.webmanifest', 'app-192.png', 'app-512.png', 'logo.png'];
