@@ -859,11 +859,12 @@ async function ensureProfile(){
 /* Уведомления, когда приложение закрыто (только в Android-приложении, MBAndroid — мост из MainActivity) */
 const NB = window.MBAndroid || null;
 async function deviceOn(){
-  if (!NB || !S.session || S.settings.notifs===false) return;
+  if (!NB){ pushSync(); return; }   // веб-версия: уведомления в браузер (pwa.js)
+  if (!S.session || S.settings.notifs===false) return;
   try { await sb.rpc('mb_register_device', {p_key:NB.deviceKey()}); NB.enable(Date.now()); } catch (e){ console.warn(e); }
 }
 async function deviceOff(){
-  if (!NB) return;
+  if (!NB){ await pushOff(); return; }
   try { NB.disable(); await sb.rpc('mb_unregister_device', {p_key:NB.deviceKey()}); } catch (e){ console.warn(e); }
 }
 window.mbOpenNotifs = () => notifSheet();
@@ -1308,7 +1309,7 @@ const SCREENS = {
         <button data-a="alerts">${ic('search')}<span class="grow">Уведомления о поиске<br><span class="tiny dim">Сохранено: ${S.alerts.filter(a=>a.uid===u.id).length}</span></span></button>
         <button data-a="estimate">${ic('card')}<span class="grow">Сколько стоит моя машина?</span></button>
         <button data-a="support">${ic('chat')}<span class="grow">Служба поддержки${S.support.some(x=>x.uid===u.id&&x.status==='answered')?' <span class="badge b-ok">Есть ответ</span>':''}</span></button>
-        ${installItem()}
+        ${installItem()}${pushItem()}
         <button data-a="settings">${ic('gear')}<span class="grow">Настройки<br><span class="tiny dim">Язык, тема, размер шрифта, уведомления</span></span></button>
         ${u.role!=='user'?`<button data-a="tab" data-v="admin">${ic('shield')}<span class="grow">${t('admin')}</span></button>`:''}
         <button data-a="logout">${ic('out')}<span class="grow">${t('logout')}</span></button>
@@ -1799,7 +1800,12 @@ document.addEventListener('keydown', e => { if (e.key==='Escape') back(); if ((e
   if (NB && NB.openedFromNotif()) notifSheet();
   if (NB && NB.openedListing){ const lid = NB.openedListing(); if (lid) mbOpenListing(lid); }
   // Веб-версия: ссылка на объявление вида app/#l=<id> (и при открытии, и когда сайт уже открыт)
-  const openHash = () => { const hl = location.hash.match(/^#l=([a-z0-9-]+)$/i); if (hl){ history.replaceState(null, '', location.pathname); mbOpenListing(hl[1]); } };
+  // и из уведомления в браузер: app/#chat=<объявление|человек> или app/#notifs
+  const openHash = () => {
+    const hl = location.hash.match(/^#l=([a-z0-9-]+)$/i), hp = location.hash.match(/^#(chat=.+|notifs)$/);
+    if (hl || hp) history.replaceState(null, '', location.pathname);
+    if (hl) mbOpenListing(hl[1]); else if (hp) pushOpen(decodeURIComponent(hp[1]));
+  };
   openHash(); window.addEventListener('hashchange', openHash);
   // Свежие данные при возвращении в приложение и раз в минуту — refresh.js
 })();

@@ -46,7 +46,58 @@ function iosInstallSheet(){
     <button class="btn" data-a="closesheet">Понятно</button>`);
 }
 
+/* ---------- Уведомления в браузер (iPhone, Windows, Android-браузер) ----------
+   Подписка хранится в базе (mb_push), отправляет функция push в Supabase. */
+const VAPID_PUBLIC = 'BMzQNqLFnqa-Ta9dQENS7wI8cdS0bcD0pnCsSBON_yv_BKJjqR1-EcmyVBtJp_jKUySv3trudjdOpFJmGW6UePU';
+const pushSupported = () => !IN_APK && window.isSecureContext && 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+// granted / denied / default; ios — iPhone, где Alpha Drive ещё не на экране «Домой»; no — браузер не умеет
+const pushState = () => pushSupported() ? Notification.permission : IS_IOS && !isStandalone() ? 'ios' : 'no';
+const swReady = () => Promise.race([navigator.serviceWorker.ready, new Promise((_, no) => setTimeout(() => no(new Error('service worker не готов')), 8000))]);
+const unb64u = s => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((s.length + 3) % 4)), c => c.charCodeAt(0));
+
+async function pushSave(reg){
+  const sub = await reg.pushManager.getSubscription() || await reg.pushManager.subscribe({userVisibleOnly: true, applicationServerKey: unb64u(VAPID_PUBLIC)});
+  const j = sub.toJSON();
+  const {error} = await sb.rpc('mb_push_on', {p_endpoint: j.endpoint, p_p256dh: j.keys.p256dh, p_auth: j.keys.auth, p_lang: LANG});
+  if (error) throw error;
+}
+// По нажатию: спросить разрешение (браузер разрешает только после нажатия), подписаться, сохранить
+async function pushOn(){
+  if (!pushSupported()) return false;
+  if (!S.session){ toast('Войдите, чтобы получать уведомления'); return false; }
+  const perm = Notification.permission === 'granted' ? 'granted' : await Notification.requestPermission();
+  if (perm !== 'granted'){ toast('Уведомления запрещены в настройках браузера'); render(); return false; }
+  try { await pushSave(await swReady()); S.settings.notifs = true; persist(); toast('Уведомления включены'); render(); return true; }
+  catch (e){ console.warn(e); toast('Не удалось включить уведомления. Попробуйте ещё раз.'); return false; }
+}
+// Тихо, без вопросов: при запуске, после входа и смены языка — подписка на текущего человека и язык
+async function pushSync(){
+  if (!pushSupported() || !S.session || Notification.permission !== 'granted' || S.settings.notifs === false) return;
+  try { await pushSave(await swReady()); } catch (e){ console.warn(e); }
+}
+async function pushOff(){
+  if (!pushSupported() || Notification.permission !== 'granted') return;   // без разрешения подписки нет — не ждём
+  try {
+    const sub = await (await swReady()).pushManager.getSubscription();
+    if (sub){ await sb.rpc('mb_push_off', {p_endpoint: sub.endpoint}); await sub.unsubscribe(); }
+  } catch (e){ console.warn(e); }
+}
+// Нажали на уведомление: чат с этим человеком или список уведомлений
+function pushOpen(o){ if (o.startsWith('chat=')) go('chat', o.slice(5)); else notifSheet(); }
+// Переключатель в настройках веб-версии: настоящее состояние или подсказка, почему нельзя
+function webNotifCtl(onOff){
+  const s = pushState();
+  if (s === 'ios') return `<p class="tiny dim" style="margin:0">На iPhone уведомления работают, когда Alpha Drive добавлен на экран «Домой»</p><button class="btn sm ghost" data-a="install">${ICON_INSTALL}Установить</button>`;
+  if (s === 'no') return `<p class="tiny dim" style="margin:0">Этот браузер не умеет показывать уведомления</p>`;
+  if (s === 'denied') return `<p class="tiny dim" style="margin:0">Разрешите уведомления для этого сайта в настройках браузера и обновите страницу</p>`;
+  return onOff('notifs', S.settings.notifs !== false && s === 'granted');
+}
+// Пункт в профиле — пока человек ещё не отвечал на вопрос о разрешении
+const pushItem = () => pushState() === 'default' && S.settings.notifs !== false
+  ? `<button data-a="pushon">${ic('bell')}<span class="grow">Включить уведомления<br><span class="tiny dim">Сообщения, комментарии и новые машины по поиску — даже когда приложение закрыто</span></span></button>` : '';
+
 Object.assign(FEATURE_ACTIONS, {
+  pushon(){ pushOn(); },
   async install(){
     if (installEvt){
       // Окно браузера можно показать только один раз; если откажутся, браузер предложит снова позже
@@ -80,6 +131,15 @@ if (!IN_APK){
   // «Да» в вопросе «Выйти?»: установленное приложение закрываем, в браузере — уходим на прошлую страницу
   window.pwaExit = () => { armed = false; window.close(); setTimeout(() => history.go(-2), 150); };
 
+  // Сообщения от service worker: пришло уведомление — подтянуть данные; нажали на него — открыть нужный экран
+  if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', e => {
+    const m = e.data || {};
+    if (m.refresh && typeof autoCheck === 'function') autoCheck();
+    if (m.open) pushOpen(m.open);
+  });
+  // Сменили язык — уведомления тоже на новом языке
+  new MutationObserver(() => pushSync()).observe(document.documentElement, {attributes: true, attributeFilter: ['lang']});
+
   // Цвет строки состояния и заголовка окна — под тему приложения
   const meta = document.querySelector('meta[name="theme-color"]');
   if (meta) new MutationObserver(() => {
@@ -106,6 +166,16 @@ Object.assign(TR, {
   'Приложение установлено':['Programma gurnaldy','App installed'],
   'Скрыть':['Gizlemek','Hide'],
   'Выйти из приложения?':['Programmadan çykmalymy?','Exit the app?'],
+  'Включить уведомления':['Habarnamalary açmak','Turn on notifications'],
+  'Войдите, чтобы получать уведомления':['Habarnamalary almak üçin hasabyňyza giriň','Sign in to get notifications'],
+  'Сообщения, комментарии и новые машины по поиску — даже когда приложение закрыто':['Hatlar, teswirler we gözleg boýunça täze maşynlar — programma ýapyk bolsa-da','Messages, comments and new cars for your searches — even when the app is closed'],
+  'Уведомления включены':['Habarnamalar açyldy','Notifications are on'],
+  'Уведомления запрещены в настройках браузера':['Habarnamalar brauzeriň sazlamalarynda gadagan edilen','Notifications are blocked in the browser settings'],
+  'Не удалось включить уведомления. Попробуйте ещё раз.':['Habarnamalary açyp bolmady. Täzeden synanyşyň.','Could not turn on notifications. Please try again.'],
+  'Уведомления на это устройство':['Bu enjama habarnamalar','Notifications on this device'],
+  'На iPhone уведомления работают, когда Alpha Drive добавлен на экран «Домой»':['iPhone-da habarnamalar Alpha Drive «Öý» ekranyna goşulanda işleýär','On iPhone, notifications work once Alpha Drive is added to the Home Screen'],
+  'Этот браузер не умеет показывать уведомления':['Bu brauzer habarnamalary görkezip bilmeýär','This browser can’t show notifications'],
+  'Разрешите уведомления для этого сайта в настройках браузера и обновите страницу':['Brauzeriň sazlamalarynda bu saýt üçin habarnamalara rugsat beriň we sahypany täzeläň','Allow notifications for this site in the browser settings and reload the page'],
   'Нет':['Ýok','No']
 });
 TR_SUB.splice(0, TR_SUB.length, ...Object.keys(TR).filter(k => k.length >= 6 && /[ «»:,.→₽]/.test(k)).sort((a,b) => b.length - a.length));

@@ -490,7 +490,7 @@ Object.assign(FEATURE_SCREENS, {
       <div class="col"><h3>Размер шрифта</h3><div class="seg">${FONT_SIZES.map(([k,n])=>`<button class="${(st.fontSize||1)===k?'on':''}" data-a="setfont" data-v="${k}" style="font-size:${k*.85}rem">Aa</button>`).join('')}</div>
         <span class="small dim">${FONT_SIZES.find(([k])=>k===(st.fontSize||1))?.[1]||''}: так будет выглядеть текст во всём приложении.</span></div>
       <div class="card pad col" style="gap:10px">
-        <div class="between" style="gap:10px"><div><b class="small">Уведомления на телефон</b><br><span class="tiny dim">Когда приложение закрыто: комментарии, ответы поддержки, новые машины по поиску</span></div></div>${onOff('notifs', st.notifs!==false)}
+        <div class="between" style="gap:10px"><div><b class="small">${NB?'Уведомления на телефон':'Уведомления на это устройство'}</b><br><span class="tiny dim">Когда приложение закрыто: комментарии, ответы поддержки, новые машины по поиску</span></div></div>${NB?onOff('notifs', st.notifs!==false):webNotifCtl(onOff)}
         <div class="between" style="gap:10px;margin-top:6px"><div><b class="small">Цена в рублях</b><br><span class="tiny dim">Показывать «≈ … ₽» под ценой объявления</span></div></div>${onOff('showRub', st.showRub!==false)}</div>
       <div class="card menu">
         <button data-a="support">${ic('chat')}<span class="grow">Служба поддержки</span></button>
@@ -508,7 +508,7 @@ Object.assign(FEATURE_ACTIONS, {
   setfont(v){ S.settings.fontSize = Number(v); applyFont(); persist(); render(); },
   setopt(v){
     const [k, on] = v.split(':'); S.settings[k] = on==='1'; persist();
-    if (k==='notifs'){ if (on==='1') deviceOn(); else NB && NB.disable(); }
+    if (k==='notifs'){ if (!NB){ if (on==='1') pushOn(); else pushOff(); } else if (on==='1') deviceOn(); else NB.disable(); }
     render();
   },
   cmpclear(){ CMP = []; saveCmp(); toast('Список сравнения очищен'); render(); }

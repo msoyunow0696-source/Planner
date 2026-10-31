@@ -19,6 +19,27 @@ self.addEventListener('activate', e => {
     .then(() => self.clients.claim()));
 });
 
+// Уведомление от функции push: {title, body, tag, open}. Открытое приложение заодно подтягивает свежие данные
+self.addEventListener('push', e => {
+  let d = {};
+  try { d = e.data ? e.data.json() : {}; } catch { d = {body: e.data ? e.data.text() : ''}; }
+  e.waitUntil(Promise.all([
+    self.registration.showNotification(d.title || 'Alpha Drive', {body: d.body || '', icon: 'app-192.png', badge: 'app-192.png', tag: d.tag, data: {open: d.open || 'notifs'}}),
+    self.clients.matchAll({type: 'window'}).then(list => list.forEach(c => c.postMessage({refresh: 1})))
+  ]));
+});
+
+// Нажали на уведомление: открытое окно — на передний план и на нужный экран, иначе открыть приложение
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  const open = (e.notification.data && e.notification.data.open) || 'notifs';
+  e.waitUntil(self.clients.matchAll({type: 'window', includeUncontrolled: true}).then(list => {
+    const w = list.find(c => c.url.startsWith(self.registration.scope));
+    if (w){ w.postMessage({open}); return w.focus(); }
+    return self.clients.openWindow('./#' + open.replace('|', '%7C'));
+  }));
+});
+
 self.addEventListener('fetch', e => {
   const r = e.request;
   if (r.method !== 'GET' || new URL(r.url).origin !== location.origin) return;
