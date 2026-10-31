@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}img{max-width:100%}</style></head><body>
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}img{max-width:100%}</style>
 <title>Alpha Drive</title>
 <meta name="description" content="Alpha Drive — автомаркет Туркменистана: машины, техника, запчасти и работа для водителей">
 <meta name="theme-color" content="#0a0a0a">
@@ -294,7 +294,18 @@ body[data-t="light"] .sheet-foot{background:#fff}
 .chat-input{position:sticky;bottom:calc(76px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;align-items:flex-end;padding:8px 0;background:var(--bg1)}
 .chat-input .inp{flex:1;min-height:44px;max-height:120px;resize:none}
 .chat-input .btn{flex:none;width:48px;padding:0}
+/* Обновление: потянуть вниз и плашка «Новые объявления» (refresh.js) */
+html{overscroll-behavior-y:contain}
+.ptr{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 66px);z-index:19;width:42px;height:42px;margin-left:-21px;border-radius:50%;display:grid;place-items:center;
+  background:var(--bg3);border:1px solid var(--line);color:var(--accent);box-shadow:var(--shadow);opacity:0;transform:translateY(-60px);pointer-events:none}
+.ptr svg{width:22px;height:22px}
+.ptr.spin svg{animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.fresh-pill{position:fixed;left:0;right:0;margin:0 auto;width:max-content;top:calc(env(safe-area-inset-top,0px) + 70px);z-index:30;display:flex;align-items:center;gap:6px;
+  padding:9px 16px;border:0;border-radius:999px;background:var(--accent);color:var(--on);font:inherit;font-weight:700;font-size:.9rem;box-shadow:var(--shadow);cursor:pointer;animation:in .25s ease both}
+.fresh-pill svg{width:18px;height:18px}
 </style>
+</head><body>
 
 <div id="appbar" class="top"></div>
 <main id="view" class="wrap"></main>
@@ -306,6 +317,8 @@ body[data-t="light"] .sheet-foot{background:#fff}
 <script src="i18n.js"></script>
 <script src="features.js"></script>
 <script src="features-plus.js"></script>
+<script src="pwa.js"></script>
+<script src="refresh.js"></script>
 <script>
 /* ================== Иконки ================== */
 const I = {
@@ -908,7 +921,15 @@ const state = {filters:{}, sort:'new', q:'', jobKind:'all', draft:null, plan:{se
 function go(name, arg, replace){ if (replace) stack[stack.length-1]={name,arg}; else stack.push({name,arg}); render(); window.scrollTo(0,0); }
 function root(name){ stack=[{name}]; render(); window.scrollTo(0,0); }
 function back(){ if ($('#zoom')){ closeZoom(); return true; } if ($('#sheet').hidden===false){ closeSheet(); return true; } if (stack.length>1){ stack.pop(); render(); return true; } return false; }
-window.mbBack = back;   // для кнопки «Назад» в Android
+// Кнопка «Назад» телефона и браузера: окна и экраны, с другой вкладки — на главную, с главной — вопрос «Выйти?»
+function sysBack(){
+  try {
+    if (back()) return true;
+    if (stack[0].name !== 'home'){ root('home'); return true; }
+    exitSheet(); return true;
+  } catch (e){ console.warn(e); return true; }   // ошибка на экране — не выкидываем из приложения
+}
+window.mbBack = sysBack;   // для кнопки «Назад» в Android
 
 function render(){
   tick();
@@ -969,6 +990,7 @@ const SCREENS = {
     const fresh = rank(vis).slice(0,8);
     return {html:`
       <label class="search">${ic('search')}<input id="q_home" type="search" placeholder="${t('searchPh')}" enterkeyhint="search" aria-label="Поиск"></label>
+      ${installCard()}
       <div class="hero"><h1>${t('heroT')}</h1><p>${S.settings.mode==='free'?t('heroFree'):t('heroP')}</p><button class="btn sm" data-a="tab" data-v="post">${ic('plus')}${t('heroBtn')}</button><div class="art">${art('suv','#ffffff',7,true)}</div></div>
       <div class="cats">${SECTIONS.map(s=>`<button class="cat" data-a="sec" data-v="${s.k}"><span class="ci">${ic(s.icon)}</span>${t('s_'+s.k)}</button>`).join('')}
         <button class="cat" data-a="sec" data-v="all"><span class="ci">${ic('list')}</span>${t('all')}</button></div>
@@ -1256,7 +1278,7 @@ const SCREENS = {
 
   profile(){
     const u = me();
-    if (!u) return {title:t('profile'), html:guest() + `<div class="card menu"><button data-a="support">${ic('chat')}<span class="grow">Служба поддержки</span></button><button data-a="settings">${ic('gear')}<span class="grow">Настройки</span></button></div>`};
+    if (!u) return {title:t('profile'), html:guest() + `<div class="card menu"><button data-a="support">${ic('chat')}<span class="grow">Служба поддержки</span></button>${installItem()}<button data-a="settings">${ic('gear')}<span class="grow">Настройки</span></button></div>`};
     const mine = S.listings.filter(l=>l.uid===u.id).sort((a,b)=>b.created-a.created);
     const subs = S.subs.filter(s=>s.uid===u.id && s.status==='active');
     const pend = S.payments.filter(p=>p.uid===u.id && p.status==='pending');
@@ -1286,6 +1308,7 @@ const SCREENS = {
         <button data-a="alerts">${ic('search')}<span class="grow">Уведомления о поиске<br><span class="tiny dim">Сохранено: ${S.alerts.filter(a=>a.uid===u.id).length}</span></span></button>
         <button data-a="estimate">${ic('card')}<span class="grow">Сколько стоит моя машина?</span></button>
         <button data-a="support">${ic('chat')}<span class="grow">Служба поддержки${S.support.some(x=>x.uid===u.id&&x.status==='answered')?' <span class="badge b-ok">Есть ответ</span>':''}</span></button>
+        ${installItem()}
         <button data-a="settings">${ic('gear')}<span class="grow">Настройки<br><span class="tiny dim">Язык, тема, размер шрифта, уведомления</span></span></button>
         ${u.role!=='user'?`<button data-a="tab" data-v="admin">${ic('shield')}<span class="grow">${t('admin')}</span></button>`:''}
         <button data-a="logout">${ic('out')}<span class="grow">${t('logout')}</span></button>
@@ -1595,6 +1618,9 @@ function notifSheet(){
   renderBar(stack.length>1 ? $('.top-title')?.textContent : '');
 }
 
+function exitSheet(){
+  openSheet(`<h2>Выйти из приложения?</h2><div class="grid2"><button class="btn ghost" data-a="closesheet">Нет</button><button class="btn" data-a="exitapp">Да</button></div>`);
+}
 function confirmSheet(text, okLabel, action){
   openSheet(`<h2>${text}</h2><div class="grid2"><button class="btn ghost" data-a="closesheet">Отмена</button><button class="btn danger" data-a="${action.a}" data-v="${action.v}">${okLabel}</button></div>`);
 }
@@ -1665,6 +1691,7 @@ function activatePayment(p){
 
 const A = {
   ...FEATURE_ACTIONS,
+  exitapp(){ closeSheet(); if (NB && NB.exitApp) NB.exitApp(); else if (window.pwaExit) pwaExit(); },
   back, tab(v){ const [n,a]=v.split(':'); if (n==='plans'){ stack=[{name:'profile'}]; go('plans',a); return; } if (n==='admin'){ go('admin'); return; } if (n==='post') state.draft=null; root(n); },
   sec(v){ state.q=''; go('section', v); }, open(v){ go('detail', v); },
   fav(v){ const u=me(); if(!u){ go('auth','login'); return; } const a=S.favs[u.id]=S.favs[u.id]||[]; const i=a.indexOf(v); i<0?a.push(v):a.splice(i,1); if (i<0){ const fp=lsGet('mb_favprice',{}); fp[v]=S.listings.find(x=>x.id===v)?.price||0; lsSet('mb_favprice',fp); } persist(); toast(i<0?'Добавлено в избранное':'Убрано из избранного'); render(); },
@@ -1774,11 +1801,7 @@ document.addEventListener('keydown', e => { if (e.key==='Escape') back(); if ((e
   // Веб-версия: ссылка на объявление вида app/#l=<id> (и при открытии, и когда сайт уже открыт)
   const openHash = () => { const hl = location.hash.match(/^#l=([a-z0-9-]+)$/i); if (hl){ history.replaceState(null, '', location.pathname); mbOpenListing(hl[1]); } };
   openHash(); window.addEventListener('hashchange', openHash);
-  // Вернулись в приложение — подтягиваем свежие объявления
-  document.addEventListener('visibilitychange', async () => {
-    if (document.hidden || !$('#sheet').hidden || ['post','auth','pay'].includes(stack[stack.length-1]?.name)) return;
-    try { await refresh(); render(); } catch {}
-  });
+  // Свежие данные при возвращении в приложение и раз в минуту — refresh.js
 })();
 </script>
 </body></html>

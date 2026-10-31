@@ -114,7 +114,7 @@ footer{border-top:1px solid var(--line);padding:22px 0 32px;color:var(--dim);fon
         </a>
         <a class="btn ghost" href="app/">
           <svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></svg>
-          <span><span data-t="webBtn">Веб-версия</span><small data-t="webSub">iPhone и компьютер · без установки</small></span>
+          <span><span data-t="webBtn">Веб-версия</span><small data-t="webSub">iPhone и компьютер · можно установить</small></span>
         </a>
         <span class="ver" id="ver"></span>
       </div>
@@ -134,7 +134,7 @@ footer{border-top:1px solid var(--line);padding:22px 0 32px;color:var(--dim);fon
     <div class="feat"><div class="ci"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></div><b data-t="f4">Работа водителям</b><span data-t="f4p">Вакансии и резюме по категориям прав</span></div>
   </section>
 
-  <h2 data-t="howT">Как установить</h2>
+  <h2 data-t="howT">Как установить на Android</h2>
   <section class="steps">
     <div class="step"><b data-t="s1">Скачайте файл</b><span data-t="s1p">Нажмите «Скачать для Android». Файл MashynBazar.apk весит меньше 1 МБ.</span></div>
     <div class="step"><b data-t="s2">Разрешите установку</b><span data-t="s2p">Если телефон спросит про «неизвестные источники», нажмите «Настройки» и разрешите для браузера.</span></div>
@@ -143,6 +143,15 @@ footer{border-top:1px solid var(--line);padding:22px 0 32px;color:var(--dim);fon
   <div class="note"><svg class="i" viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 4.5 3.4 8.4 8 9 4.6-.6 8-4.5 8-9V6z"/><path d="m9 12 2 2 4-4"/></svg>
     <span data-t="upd"><b>Обновление:</b> скачайте новую версию с этой страницы и установите поверх старой — объявления и аккаунт сохранятся.</span></div>
 
+  <h2 data-t="iosT">Как установить на iPhone</h2>
+  <section class="steps">
+    <div class="step"><b data-t="i1">Откройте в Safari</b><span data-t="i1p">Нажмите «Веб-версия» на этой странице.</span></div>
+    <div class="step"><b data-t="i2">«Поделиться» → «На экран „Домой“»</b><span data-t="i2p">Кнопка «Поделиться» — внизу экрана. Если её не видно, сначала нажмите «•••».</span></div>
+    <div class="step"><b data-t="i3">Нажмите «Добавить»</b><span data-t="i3p">Значок Alpha Drive появится рядом с другими приложениями. Вход тот же — по номеру телефона.</span></div>
+  </section>
+  <div class="note"><svg class="i" viewBox="0 0 24 24"><path d="M3 5h18v11H3z"/><path d="M8 20h8M12 16v4"/></svg>
+    <span data-t="pc"><b>Компьютер с Windows:</b> откройте «Веб-версию» в Edge или Chrome и нажмите «Установить» — Alpha Drive появится в меню «Пуск» и будет открываться в своём окне.</span></div>
+
   <footer><span>© <span id="y"></span> Alpha Drive</span><span data-t="soon">Скоро в Google Play</span></footer>
 </div>
 
@@ -150,16 +159,20 @@ footer{border-top:1px solid var(--line);padding:22px 0 32px;color:var(--dim);fon
 const TM = {
   h1:'Maşynlar, tehnika we iş — <span>bir ýerde</span>',
   lead:'Türkmenistanyň ähli ýerinde awtoulag satyň we satyn alyň, ýörite tehnika sargyt ediň, şaý, awtoserwis we sürüji işini tapyň.',
-  btn:'Android üçin ýükle', free:'Mugt · APK', webBtn:'Web-wersiýa', webSub:'iPhone we kompýuter · gurnamazdan',
+  btn:'Android üçin ýükle', free:'Mugt · APK', webBtn:'Web-wersiýa', webSub:'iPhone we kompýuter · gurnap bolýar',
   qrT:'Kompýuterde açdyňyzmy?', qrP:'Telefonyň kamerasyny koda tutuň — bu sahypa açylar we programmany ýükläp bilersiňiz.',
   featT:'Programmada näme bar', f1:'Awtoulaglar we getirmek', f1p:'Türkmenistandaky we daşary ýurtdan maşynlar, doly bahasy bilen',
   f2:'Tehnika we hyzmatlar', f2p:'Kranlar, samoswallar, ewakuatorlar, refrižeratorlar',
   f3:'Şaýlar we awtoserwis', f3p:'Täze we ulanylan şaýlar, abatlaýyş we barlag',
   f4:'Sürüjiler üçin iş', f4p:'Sürüjilik şahadatnamasynyň görnüşi boýunça iş we rezýume',
-  howT:'Nädip gurnamaly', s1:'Faýly ýükläň', s1p:'«Android üçin ýükle» düwmesine basyň. MashynBazar.apk faýly 1 MB-dan az.',
+  howT:'Android-a nädip gurnamaly', s1:'Faýly ýükläň', s1p:'«Android üçin ýükle» düwmesine basyň. MashynBazar.apk faýly 1 MB-dan az.',
   s2:'Gurnamaga rugsat beriň', s2p:'Telefon «näbelli çeşmeler» barada sorasa, «Sazlamalar» basyp, brauzer üçin rugsat beriň.',
   s3:'Açyň we hasaba duruň', s3p:'«Gurna», soňra «Aç» basyň. Hasaba alyş mugt, telefon belgisi boýunça.',
   upd:'<b>Täzelenme:</b> täze wersiýany şu sahypadan ýükläp, köne wersiýanyň üstünden gurnaň — bildirişler we hasap saklanar.',
+  iosT:'iPhone-a nädip gurnamaly', i1:'Safari-de açyň', i1p:'Bu sahypada «Web-wersiýa» basyň.',
+  i2:'«Поделиться» → «На экран „Домой“»', i2p:'Iňlis dilindäki iPhone-da: «Share» → «Add to Home Screen». Düwme ekranyň aşagynda; görünmese, ilki «•••» basyň.',
+  i3:'«Добавить» (Add) basyň', i3p:'Alpha Drive nyşany beýleki programmalaryň ýanynda peýda bolar. Giriş şol bir — telefon belgisi boýunça.',
+  pc:'<b>Windows kompýuteri:</b> «Web-wersiýany» Edge ýa-da Chrome-da açyň we «Gurnamak» basyň — Alpha Drive «Start» menýusynda peýda bolar we aýratyn penjirede açylar.',
   soon:'Ýakynda Google Play-de'
 };
 const RU = {}; document.querySelectorAll('[data-t]').forEach(el => RU[el.dataset.t] = el.innerHTML);

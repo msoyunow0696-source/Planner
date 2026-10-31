@@ -100,6 +100,10 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void seen(double time) { NotifyJob.markSeen(MainActivity.this, (long) time); }
 
+        /** «Да» в вопросе «Выйти из приложения?» (кнопка «Назад» на главной). */
+        @JavascriptInterface
+        public void exitApp() { runOnUiThread(MainActivity.this::finish); }
+
         /** Обычное меню «Поделиться» телефона: IMO, Telegram, WhatsApp и любые другие приложения. */
         @JavascriptInterface
         public void share(String text) {

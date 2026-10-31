@@ -1,7 +1,8 @@
 {
   "name": "Alpha Drive",
   "short_name": "Alpha Drive",
-  "description": "Машины, техника и работа — в одном месте. Автомаркет Туркменистана.",
+  "description": "Машины, мотоциклы, техника и работа — в одном месте. Автомаркет Туркменистана.",
+  "id": "./",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
