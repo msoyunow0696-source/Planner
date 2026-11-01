@@ -1,0 +1,307 @@
+/* =====================================================
+   Помощник: чат, который подбирает объявления по обычной фразе
+   («нужна Камри до 20 000, автомат, не старше 2015») и отвечает
+   на частые вопросы. Чего не понял — передаёт оператору
+   (обращение в поддержку с темой «Помощник»), ответ приходит сюда же.
+   Работает без нейросети, прямо в телефоне.
+   Подключается после staff.js.
+   ===================================================== */
+SUP_TOPICS.push('Помощник');
+let BOT = lsGet('mb_bot', []);          // переписка: [{who:'me'|'bot', text, time, ids?, crit?, sup?, btn?}]
+const botSave = () => { BOT = BOT.slice(-40); lsSet('mb_bot', BOT); };
+const botSay = (text, extra={}) => BOT.push({who:'bot', text, time:now(), ...extra});
+
+/* ================== Разбор фразы ================== */
+const norm = s => ' ' + String(s||'').toLowerCase().replace(/ё/g,'е').replace(/[«»"!?.,;:()]/g,' ').replace(/\s+/g,' ') + ' ';
+// Как люди пишут марки и модели по-русски (окончания отрезаем при сравнении)
+const BRAND_SAY = {Toyota:'тойота тоета тайота toyota', Lexus:'лексус lexus', Hyundai:'хендай хундай хюндай хендэ hyundai', Kia:'киа kia', Mercedes:'мерседес мерс мерин mercedes',
+  'Mercedes-Benz':'мерседес мерс mercedes', BMW:'бмв бэха bmw', Chevrolet:'шевроле шевролет chevrolet chevy', Nissan:'ниссан нисан nissan', Honda:'хонда honda', Lada:'лада ваз жигули lada',
+  Volkswagen:'фольксваген volkswagen vw', Ford:'форд ford', Mazda:'мазда mazda', Audi:'ауди audi', Daewoo:'дэу деу daewoo', Mitsubishi:'митсубиси мицубиси mitsubishi',
+  Subaru:'субару subaru', Opel:'опель opel', Gaz:'газель gaz', GAZ:'газель gaz', Geely:'джили geely', Chery:'чери chery', Haval:'хавал haval', Infiniti:'инфинити infiniti', Porsche:'порше porsche', Tesla:'тесла tesla'};
+const MODEL_SAY = {'Camry':'камри камрю', 'Corolla':'королла корола', 'Land Cruiser':'крузак крузер ленд', 'Land Cruiser Prado':'прадо', 'RAV4':'рав4 рав', 'Highlander':'хайлендер хайландер',
+  'Sequoia':'секвойя секвоя', 'Tundra':'тундра', '4Runner':'форанер раннер', 'Avalon':'авалон', 'Yaris':'ярис', 'Hilux':'хайлюкс хайлакс', 'Sonata':'соната', 'Elantra':'элантра',
+  'Accent':'акцент', 'Solaris':'солярис', 'Tucson':'туксон тусон', 'Santa Fe':'сантафе санта', 'Optima':'оптима', 'Sportage':'спортейдж спортаж', 'Rio':'рио', 'Sorento':'соренто',
+  'Nexia':'нексия нексиа', 'Cobalt':'кобальт', 'Lacetti':'лачетти лацетти', 'Gentra':'джентра жентра', 'Malibu':'малибу', 'Cruze':'круз', 'Spark':'спарк', 'Damas':'дамас',
+  'Captiva':'каптива', 'Tahoe':'тахо', 'Altima':'альтима', 'Patrol':'патрол', 'X-Trail':'икстрейл', 'Accord':'аккорд', 'Civic':'цивик', 'CR-V':'црв', 'Priora':'приора',
+  'Niva':'нива', 'Granta':'гранта', 'Vesta':'веста', 'Gelandewagen':'гелик гелендваген', 'E-Class':'ешка'};
+const stem = w => w.length > 4 ? w.slice(0, w.length - 1) : w;
+const hasWord = (txt, words) => words.split(' ').some(w => w && (w.length <= 3 ? txt.includes(' '+w+' ') : txt.includes(' '+stem(w))));
+const allBrands = () => { const m = {}; for (const g of Object.values(CATALOG)) for (const [b, ms] of Object.entries(g)) m[b] = ms; return m; };
+
+function parseCar(text){
+  const s = norm(text), c = {};
+  const brands = allBrands();
+  // Раздел
+  if (/ (мото|мотоцикл|скутер|мопед|квадро|байк|питбайк|motosikl|motorcycle)/.test(s)) c.sec = 'moto';
+  else if (/ (запчаст|шины|шину|резин|диски|аккумулятор|бампер|фары|parts)/.test(s)) c.sec = 'parts';
+  else if (/ (аренд|прокат|напрокат|kärende|rent)/.test(s)) c.sec = 'rent';
+  else if (/ (пригон|из-за рубеж|из оаэ|из кореи|из сша|из китая|растамож)/.test(s)) c.sec = 'import';
+  // Марка и модель
+  for (const [b, ms] of Object.entries(brands)){
+    const say = BRAND_SAY[b] || b.toLowerCase() + ' ' + (BRAND_CYR[b] || '');
+    if (hasWord(s, say.trim())){ c.brand = b; break; }
+  }
+  const pool = c.brand ? [[c.brand, brands[c.brand]]] : Object.entries(brands);
+  // «крузак» — это любой Land Cruiser: по прозвищу ищем по началу названия модели
+  const flat = s.replace(/[-\s]/g,'');
+  outer: for (const [b, ms] of pool) for (const m of [...ms].sort((x,y)=>y.length-x.length)){
+    if (s.includes(' '+m.toLowerCase()+' ') || (m.length > 3 && flat.includes(m.toLowerCase().replace(/[-\s]/g,'')))){ c.model = m; c.brand = c.brand || b; break outer; }
+    const key = Object.keys(MODEL_SAY).filter(k => m.startsWith(k)).sort((x,y)=>y.length-x.length)[0];
+    if (key && hasWord(s, MODEL_SAY[key])){ c.model = key; c.brand = c.brand || b; break outer; }
+  }
+  // Цена: «до 20 000», «20 тыс», «20к», «от 10 до 15 тысяч», «бюджет 12000»
+  const num = (n, u) => { let v = Number(String(n).replace(/[\s.,]/g,'')); if (/^(тыс|к|k|müň)/.test(u||'') || (v < 1000 && /тыс|к|k/.test(u||''))) v *= 1000; return v; };
+  const P = '(\\d{1,3}(?:[\\s.,]\\d{3})+|\\d+)\\s*(тыс[а-я]*|к|k|müň)?(?=\\s|$|tmt|ман|man)';
+  let m = s.match(new RegExp(' от ' + P + '\\s*до ' + P));
+  if (m){ const a = num(m[1], m[2] || m[4]), b = num(m[3], m[4]); if (a > 1990 || a < 1950) c.pmin = a; c.pmax = b; }
+  m = s.match(new RegExp(' (до|дешевле|не дороже|максимум|бюджет|за|в пределах|under|çenli|budget) ' + P));
+  if (m && !c.pmax){ const v = num(m[2], m[3]); if (!(v >= 1950 && v <= 2035 && !m[3])) c.pmax = v; }
+  if (!c.pmax){ m = s.match(/ (\d+)\s*(тыс[а-я]*|к|k) /); if (m) c.pmax = num(m[1], m[2]); }
+  // Год: «не старше 2015», «от 2015», «2015+», «после 2015», «до 2010 года»
+  m = s.match(/ (не старше|от|после|свежее|новее|с|from) (19[5-9]\d|20[0-3]\d)/) || s.match(/ (19[5-9]\d|20[0-3]\d) ?\+/);
+  if (m) c.ymin = Number(m[2] || m[1]);
+  m = s.match(/ (до|старше|не новее) (19[5-9]\d|20[0-3]\d) (г|год)/);
+  if (m) c.ymax = Number(m[2]);
+  if (!c.ymin && !c.ymax){ m = s.match(/ (19[5-9]\d|20[0-3]\d)( г| год| года| goda| ýyl)? /); if (m && !(c.pmax === Number(m[1]))){ c.ymin = Number(m[1]) - 1; c.ymax = Number(m[1]) + 1; } }
+  // Коробка, топливо, кузов, состояние
+  if (/ (автомат|акпп|automatic|awtomat)/.test(s)) c.gear = 'АКПП';
+  else if (/ (механик|мкпп|ручн|manual|mehanika)/.test(s)) c.gear = 'МКПП';
+  else if (/ вариатор/.test(s)) c.gear = 'Вариатор';
+  if (/ (дизел|солярк|diesel)/.test(s)) c.fuel = 'Дизель';
+  else if (/ (газ |метан|пропан|на газу)/.test(s)) c.fuel = 'Газ/бензин';
+  else if (/ (гибрид|hybrid)/.test(s)) c.fuel = 'Гибрид';
+  else if (/ (электро|электрич|electric)/.test(s)) c.fuel = 'Электро';
+  if (/ (седан|sedan)/.test(s)) c.body = 'Седан';
+  else if (/ (внедорож|джип|кроссовер|suv|jeep|jip)/.test(s)) c.body = 'Внедорожник';
+  else if (/ (хэтчбек|хетчбек|hatchback)/.test(s)) c.body = 'Хэтчбек';
+  else if (/ (универсал|wagon)/.test(s)) c.body = 'Универсал';
+  else if (/ (минивэн|минивен|minivan|семейн)/.test(s)) c.body = 'Минивэн';
+  else if (/ (пикап|pickup)/.test(s)) c.body = 'Пикап';
+  if (/ (нов(ый|ую|ая|ое) |новень| täze| new )/.test(s) && !/ (не нов|новее)/.test(s)) c.usage = 'new';
+  else if (/ (с пробегом|б\/у|бу |подержан|used)/.test(s)) c.usage = 'used';
+  if (/ (кредит|рассрочк|kredit)/.test(s)) c.credit = 'yes';
+  if (/ (обмен|swap|çalyş)/.test(s)) c.swap = 'yes';
+  // Регион
+  for (const r of REGIONS){
+    const say = [r.short, r.tm, r.en, ...r.places].map(x=>x.toLowerCase().replace(/ /g,'')).join(' ');
+    if (hasWord(s.replace(/ (велаят|welaýaty)/g,' '), say)){ c.reg = r.k; break; }
+  }
+  return c;
+}
+const critKeys = c => Object.keys(c).filter(k => c[k] !== undefined && c[k] !== '');
+const wantsCar = s => / (ищу|нужн|хочу|подбер|подскаж|покаж|найд|есть ли|куп|машин|авто|тачк|maşyn|awtoulag|gerek|isleýän|need|looking|want|car)/.test(s);
+
+function findCars(c){
+  const sec = c.sec || 'cars';
+  const ok = l => visible(l) && (sec==='cars' ? CAR_SECS.includes(l.sec) : l.sec===sec);
+  const test = (l, cr) => { const sp = l.specs || {};
+    if (cr.brand && ![sp.brand, sp.tbrand, sp.pbrand].includes(cr.brand)) return false;
+    if (cr.model && !String(sp.model||'').toLowerCase().startsWith(cr.model.toLowerCase()) && !l.title.toLowerCase().includes(cr.model.toLowerCase())) return false;
+    if (cr.pmax && !(l.price && l.price <= cr.pmax)) return false;
+    if (cr.pmin && !(l.price >= cr.pmin)) return false;
+    if (cr.ymin && (sp.year||0) < cr.ymin) return false;
+    if (cr.ymax && (sp.year||9999) > cr.ymax) return false;
+    for (const k of ['gear','fuel','body','usage','credit','swap']) if (cr[k] && !String(sp[k]||'').split(', ').includes(cr[k])) return false;
+    if (cr.reg && l.reg !== cr.reg) return false;
+    return true; };
+  const base = S.listings.filter(ok);
+  let hits = base.filter(l => test(l, c)), soft = '';
+  // Ничего не нашли — смягчаем условия по очереди и говорим, что именно
+  const steps = [['reg','в других регионах'],['ymin','чуть старше'],['ymax','чуть новее'],['gear','с другой коробкой'],['fuel','на другом топливе'],['body','в другом кузове'],['pmax','чуть дороже']];
+  let cr = {...c};
+  for (const [k, why] of steps){
+    if (hits.length) break;
+    if (!cr[k]) continue;
+    if (k==='pmax') cr.pmax = Math.round(cr.pmax * 1.25); else if (k==='ymin') cr.ymin -= 2; else if (k==='ymax') cr.ymax += 2; else delete cr[k];
+    hits = base.filter(l => test(l, cr)); soft = why;
+  }
+  return {hits:rank(hits), soft, crit:cr, sec};
+}
+
+const critText = c => [c.brand && (c.brand + (c.model ? ' ' + c.model : '')), c.body, c.gear, c.fuel, c.usage && USAGE[c.usage],
+  c.ymin && c.ymax && c.ymax - c.ymin <= 2 ? `${c.ymin}–${c.ymax} г.` : c.ymin ? `от ${c.ymin} г.` : c.ymax ? `до ${c.ymax} г.` : '',
+  c.pmin ? `от ${fmt(c.pmin)} TMT` : '', c.pmax ? `до ${fmt(c.pmax)} TMT` : '', c.credit && 'в кредит', c.swap && 'обмен', c.reg && regShort(c.reg)].filter(Boolean).join(', ');
+
+/* ================== Частые вопросы ================== */
+const faqA = q => (FAQ.find(f => f[0]===q) || [,''])[1];
+const BOT_FAQ = [
+  [/ (как|где|хочу) .*(подать|разместить|выставить|продать|добавить)|подать объявлен|разместить объявлен|bildiriş goý/, () => faqA('Как подать объявление?'), ['Подать объявление','tab','post']],
+  [/ (сколько стоит|цена|платн|бесплатн).*(размещ|объявлен|подписк)|подписк|тариф/, () => faqA('Сколько стоит размещение?') + (S.settings.mode==='free' ? '' : ' Цены — в Профиль → Подписки.'), ['Цены и подписки','tab','plans']],
+  [/ на проверке|почему .*(провер|скрыт|отклон)/, () => faqA('Почему объявление «На проверке»?')],
+  [/ продлить|срок .*(кончил|закончил|истек)/, () => faqA('Как продлить объявление?')],
+  [/ (пароль|забыл|не могу войти|parol)/, () => faqA('Я забыл пароль'), ['Восстановить пароль','forgot']],
+  [/ (мошен|обман|кинул|развод|предоплат|безопасн|galp)/, () => faqA('Как не попасть на мошенника?')],
+  [/ (уведом|сообщ.* о нов|первым узна)/, () => faqA('Как узнать о новых машинах первым?')],
+  [/ (написать продавц|связаться|номер продавц|позвонить продавц)/, () => faqA('Как написать продавцу?')],
+  [/ (изменить цену|снизить цену|продано|продал)/, () => faqA('Как изменить цену или отметить «Продано»?')],
+  [/ отзыв/, () => faqA('Как оставить отзыв о продавце?')],
+  [/ удалить (аккаунт|профил)/, () => faqA('Как удалить аккаунт?')],
+  [/ (сколько стоит моя|оценить|оценк|за сколько продать)/, () => 'Посчитаю среднюю цену по похожим объявлениям — нажмите кнопку ниже.', ['Сколько стоит моя машина?','estimate']],
+  [/ (vip|вип|топ|поднять|продвиж|выделить)/, () => 'Продвижение: ' + PROMOS.map(p => `${p.n} — ${p.price} TMT`).join('; ') + '. Кнопка «Продвинуть» — в вашем объявлении.'],
+  [/ (vin|вин-код|вин код)/, () => 'VIN — 17 знаков. Если продавец указал VIN, в объявлении видно страну, марку и год. Проверяйте, что VIN на машине совпадает с документами.'],
+  [/ (телефон поддержк|контакт|как связаться с вами|номер поддержк)/, () => `Служба поддержки: ${fmtPhone(supPhone())}. Работаем каждый день с 09:00 до 21:00.`, ['Служба поддержки','support']]
+];
+const OPERATOR_RE = / (оператор|человек|живой|админ|поддержк|менеджер|operator|adam|support)/;
+
+/* ================== Ответ помощника ================== */
+function botReply(text){
+  const s = norm(text);
+  if (OPERATOR_RE.test(s) && !/ (как|сколько|телефон|номер|контакт)/.test(s)) return botHandoff();
+  for (const [re, ans, btn] of BOT_FAQ) if (re.test(s)) return botSay(ans(), btn ? {btn} : {});
+  if (/ (привет|здравств|салам|salam|hello|hi |добрый)/.test(s) && s.length < 30) return botSay('Здравствуйте! Напишите, какую машину ищете — модель, бюджет, год, коробку, город. Подберу объявления.');
+  if (/ (спасибо|сагбол|sag bol|thanks)/.test(s)) return botSay('Пожалуйста! Если что-то ещё — пишите.');
+
+  let c = parseCar(text);
+  // «а подешевле?», «а автомат?», «только в Ашхабаде» — уточняем прошлый поиск
+  const last = [...BOT].reverse().find(m => m.crit);
+  if (last && /^ (а|и|еще|только|лучше|можно|подешевле|дешевле|подороже|новее|свежее) /.test(s) && !c.brand && !c.model){
+    const prev = {...last.crit}, prices = (last.ids||[]).map(id => S.listings.find(l=>l.id===id)?.price).filter(Boolean);
+    if (/ (подешевле|дешевле)/.test(s) && !c.pmax) c.pmax = Math.round((prev.pmax || Math.min(...prices, 1e9)) * 0.85) || undefined;
+    if (/ (новее|свежее)/.test(s) && !c.ymin) c.ymin = (prev.ymin || 2010) + 3;
+    c = {...prev, ...c};
+  }
+  if (!critKeys(c).length && !wantsCar(s)) return botFallback();
+  if (!critKeys(c).length) return botSay('Подскажите подробнее: какая марка или кузов, бюджет, год? Например: «Седан до 15 000, автомат, не старше 2012».');
+
+  const r = findCars(c);
+  if (!r.hits.length){
+    return botSay(`По запросу «${critText(c)}» сейчас объявлений нет. Сохраните поиск — придёт уведомление, когда появится. Или напишите иначе.`, {crit:c, sec:r.sec, btn:['Сообщить, когда появится','helperalert']});
+  }
+  const top = r.hits.slice(0, 5);
+  const intro = r.soft ? `Точно по запросу ничего нет. Нашёл похожие — ${r.soft}:` : `Нашёл ${r.hits.length} ${plural(r.hits.length, 'объявление', 'объявления', 'объявлений')}${critText(r.crit) ? ' — ' + critText(r.crit) : ''}:`;
+  botSay(intro, {ids:top.map(l=>l.id), crit:r.crit, sec:r.sec, total:r.hits.length});
+}
+const plural = (n, one, few, many) => { const a = n % 10, b = n % 100; return a===1 && b!==11 ? one : a>=2 && a<=4 && (b<10 || b>=20) ? few : many; };
+
+function botFallback(){
+  const misses = [...BOT].reverse().slice(0, 4).filter(m => m.miss).length;
+  botSay(misses ? 'Этот вопрос лучше задать оператору — он ответит в течение дня.' : 'Я пока умею подбирать машины и отвечать на частые вопросы о приложении. Переформулируйте или передам вопрос оператору.',
+    {miss:1, btn:['Позвать оператора','helperop']});
+}
+
+// Передаём вопрос оператору: обращение в поддержку с последними сообщениями из чата
+function botHandoff(){
+  const u = me();
+  if (!u) return botSay('Чтобы оператор ответил, войдите в аккаунт.', {btn:['Войти','auth','login']});
+  const open = S.support.find(x => x.uid===u.id && x.topic==='Помощник' && x.status==='open');
+  if (open) return botSay('Ваш вопрос уже у оператора. Ответ придёт в уведомления и сюда, в этот чат.');
+  const asked = BOT.filter(m => m.who==='me').slice(-4).map(m => '— ' + m.text).join('\n');
+  const text = ('Вопрос из чата-помощника:\n' + (asked || '— Пользователь просит связаться с оператором')).slice(0, 1000);
+  const sup = {id:uid(), uid:u.id, topic:'Помощник', text, time:now(), status:'open', reply:''};
+  S.support.push(sup); persist();
+  botSay('Передал оператору. Он ответит в течение дня (с 09:00 до 21:00) — ответ придёт в уведомления и сюда.', {sup:sup.id});
+}
+
+/* ================== Экран ================== */
+const botCar = l => `<button class="card row" style="gap:10px;padding:8px;text-align:left;width:100%" data-a="open" data-v="${l.id}">
+  <div style="width:72px;height:54px;border-radius:10px;overflow:hidden;flex:none">${mainPic(l)}</div>
+  <div style="flex:1;min-width:0"><b class="small" style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(l.title)}</b>
+  <span class="small num" style="color:var(--accent);font-weight:700">${esc(priceText(l))}</span><br><span class="tiny dim">${[l.specs?.year, l.specs?.gear, placeText(l)].filter(Boolean).map(esc).join(' · ')}</span></div></button>`;
+const HELPER_CHIPS = ['Седан до 15 000 TMT', 'Внедорожник в Ашхабаде', 'Toyota Camry, автомат', 'Как подать объявление?', 'Как не попасть на мошенника?', 'Позвать оператора'];
+
+Object.assign(FEATURE_SCREENS, {
+  helper(){
+    if (!BOT.length){ botSay('Здравствуйте! Я помощник Alpha Drive. Напишите, какую машину ищете, — например: «Нужна Камри до 20 000, автомат, не старше 2015». Или задайте вопрос о приложении.'); botSave(); }
+    const u = me();
+    return {title:'Помощник', html:`
+      <div class="card pad row small" style="gap:10px">${ic('chat','style="width:22px;height:22px;color:var(--accent);flex:none"')}<span class="dim">Подбираю объявления и отвечаю на частые вопросы. Сложный вопрос передам оператору.</span></div>
+      <div class="chat" id="botbox">${BOT.map(m => {
+        if (m.who==='me') return `<div class="bubble me"><span>${esc(m.text)}</span><span class="tiny">${timeStr(m.time)}</span></div>`;
+        const cars = (m.ids||[]).map(id => S.listings.find(l=>l.id===id)).filter(Boolean);
+        const sup = m.sup && S.support.find(x=>x.id===m.sup);
+        return `<div class="bubble" style="max-width:92%;gap:8px"><span>${esc(m.text)}</span>
+          ${cars.length?`<div class="col" style="gap:6px">${cars.map(botCar).join('')}</div>`:''}
+          ${m.total>cars.length?`<button class="btn sm ghost" data-a="helperall" data-v="${BOT.indexOf(m)}">Показать все (${m.total})</button>`:''}
+          ${m.btn?`<button class="btn sm ${m.btn[1]==='helperop'?'':'ghost'}" data-a="helperbtn" data-v="${BOT.indexOf(m)}">${esc(m.btn[0])}</button>`:''}
+          <span class="tiny">${timeStr(m.time)}</span></div>
+          ${sup&&sup.reply?`<div class="bubble" style="border:1px solid var(--ok)"><span><b style="color:var(--ok)">Оператор:</b> ${esc(sup.reply)}</span></div>`:''}`; }).join('')}</div>
+      <div class="chips">${HELPER_CHIPS.map(q=>`<button class="chip" data-a="helperask" data-v="${esc(q)}">${esc(q)}</button>`).join('')}</div>
+      <div class="chat-input"><textarea id="bot_text" class="inp" maxlength="300" rows="1" placeholder="Что ищете?" aria-label="Сообщение помощнику"></textarea>
+        <button class="btn" data-a="helpersend" aria-label="Отправить">${ic('up','style="transform:rotate(90deg)"')}</button></div>
+      <div class="between"><span class="tiny dim">${u?'':'Войдите, чтобы задать вопрос оператору'}</span><button class="link tiny" data-a="helperclear">Очистить чат</button></div>`,
+      after(){
+        $('#botbox')?.lastElementChild?.scrollIntoView({block:'end'});
+        const ta = $('#bot_text');
+        ta.addEventListener('keydown', e => { if (e.key==='Enter' && !e.shiftKey){ e.preventDefault(); A.helpersend(); } });
+        // Ждём ответ оператора, пока чат открыт
+        const waiting = BOT.some(m => m.sup && !S.support.find(x=>x.id===m.sup)?.reply);
+        clearInterval(botTimer);
+        if (waiting) botTimer = setInterval(async () => {
+          if (stack[stack.length-1].name!=='helper'){ clearInterval(botTimer); return; }
+          if (document.hidden || !$('#sheet').hidden) return;
+          const before = JSON.stringify(S.support.map(x=>x.reply));
+          try { await pullColl('support'); } catch { return; }
+          if (JSON.stringify(S.support.map(x=>x.reply)) !== before) render();
+        }, 15000);
+      }};
+  }
+});
+let botTimer = 0;
+
+Object.assign(FEATURE_ACTIONS, {
+  helper(){ go('helper'); },
+  helperask(text){ helperAsk(text); },
+  helpersend(){ const ta = $('#bot_text'), text = ta.value.trim(); if (text) helperAsk(text); },
+  helperclear(){ BOT = []; botSave(); render(); },
+  helperop(){ botHandoff(); botSave(); render(); },
+  helperbtn(i){ const m = BOT[i]; if (!m?.btn) return; const [, a, v] = m.btn; if (a==='helperalert') return helperAlert(m); if (a==='helperop'){ A.helperop(); return; } A[a] && A[a](v); },
+  helperall(i){
+    const m = BOT[i], c = m.crit || {}, f = {};
+    if (c.brand) f.brand = [c.brand];
+    for (const k of ['pmin','pmax','ymin','ymax','reg']) if (c[k]) f[k] = c[k];
+    for (const k of ['gear','fuel','body','usage','credit','swap']) if (c[k]) f[k] = [c[k]];
+    state.filters[m.sec] = f; state.q = c.model || '';
+    go('section', m.sec);
+  }
+});
+function helperAsk(text){
+  BOT.push({who:'me', text:text.slice(0, 300), time:now()});
+  try { botReply(text); } catch (e){ console.warn(e); botFallback(); }
+  botSave(); render();
+}
+// «Сообщить, когда появится» — через сохранённые поиски (features.js)
+function helperAlert(m){
+  const u = me(); if (!u){ go('auth','login'); return; }
+  const c = m.crit || {}, f = {};
+  if (c.brand) f.brand = [c.brand];
+  for (const k of ['pmin','pmax','ymin','ymax','reg']) if (c[k]) f[k] = c[k];
+  for (const k of ['gear','fuel','body','usage']) if (c[k]) f[k] = [c[k]];
+  state.filters[m.sec] = f; state.q = c.model || '';
+  go('section', m.sec);
+  toast('Нажмите «Сообщить о новых по этому поиску»');
+}
+
+// Помощник на главной: карточка и круглая кнопка
+const helperCard = () => `<button class="card pad row" data-a="helper" style="text-align:left;gap:12px"><span class="ci" style="width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:var(--accent);color:var(--on);flex:none">${ic('chat')}</span><span style="flex:1"><b>Помощник подберёт машину</b><br><span class="small dim">Напишите, что ищете: модель, бюджет, год</span></span>${ic('back','style="width:18px;transform:rotate(180deg);color:var(--dim)"')}</button>`;
+const helperFab = () => `<button class="helper-fab" data-a="helper" aria-label="Помощник">${ic('chat')}</button>`;
+document.head.insertAdjacentHTML('beforeend', `<style>
+.helper-fab{position:fixed;right:max(16px,calc(50% - 320px));bottom:calc(88px + env(safe-area-inset-bottom,0px));z-index:30;width:56px;height:56px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--on);box-shadow:0 6px 20px rgba(0,0,0,.3)}
+.helper-fab svg{width:26px;height:26px}
+</style>`);
+
+/* ================== Переводы новых фраз ================== */
+Object.assign(TR, {
+  'Помощник':['Kömekçi','Assistant'], 'Помощник подберёт машину':['Kömekçi maşyn saýlar','The assistant will find a car'],
+  'Напишите, что ищете: модель, бюджет, год':['Näme gözleýändigiňizi ýazyň: model, býudžet, ýyl','Write what you need: model, budget, year'],
+  'Подбираю объявления и отвечаю на частые вопросы. Сложный вопрос передам оператору.':['Bildirişleri saýlaýaryn we köp berilýän soraglara jogap berýärin. Çylşyrymly soragy operatora geçirerin.','I find listings and answer common questions. I’ll pass hard questions to an operator.'],
+  'Что ищете?':['Näme gözleýärsiňiz?','What are you looking for?'], 'Очистить чат':['Çaty arassala','Clear chat'], 'Позвать оператора':['Operatory çagyr','Call an operator'],
+  'Седан до 15 000 TMT':['15 000 TMT çenli sedan','Sedan under 15 000 TMT'], 'Внедорожник в Ашхабаде':['Aşgabatda ýolsuzyň ulagy','SUV in Ashgabat'], 'Toyota Camry, автомат':['Toyota Camry, awtomat','Toyota Camry, automatic'],
+  'Войдите, чтобы задать вопрос оператору':['Operatora sorag bermek üçin giriň','Sign in to ask an operator'], 'Сообщить, когда появится':['Peýda bolanda habar ber','Notify me when available'],
+  'Оператор:':['Operator:','Operator:'], 'Подать объявление':['Bildiriş goý','Post a listing'], 'Цены и подписки':['Bahalar we abunalar','Prices and plans'], 'Восстановить пароль':['Paroly dikelt','Recover password'],
+  'Пожалуйста! Если что-то ещё — пишите.':['Hoş! Başga zat bolsa ýazyň.','You’re welcome! Write if you need anything else.'],
+  'Передал оператору. Он ответит в течение дня (с 09:00 до 21:00) — ответ придёт в уведомления и сюда.':['Operatora geçirdim. Ol gün dowamynda jogap berer (09:00–21:00) — jogap habarlara we şu ýere geler.','Passed to an operator. They’ll reply within a day (09:00–21:00) — the answer will come to notifications and here.'],
+  'Ваш вопрос уже у оператора. Ответ придёт в уведомления и сюда, в этот чат.':['Soragyňyz eýýäm operatorda. Jogap habarlara we şu çata geler.','Your question is already with an operator. The answer will come to notifications and to this chat.'],
+  'Чтобы оператор ответил, войдите в аккаунт.':['Operator jogap bermegi üçin hasaba giriň.','Sign in so an operator can reply.'],
+  'Этот вопрос лучше задать оператору — он ответит в течение дня.':['Bu soragy operatora bermek gowy — ol gün dowamynda jogap berer.','Better to ask an operator — they’ll reply within a day.'],
+  'Я пока умею подбирать машины и отвечать на частые вопросы о приложении. Переформулируйте или передам вопрос оператору.':['Men häzirlikçe maşyn saýlap we programma barada köp berilýän soraglara jogap berip bilýärin. Başgaça ýazyň ýa-da soragy operatora geçireýin.','For now I can find cars and answer common questions about the app. Rephrase it, or I’ll pass it to an operator.'],
+  'Здравствуйте! Я помощник Alpha Drive. Напишите, какую машину ищете, — например: «Нужна Камри до 20 000, автомат, не старше 2015». Или задайте вопрос о приложении.':['Salam! Men Alpha Drive kömekçisi. Haýsy maşyny gözleýändigiňizi ýazyň, mysal üçin: «20 000 çenli Camry, awtomat, 2015-den täze». Ýa-da programma barada sorag beriň.','Hello! I’m the Alpha Drive assistant. Tell me what car you need, e.g. “Camry under 20 000, automatic, 2015 or newer”. Or ask about the app.'],
+  'Здравствуйте! Напишите, какую машину ищете — модель, бюджет, год, коробку, город. Подберу объявления.':['Salam! Haýsy maşyny gözleýändigiňizi ýazyň — model, býudžet, ýyl, korobka, şäher. Bildirişleri saýlaýyn.','Hello! Tell me what car you need — model, budget, year, gearbox, city. I’ll find listings.'],
+  'Подскажите подробнее: какая марка или кузов, бюджет, год? Например: «Седан до 15 000, автомат, не старше 2012».':['Has jikme-jik ýazyň: haýsy marka ýa-da kuzow, býudžet, ýyl? Mysal: «15 000 çenli sedan, awtomat, 2012-den täze».','Tell me more: which make or body, budget, year? E.g. “Sedan under 15 000, automatic, 2012 or newer”.'],
+  'Нажмите «Сообщить о новых по этому поиску»':['«Bu gözleg boýunça täzeler barada habar ber» basyň','Tap “Notify me about new ones for this search”'],
+  'Запросы сотрудников':['Işgärleriň haýyşlary','Staff requests']
+});
+TR_RE.push(
+  [/^Нашёл (\d+) (объявление|объявления|объявлений)(?: — (.+))?:$/, (m,n,w,c) => [n+' bildiriş tapdym'+(c?' — '+c:'')+':', 'Found '+n+' listing'+(n==='1'?'':'s')+(c?' — '+c:'')+':']],
+  [/^Показать все \((\d+)\)$/, (m,n) => ['Hemmesini görkez ('+n+')', 'Show all ('+n+')']]
+);
+TR_SUB.splice(0, TR_SUB.length, ...Object.keys(TR).filter(k => k.length >= 6 && /[ «»:,.→₽]/.test(k)).sort((a,b) => b.length - a.length));

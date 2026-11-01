@@ -10,10 +10,16 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Alpha Drive">
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@500;700;800&display=swap">
 <style>
 /* Мобильное приложение: шапка сверху, лента карточек, нижняя навигация. Темы задаются на body[data-t]. */
+/* Шрифты лежат в fonts/ (OFL, файлы с Google Fonts): без интернета и без Google заголовки не падают на Arial Black.
+   Шрифты переменные — один файл на все толщины; браузер берёт только нужные наборы букв (туркменские ň ş ž — в latin-ext). */
+@font-face{font-family:'Onest';font-style:normal;font-weight:400 700;font-display:swap;src:url(fonts/onest-latin.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:'Onest';font-style:normal;font-weight:400 700;font-display:swap;src:url(fonts/onest-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:'Onest';font-style:normal;font-weight:400 700;font-display:swap;src:url(fonts/onest-cyrillic.woff2) format('woff2');unicode-range:U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116}
+@font-face{font-family:'Unbounded';font-style:normal;font-weight:500 800;font-display:swap;src:url(fonts/unbounded-latin.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:'Unbounded';font-style:normal;font-weight:500 800;font-display:swap;src:url(fonts/unbounded-latin-ext.woff2) format('woff2');unicode-range:U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF}
+@font-face{font-family:'Unbounded';font-style:normal;font-weight:500 800;font-display:swap;src:url(fonts/unbounded-cyrillic.woff2) format('woff2');unicode-range:U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116}
 :root{
   --font-d:'Unbounded','Arial Black',system-ui,sans-serif;
   --font-b:'Onest',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
@@ -161,6 +167,16 @@ select.inp option{background:var(--bg1);color:var(--text)}
 .vc .info{padding:10px 12px 12px;display:flex;flex-direction:column;gap:2px}
 .vc .p{font-family:var(--font-d);font-weight:700}
 .vc .badge{position:absolute;top:10px;left:10px}
+/* «Вы смотрели» и «Похожие»: три маленькие карточки в ряд */
+.mini-row{gap:8px}
+.mini-row .vc{flex:0 0 calc((100% - 16px) / 3);border-radius:13px}
+.mini-row .vc .th{height:auto;aspect-ratio:4/3}
+.mini-row .vc .info{padding:6px 7px 7px;gap:1px}
+.mini-row .vc .info>*{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini-row .vc .small{font-size:.74rem}
+.mini-row .vc .p{font-size:.78rem}
+.mini-row .vc .tiny{font-size:.64rem}
+.mini-row .vc .badge{top:5px;left:5px;font-size:.58rem;padding:2px 5px}
 
 /* Карточка объявления */
 .gal{position:relative;border-radius:22px;overflow:hidden;background:var(--card2)}
@@ -196,6 +212,37 @@ select.inp option{background:var(--bg1);color:var(--text)}
 .gal-dots{position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:center;gap:6px}
 .gal-dots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.45)}
 .gal-dots i.on{background:#fff;width:18px;border-radius:4px}
+/* Подборки на главной: большое фото, название и число объявлений */
+.ptiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.ptile{position:relative;aspect-ratio:4/3;border-radius:var(--r);overflow:hidden;background:var(--card2);border:1px solid var(--line);text-align:left}
+.ptile>img,.ptile>svg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.ptile::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 35%,rgba(0,0,0,.78))}
+.ptile .pt{position:absolute;left:12px;right:12px;bottom:10px;z-index:1;display:flex;flex-direction:column;gap:1px;color:#fff}
+.ptile .pt b{font-family:var(--font-d);font-size:1rem;line-height:1.15}.ptile .pt>span{font-size:.78rem;opacity:.85}
+/* Окно «Марка»: строки марок с числом объявлений */
+.brow{padding:11px 4px;border-bottom:1px solid var(--line);text-align:left}.brow.on{color:var(--accent);font-weight:700}
+/* Объявление: «Позвонить» и «SMS» всегда видны над нижней навигацией */
+.callbar{position:sticky;bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:5;display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 0;background:linear-gradient(180deg,transparent,var(--bg1) 30%)}
+.callbar a{text-decoration:none}
+/* Автосалоны: карточка в списке, шапка страницы с баннером и логотипом, выбор картинок */
+.dbanner{height:96px;background:linear-gradient(135deg,var(--bg2),color-mix(in srgb,var(--accent) 45%,var(--bg2)));overflow:hidden}
+.dbanner img{width:100%;height:100%;object-fit:cover;display:block}
+.dlogo{flex:none;display:grid;place-items:center;overflow:hidden;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--on);font-family:var(--font-d);font-weight:700;border:2px solid var(--bg1)}
+.dlogo img{width:100%;height:100%;object-fit:cover}
+.dcard{display:block;width:100%;text-align:left;border-radius:var(--r);overflow:hidden;background:var(--card);border:1px solid var(--line)}
+.dc-body{display:flex;align-items:center;gap:12px;padding:0 12px 12px;margin-top:-22px}
+.dc-body>span:nth-child(2){padding-top:24px;display:flex;flex-direction:column;gap:2px}
+.dc-name{font-size:.98rem}.dc-n{padding-top:24px;display:flex;flex-direction:column;align-items:center;flex:none}.dc-n b{font-family:var(--font-d);font-size:1.1rem}
+.dhead{position:relative;margin-bottom:26px}.dhead .dbanner{height:150px;border-radius:22px}.dh-logo{position:absolute;left:16px;bottom:-30px}
+.dpic{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border-radius:14px;border:1.5px dashed var(--line);color:var(--dim);overflow:hidden;cursor:pointer;text-align:center;padding:8px}
+.dpic.banner{height:120px}.dpic.logo{width:96px;height:96px}.dpic img{width:100%;height:100%;object-fit:cover}.dpic:has(img){padding:0;border-style:solid}
+/* Кнопка «▶ Видео» на фото: видео — второй слайд, кнопка сразу к нему переходит */
+.gal-vid{position:absolute;top:12px;left:12px;z-index:2;display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;background:rgba(0,0,0,.6);color:#fff;font-size:.8rem;font-weight:700}
+/* Стрелки ‹ › по бокам фото — для мыши; на сенсорном экране листают свайпом, стрелок нет */
+.gal-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:2;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,var(--bg1) 55%,transparent);color:var(--text)}
+.gal-nav svg{width:22px;height:22px}.gal-nav.prev{left:10px}.gal-nav.next{right:10px}.gal-nav.next svg{transform:scaleX(-1)}
+.zoom .gal-nav{width:48px;height:48px;background:rgba(255,255,255,.15);color:#fff}.zoom .gal-nav.prev{left:14px}.zoom .gal-nav.next{right:14px}
+@media (hover:none){.gal-nav{display:none}}
 .price-big{font-family:var(--font-d);font-size:1.6rem;font-weight:800;letter-spacing:-.02em}
 .specs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 .spec{padding:10px 12px;border-radius:14px;background:var(--card);border:1px solid var(--line);min-width:0}
@@ -253,8 +300,10 @@ body[data-t="light"] .sheet-foot{background:#fff}
 .menu button:last-child{border:0}
 .menu svg{width:20px;height:20px;color:var(--accent);flex:none}
 .menu .grow{flex:1;min-width:0}
-.themes{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
-.th-sw{aspect-ratio:1;max-width:100%;border-radius:14px;border:2px solid transparent;position:relative;overflow:hidden}
+.themes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 10px}
+.th-it{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:0;text-align:center}
+.th-it .th-sw{max-width:60px}
+.th-sw{display:block;width:100%;aspect-ratio:1;max-width:100%;border-radius:14px;border:2px solid transparent;position:relative;overflow:hidden}
 .th-sw.on{border-color:var(--text)}
 .th-sw span{position:absolute;right:6px;bottom:6px;width:14px;height:14px;border-radius:50%}
 .stat-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
@@ -269,6 +318,22 @@ body[data-t="light"] .sheet-foot{background:#fff}
 .photo-grid .ph button{position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:8px;background:rgba(0,0,0,.6);color:#fff;font-size:.9rem}
 .photo-add{aspect-ratio:1;max-width:100%;border-radius:12px;border:1.5px dashed var(--line);display:grid;place-items:center;color:var(--dim);font-size:.7rem;text-align:center}
 .photo-add svg{width:22px;height:22px}
+/* 10 окошек «как снимать» в форме подачи авто и маленькие анимации-образцы (.sa-*) */
+.shots{grid-template-columns:repeat(3,minmax(0,1fr))}
+.shot{aspect-ratio:1;max-width:100%;border-radius:12px;border:1.5px dashed var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 4px;cursor:pointer;color:var(--dim)}
+.shot.main{border-color:var(--accent)}
+.shot .shot-art{width:96%;height:auto;flex:1;min-height:0}
+.shot .sn{font-size:.64rem;line-height:1.15;text-align:center;color:var(--text)}
+.shots .ph .sn{position:absolute;left:0;right:0;bottom:0;padding:3px 4px;font-size:.6rem;line-height:1.15;color:#fff;background:linear-gradient(transparent,rgba(0,0,0,.7));text-align:center}
+.tip-art{flex:none;width:64px;height:49px;color:var(--dim)}.tip-art .shot-art{width:100%;height:100%}
+.sa-ph{animation:saPh 2.4s ease-in-out infinite}
+@keyframes saPh{0%,100%{transform:translate(0,0)}50%{transform:translate(var(--dx),var(--dy))}}
+.sa-rot{transform-box:view-box;animation:saRot 2.4s ease-in-out infinite}
+@keyframes saRot{0%,20%,100%{transform:rotate(0)}55%,75%{transform:rotate(var(--r))}}
+.sa-needle{transform-box:view-box;animation:saNeedle 2.4s ease-in-out infinite}
+@keyframes saNeedle{0%,100%{transform:rotate(-60deg)}55%{transform:rotate(55deg)}}
+.sa-blink{animation:saBlink 2.4s steps(1) infinite}@keyframes saBlink{0%,49%{opacity:.25}50%,100%{opacity:1}}
+@media (prefers-reduced-motion:reduce){.sa-ph,.sa-rot,.sa-needle,.sa-blink{animation:none}}
 .pick{display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left;min-width:0}
 .pick span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pick svg{width:16px;height:16px;color:var(--dim);flex:none}
@@ -317,6 +382,9 @@ html{overscroll-behavior-y:contain}
 <script src="i18n.js"></script>
 <script src="features.js"></script>
 <script src="features-plus.js"></script>
+<script src="dealers.js"></script>
+<script src="staff.js"></script>
+<script src="helper.js"></script>
 <script src="pwa.js"></script>
 <script src="refresh.js"></script>
 <script>
@@ -353,6 +421,7 @@ const I = {
   trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
   copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',
   check:'<path d="m5 12 5 5 9-10"/>',
+  store:'<path d="M3 9l1.6-5h14.8L21 9"/><path d="M4 9v11h16V9"/><path d="M3 9h18"/><path d="M9.5 20v-5.5h5V20"/>',
   star:'<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>',
   clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
   photo:'<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-8 8"/>',
@@ -689,7 +758,9 @@ const PROMOS = [
 ];
 const REASONS = ['Мошенничество','Неверная цена','Уже продано','Оскорбления','Спам','Другое'];
 const DAY = 864e5;
+// «Системная»: как в телефоне — светлый телефон → «Светлая», тёмный → «Изумруд». Выбирается при первом запуске
 const THEMES = [
+  {k:'system',n:'Системная',a:'#f7f8fd',b:'#0b4a36',c:'#e9c45b'},
   {k:'alpha',n:'Alpha',a:'#0a0a0a',b:'#1f1c10',c:'#ffd60a'},
   {k:'night',n:'Ночь',a:'#0f0c29',b:'#302b63',c:'#a78bfa'},
   {k:'emerald',n:'Изумруд',a:'#01140e',b:'#0b4a36',c:'#e9c45b'},
@@ -699,6 +770,9 @@ const THEMES = [
 ];
 
 /* ================== Утилиты ================== */
+// Тема на экране: «Системная» берёт тему телефона (в Android-приложении — из MBAndroid.isDark, в браузере — из prefers-color-scheme)
+const phoneDark = () => { try { if (window.MBAndroid?.isDark) return window.MBAndroid.isDark(); } catch {} return matchMedia('(prefers-color-scheme: dark)').matches; };
+function applyTheme(){ const k = S.settings.theme; document.body.dataset.t = k==='system' ? (phoneDark() ? 'emerald' : 'light') : k; }
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 // Коды стран для регистрации: Туркменистан первым, дальше — где чаще живут и работают туркменистанцы
@@ -775,7 +849,7 @@ const SB_URL = 'https://qjllrvbkwglgcnxteenx.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqbGxydmJrd2dsZ2NueHRlZW54Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMyOTg3NjQsImV4cCI6MjEwODg3NDc2NH0.sg3XKEJZhXAf6n9cR3PvMQXTFpbXID3wNEB3lr7a9Ao';
 const sb = supabase.createClient(SB_URL, SB_KEY);
 const LS = 'mb_local_v1';   // на телефоне остаются только избранное, тема и язык
-const COLLS = ['users','listings','comments','complaints','payments','subs','notifs','alerts','support','msgs','reviews'];
+const COLLS = ['users','listings','comments','complaints','payments','subs','notifs','alerts','support','msgs','reviews','expenses','dealers'];
 const DEFAULT_SETTINGS = {mode:'free',rub:22,tmNumber:'+993 65 000000',rubNumber:'+7 900 000-00-00',shift:0,perPerson:5,perCompany:5};
 let S = null;
 let synced = {};                  // что сейчас лежит в базе: коллекция → (id → JSON)
@@ -787,7 +861,7 @@ const loginOf = phone => String(phone).replace(/\D/g,'') + '@phone.mashyn.app';
 const ser = (coll, r) => JSON.stringify(r, (k, v) => k.startsWith('_') || (coll==='users' && (k==='email' || k==='emailVerified')) ? undefined : v);
 const sharedSettings = () => { const {theme, lang, fontSize, showRub, notifs, ...rest} = S.settings; return rest; };
 
-function saveLocal(){ try{ localStorage.setItem(LS, JSON.stringify({favs:S.favs, fails:S.fails, theme:S.settings.theme, lang:S.settings.lang, fontSize:S.settings.fontSize, showRub:S.settings.showRub, notifs:S.settings.notifs, alpha:1})); }catch{} }
+function saveLocal(){ try{ localStorage.setItem(LS, JSON.stringify({favs:S.favs, fails:S.fails, theme:S.settings.theme, themeV:2, lang:S.settings.lang, fontSize:S.settings.fontSize, showRub:S.settings.showRub, notifs:S.settings.notifs, alpha:1})); }catch{} }
 
 async function pull(){
   const rows = [];
@@ -808,6 +882,7 @@ async function pull(){
   S.session = session?.user.id || null;
   const u = me();
   if (u){ const md = (await sb.auth.getUser()).data.user?.user_metadata || session.user.user_metadata || {}; u.email = md.email || ''; u.emailVerified = md.email_verified === 'true'; }
+  await staffStatus();
   synced = {settings: ser('settings', sharedSettings())};
   for (const c of COLLS) synced[c] = new Map(S[c].map(r => [r.id, ser(c, r)]));
 }
@@ -995,7 +1070,10 @@ const SCREENS = {
       <div class="hero"><h1>${t('heroT')}</h1><p>${S.settings.mode==='free'?t('heroFree'):t('heroP')}</p><button class="btn sm" data-a="tab" data-v="post">${ic('plus')}${t('heroBtn')}</button><div class="art">${art('suv','#ffffff',7,true)}</div></div>
       <div class="cats">${SECTIONS.map(s=>`<button class="cat" data-a="sec" data-v="${s.k}"><span class="ci">${ic(s.icon)}</span>${t('s_'+s.k)}</button>`).join('')}
         <button class="cat" data-a="sec" data-v="all"><span class="ci">${ic('list')}</span>${t('all')}</button></div>
+      ${helperCard()}${helperFab()}
+      ${dealersHomeCard()}
       <button class="card pad row" data-a="estimate" style="text-align:left;gap:12px"><span class="ci" style="width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:var(--accent);color:var(--on);flex:none">${ic('card')}</span><span style="flex:1"><b>Сколько стоит моя машина?</b><br><span class="small dim">Средняя цена по похожим объявлениям</span></span>${ic('back','style="width:18px;transform:rotate(180deg);color:var(--dim)"')}</button>
+      ${picksBlock(vis)}
       ${vip.length?`<div class="col"><div class="sec-title"><h2>${t('vip')}</h2><span class="tiny dim">${vip.length}</span></div><div class="vip-row">${vip.map(vipCard).join('')}</div></div>`:''}
       ${rowBlock('Вы смотрели', seenList().slice(0,10))}
       <div class="col"><div class="sec-title"><h2>${t('fresh')}</h2><button class="link small" data-a="sec" data-v="all">${t('all')}</button></div>
@@ -1008,7 +1086,7 @@ const SCREENS = {
     return {title:t('catalog'), html:`<h2>${t('catalog')}</h2><div class="list">${[...SECTIONS,{k:'all',icon:'list'}].map(s=>{
       const n = S.listings.filter(l=>visible(l) && (s.k==='all'||l.sec===s.k)).length;
       return `<button class="card pad row" data-a="sec" data-v="${s.k}" style="text-align:left"><span class="cat" style="padding:0;border:0;background:none"><span class="ci">${ic(s.icon)}</span></span>
-        <span style="flex:1"><b>${t('s_'+s.k)}</b><br><span class="small dim">${n} объявл.</span></span>${ic('back','style="width:18px;transform:rotate(180deg);color:var(--dim)"')}</button>`; }).join('')}</div>`};
+        <span style="flex:1"><b>${t('s_'+s.k)}</b><br><span class="small dim">${n} объявл.</span></span>${ic('back','style="width:18px;transform:rotate(180deg);color:var(--dim)"')}</button>`; }).join('')}${dealersHomeCard()}</div>`};
   },
 
   section(sec){
@@ -1024,6 +1102,7 @@ const SCREENS = {
     if (f.ymin) arr = arr.filter(l=>(l.specs?.year||0)>=f.ymin);
     if (f.ymax) arr = arr.filter(l=>(l.specs?.year||9999)<=f.ymax);
     if (f.brand?.length) arr = arr.filter(l => f.brand.includes(l.specs?.brand || l.specs?.tbrand || l.specs?.pbrand));
+    const pt = pickTest(f); if (pt) arr = arr.filter(pt);
     for (const k of MULTI_KEYS) if (f[k]?.length) arr = arr.filter(l => f[k].some(v => String(l.specs?.[k]||'').split(', ').includes(v)));
     arr = rank(arr, state.sort);
     const nf = Object.values(f).filter(v=>Array.isArray(v)?v.length:v).length;
@@ -1033,6 +1112,8 @@ const SCREENS = {
       ${sec==='jobs'?`<div class="seg">${[['all','Все'],['hire','Ищу водителя'],['seek','Ищу работу']].map(([k,n])=>`<button class="${state.jobKind===k?'on':''}" data-a="jobkind" data-v="${k}">${n}</button>`).join('')}</div>`:''}
       <div class="chips">
         <button class="chip ${nf?'on':''}" data-a="filters" data-v="${sec}">${ic('filter','style="width:16px;height:16px"')}${t('filters')}${nf?` · ${nf}`:''}</button>
+        ${f.pick?.length?`<button class="chip on" data-a="pickoff" data-v="${sec}">${PICKS.find(p=>p.k===f.pick[0])?.n||''} ✕</button>`:''}
+        ${sec!=='jobs'&&sec!=='sto'&&brandCounts(sec).length?`<button class="chip ${f.brand?.length?'on':''}" data-a="brands" data-v="${sec}">${ic('car','style="width:16px;height:16px"')}${f.brand?.length===1?esc(f.brand[0]):'Марка'}${f.brand?.length>1?` · ${f.brand.length}`:''}</button>`:''}
         ${[['new',t('sNew')],['cheap',t('sCheap')],['exp',t('sExp')]].map(([k,n])=>`<button class="chip ${state.sort===k?'on':''}" data-a="sort" data-v="${k}">${n}</button>`).join('')}
       </div>
       <button class="btn ghost sm" data-a="alertsave" data-v="${sec}">${ic('bell')}Сообщить о новых по этому поиску</button>
@@ -1049,8 +1130,12 @@ const SCREENS = {
     markSeen(l.id);
     const u = me(), sel = userById(l.uid) || {name:'—'};
     const pics = l.photos?.length ? l.photos.map(p=>`<img src="${esc(p)}" alt="">`) : [artFor(l)];
-    if (isVideoUrl(l.video)) pics.push(`<video src="${esc(l.video)}" controls playsinline preload="metadata"></video>`);    const s = l.specs || {};
-    const specKeys = Object.keys(s).filter(k=>!['pCar','pShip','pCust','kind','vin'].includes(k) && s[k]!=='' && s[k]!=null);
+    // Видео — вторым слайдом, сразу после главного фото
+    const vSlide = isVideoUrl(l.video) ? 1 : -1;
+    if (vSlide > 0) pics.splice(1, 0, `<video src="${esc(l.video)}" controls playsinline preload="metadata"></video>`);    const s = l.specs || {};
+    // Порядок как в форме подачи (марка, модель, год…); кредит и обмен — в конце
+    const fOrder = (FIELDS[l.sec]||[]).map(f=>f.k), specRank = k => ['credit','swap'].includes(k) ? 1000+fOrder.indexOf(k) : fOrder.includes(k) ? fOrder.indexOf(k) : 500;
+    const specKeys = Object.keys(s).filter(k=>!['pCar','pShip','pCust','kind','vin'].includes(k) && s[k]!=='' && s[k]!=null).sort((a,b)=>specRank(a)-specRank(b));
     const specVal = (k,v) => YES_NO[k] ? (v==='yes'?'✓ Есть':'✗ Нет') : k==='usage'?USAGE[v]||v:k==='cc'?v+' см³':k==='km'?fmt(v)+' км':k==='engine'?v+' л':k==='exp'?v+' лет':k==='eta'?(v?v+' дн.':'уже здесь'):v;
     const cms = S.comments.filter(c=>c.lid===l.id && !c.hidden);
     const liked = u && l.likes.includes(u.id), disl = u && l.dislikes.includes(u.id);
@@ -1059,7 +1144,7 @@ const SCREENS = {
     const phone = sel.phone || '';
     return {title:t('s_'+l.sec), html:`
       ${isSold(l)?soldBanner(l):!visible(l)?`<div class="card pad small" style="border-color:var(--warn)"><b style="color:var(--warn)">Объявление не опубликовано</b><br><span class="dim">${statusText(l)}</span></div>`:''}
-      <div class="gal"><div class="gal-track" id="gal">${pics.join('')}</div>${pics.length>1?`<div class="gal-dots" id="gdots">${pics.map((_,i)=>`<i class="${i?'':'on'}"></i>`).join('')}</div>`:''}
+      <div class="gal"><div class="gal-track" id="gal">${pics.join('')}</div>${isVideoUrl(l.video)&&pics.length>1?'<button class="gal-vid" id="gvid" data-a="galvideo">▶ Видео</button>':''}${pics.length>1?`<div class="gal-dots" id="gdots">${pics.map((_,i)=>`<i class="${i?'':'on'}"></i>`).join('')}</div>`:''}
         <button class="fav" style="top:12px;right:60px;width:40px;height:40px" data-a="share" data-v="${l.id}" aria-label="Поделиться">${ic('up')}</button>
         <button class="fav ${isFav(l.id)?'on':''}" style="top:12px;right:12px;width:40px;height:40px" data-a="fav" data-v="${l.id}" aria-label="В избранное">${ic('heart', isFav(l.id)?'fill="currentColor"':'')}</button></div>
       <div class="col" style="gap:6px">
@@ -1080,6 +1165,7 @@ const SCREENS = {
       ${CAR_SECS.includes(l.sec)?`<button class="btn ghost" data-a="cmptoggle" data-v="${l.id}">${ic('list')}${CMP.includes(l.id)?'Убрать из сравнения':'Сравнить с другими'}</button>`:''}
       <div class="col" style="gap:6px"><h3>${t('descr')}</h3><p style="margin:0;white-space:pre-wrap">${esc(l.desc)}</p></div>
 
+      ${dealerLink(l)}
       <div class="card pad col">
         <button class="seller" style="text-align:left;width:100%" data-a="seller" data-v="${l.uid}"><div class="ava">${initials(sel.name)}</div><div style="flex:1;min-width:0"><b>${esc(sel.name)}</b>
           <div class="small dim">${sel.type==='company'?'Компания':'Частное лицо'} ${sel.verified?`· <span style="color:var(--ok)">✓ Проверенный продавец</span>`:''}</div>
@@ -1112,9 +1198,11 @@ const SCREENS = {
         <span style="flex:1"><b>${p.n}</b><br><span class="small dim">${p.d}</span></span><b class="num">${p.price} TMT</b></button>`).join('')}<div class="tiny dim">Цены продвижения — пример, их можно изменить.</div></div>`:''}
       ${rowBlock('Похожие объявления', similarTo(l))}
       ${rowBlock('Вы смотрели', seenList(l.id).slice(0,10))}
+      ${callBar(l, u, phone)}
     `, after(){
-      const g=$('#gal'), d=$('#gdots'); if(g&&d) g.addEventListener('scroll',()=>{ const i=Math.round(g.scrollLeft/g.clientWidth); [...d.children].forEach((x,j)=>x.classList.toggle('on',i===j)); },{passive:true});
-      if (g && l.photos?.length) g.addEventListener('click', e=>{ if (e.target.tagName==='VIDEO') return; const i=Math.round(g.scrollLeft/g.clientWidth); if (i<l.photos.length) openZoom(l.photos, i); });
+      const g=$('#gal'), d=$('#gdots'); if(g) galNav(g.parentNode, g); if(g&&d) g.addEventListener('scroll',()=>{ const i=Math.round(g.scrollLeft/g.clientWidth); [...d.children].forEach((x,j)=>x.classList.toggle('on',i===j)); },{passive:true});
+      const gv=$('#gvid'); if(g&&gv) g.addEventListener('scroll',()=>{ gv.hidden = Math.round(g.scrollLeft/g.clientWidth) === vSlide; },{passive:true});
+      if (g && l.photos?.length) g.addEventListener('click', e=>{ if (e.target.tagName==='VIDEO') return; let i=Math.round(g.scrollLeft/g.clientWidth); if (vSlide>0 && i>vSlide) i--; if (i<l.photos.length) openZoom(l.photos, i); });
     }};
   },
 
@@ -1160,9 +1248,10 @@ const SCREENS = {
         <div class="field"><label for="d_place">Этрап или город</label><select class="inp" id="d_place">${placeOptions(d.reg, d.place)}</select></div></div>
       <div class="field"><label for="d_desc">${t('descr')}</label><textarea class="inp" id="d_desc" maxlength="2000" placeholder="Состояние, комплектация, условия">${esc(d.desc||'')}</textarea></div>
       <div class="field"><label for="d_tags">Теги для поиска</label><input class="inp" id="d_tags" maxlength="200" placeholder="тойота, камри, семейная, cars" value="${esc(d.tags||'')}"><div class="small dim">Покупатели не видят теги, но по ним найдут ваше объявление.</div></div>
-      <div class="field"><label>Фото (${d.photos.length} из ${maxPh})</label><div class="photo-grid">
+      ${myDealer() && DEALER_SECS.includes(sec) ? `<label class="check card pad"><input type="checkbox" id="d_dealer" ${d.noDealer?'':'checked'}><span><span>Объявление от салона</span> «${esc(myDealer().name)}»</span></label>` : ''}
+      <div class="field"><label>Фото (${d.photos.filter(Boolean).length} из ${maxPh})</label>${SLOT_SECS.includes(sec) ? shotSlots(d) : `<div class="photo-grid">
         ${d.photos.map((p,i)=>`<div class="ph"><img src="${p}" alt=""><button data-a="delph" data-v="${i}" aria-label="Удалить фото">×</button></div>`).join('')}
-        ${d.photos.length<maxPh?`<label class="photo-add">${ic('photo')}<span>Добавить</span><input type="file" id="d_ph" accept="image/*" multiple hidden></label>`:''}</div>
+        ${d.photos.length<maxPh?`<label class="photo-add">${ic('photo')}<span>Добавить</span><input type="file" id="d_ph" accept="image/*" multiple hidden></label>`:''}</div>`}
         <span class="tiny dim">До 10 фото. Каждое приложение само уменьшит до 1 МБ, чтобы быстро грузилось при медленном интернете.</span>
         ${['cars','import','rent'].includes(sec)?`<button type="button" class="link small" style="text-align:left" data-a="phototips">📸 Как сфотографировать машину, чтобы продать быстрее</button>`:''}</div>
       <div class="field"><label>Видео (по желанию, 1 шт., до ${VIDEO_SEC} сек и ${VIDEO_MB} МБ)</label>
@@ -1176,11 +1265,17 @@ const SCREENS = {
         $('#d_reg').addEventListener('change', e=>{ d.reg=e.target.value; d.place=''; $('#d_place').innerHTML = placeOptions(d.reg,''); });
         $('#d_place').addEventListener('change', e=>{ d.place=e.target.value; });
         ['title','price','unit','desc','tags'].forEach(k=>{ const el=$('#d_'+k); el && el.addEventListener('input',()=>{ d[k]=el.value; }); });
+        const dch=$('#d_dealer'); dch && dch.addEventListener('change', ()=>{ d.noDealer = !dch.checked; });
         const vid=$('#d_vid'); vid && vid.addEventListener('change', async ()=>{ const f=vid.files[0]; if (f && await checkVideo(f)){ d.video=f; render(); } });
         const ph=$('#d_ph'); ph && ph.addEventListener('change', async ()=>{
-          for (const file of [...ph.files].slice(0, maxPh - d.photos.length)){ try{ d.photos.push(await compress(file)); }catch{ toast('Не удалось прочитать фото'); } }
+          // Несколько фото сразу: по порядку в свободные окошки
+          for (const file of [...ph.files]){ let i = 0; while (i < maxPh && d.photos[i]) i++; if (i >= maxPh) break;
+            try{ d.photos[i] = await compress(file); }catch{ toast('Не удалось прочитать фото'); } }
           render();
         });
+        // Окошко с образцом: одно фото на своё место
+        document.querySelectorAll('input[data-slot]').forEach(inp=>inp.addEventListener('change', async ()=>{ const f=inp.files[0]; if (!f) return;
+          try{ d.photos[Number(inp.dataset.slot)] = await compress(f); }catch{ toast('Не удалось прочитать фото'); } render(); }));
       }};
   },
 
@@ -1286,7 +1381,7 @@ const SCREENS = {
     return {title:t('profile'), html:`
       <div class="card pad seller"><div class="ava" style="width:56px;height:56px;border-radius:18px;font-size:1.1rem">${initials(u.name)}</div>
         <div style="flex:1;min-width:0"><h2 style="font-size:1.05rem">${esc(u.name)}</h2><div class="small dim num">${esc(fmtPhone(u.phone))}${u.email?' · '+esc(u.email):''}</div>
-        <div class="row" style="gap:6px;margin-top:4px"><span class="badge b-dim">${u.type==='company'?'Компания':'Частное лицо'}</span>${u.role!=='user'?`<span class="badge b-vip">${u.role==='admin'?'Администратор':'Модератор'}</span>`:''}</div></div></div>
+        <div class="row" style="gap:6px;margin-top:4px"><span class="badge b-dim">${u.type==='company'?'Компания':'Частное лицо'}</span>${u.role!=='user'?`<span class="badge b-vip">${roleName(u.role)}</span>`:''}</div></div></div>
       ${emailCard(u)}
       <div class="stat-row"><div class="stat"><b class="num">${mine.filter(visible).length}</b><span class="tiny dim">активных</span></div>
         <div class="stat"><b class="num">${subs.length}</b><span class="tiny dim">подписок</span></div>
@@ -1320,11 +1415,14 @@ const SCREENS = {
   admin(tab){
     const u = me();
     if (!u || u.role==='user') return {title:t('admin'), html:emptyBox('Нет доступа','Раздел только для администраторов')};
-    tab = tab || state.admTab || 'dash'; state.admTab = tab;
+    if (!staffOn(u)) return staffGate(u);
+    tab = tab || state.admTab || 'dash';
     const isAdmin = u.role==='admin';
-    const tabs = [['dash','Обзор',0],['sup','Поддержка',S.support.filter(s=>s.status==='open').length],['pay','Оплаты',S.payments.filter(p=>p.status==='pending').length],['mod','Проверка',S.listings.filter(l=>l.status==='review').length],['cmp','Жалобы',S.complaints.length],['users','Люди',0],['set','Настройки',0]]
-      .filter(([k])=>isAdmin || ['mod','cmp','sup'].includes(k));
+    if (isAdmin) staffLoad();
+    const tabs = [['dash','Обзор',0],['sup','Поддержка',S.support.filter(s=>s.status==='open').length],['pay','Оплаты',S.payments.filter(p=>p.status==='pending').length],['mod','Проверка',S.listings.filter(l=>l.status==='review').length],['cmp','Жалобы',S.complaints.length],['users','Пользователи',0],['staff','Сотрудники',staffPending()],['set','Настройки',0]]
+      .filter(([k])=>isAdmin || ROLE_TABS[u.role].includes(k));
     if (!tabs.find(x=>x[0]===tab)) tab = tabs[0][0];
+    state.admTab = tab;
     let body = '';
     if (tab==='dash') body = adminDashboard();
     else if (tab==='sup') body = supportAdmin();
@@ -1348,19 +1446,17 @@ const SCREENS = {
       const groups = {};
       S.complaints.forEach(c=>{ const k=c.type+':'+c.target; (groups[k]=groups[k]||[]).push(c); });
       body = Object.keys(groups).length ? Object.entries(groups).map(([k,cs])=>{
-        const [type,id] = k.split(':'); const tl = type==='listing' ? S.listings.find(l=>l.id===id) : S.comments.find(c=>c.id===id);
-        const label = !tl ? '(удалено)' : type==='listing' ? tl.title : '«'+tl.text+'»';
+        const [type,id] = k.split(':'); const tl = type==='listing' ? S.listings.find(l=>l.id===id) : type==='dealer' ? S.dealers.find(d=>d.id===id) : S.comments.find(c=>c.id===id);
+        const label = !tl ? '(удалено)' : type==='listing' ? tl.title : type==='dealer' ? tl.name+(tl.hidden?' · скрыт':'') : '«'+tl.text+'»';
         const owner = tl ? userById(tl.uid) : null;
-        return `<div class="adm-item"><div class="between"><span class="badge b-dim">${type==='listing'?'Объявление':'Комментарий'}</span><span class="badge b-bad num">${cs.length} жалоб</span></div>
+        return `<div class="adm-item"><div class="between"><span class="badge b-dim">${type==='listing'?'Объявление':type==='dealer'?'Салон':'Комментарий'}</span><span class="badge b-bad num">${cs.length} жалоб</span></div>
           <b class="small">${esc(label)}</b><span class="tiny dim">Автор: ${esc(owner?.name||'—')}</span>
           <div class="row" style="gap:6px;flex-wrap:wrap">${[...new Set(cs.map(c=>c.reason))].map(r=>`<span class="badge b-warn">${esc(r)}</span>`).join('')}</div>
-          <div class="acts"><button class="btn sm ghost" data-a="cdismiss" data-v="${k}">Оставить</button><button class="btn sm danger" data-a="cdel" data-v="${k}">Удалить</button>${owner&&isAdmin?`<button class="btn sm danger" data-a="ban" data-v="${owner.id}">Заблокировать автора</button>`:''}</div></div>`; }).join('')
+          <div class="acts"><button class="btn sm ghost" data-a="cdismiss" data-v="${k}">Оставить</button>${type==='dealer'?`<button class="btn sm ghost" data-a="dealer" data-v="${id}">Открыть</button>${tl?`<button class="btn sm danger" data-a="dealerhide" data-v="${id}">${tl.hidden?'Показать салон':'Скрыть салон'}</button>`:''}`:`<button class="btn sm danger" data-a="cdel" data-v="${k}">Удалить</button>`}${owner&&(isAdmin||u.role==='moder')&&owner.role==='user'?`<button class="btn sm danger" data-a="ban" data-v="${owner.id}">Заблокировать автора</button>`:''}</div></div>`; }).join('')
         : emptyBox('Жалоб нет','При 5 жалобах объявление скрывается автоматически');
-    } else if (tab==='users'){
-      body = S.users.filter(x=>x.id!==u.id).map(x=>`<div class="adm-item"><div class="between"><b>${esc(x.name)}</b>${x.blocked?'<span class="badge b-bad">заблокирован</span>':x.role==='moder'?'<span class="badge b-top">модератор</span>':''}${x.verified?'<span class="badge b-ok">✓ Проверенный</span>':''}</div>
-        <span class="small dim num">${esc(fmtPhone(x.phone))} · ${x.type==='company'?'компания':'частное лицо'}</span>
-        <div class="acts"><button class="btn sm ghost" data-a="ban" data-v="${x.id}">${x.blocked?'Разблокировать':'Заблокировать'}</button><button class="btn sm ghost" data-a="moder" data-v="${x.id}">${x.role==='moder'?'Снять модератора':'Сделать модератором'}</button><button class="btn sm ghost" data-a="resetpw" data-v="${x.id}">Сбросить пароль</button>${isAdmin?`<button class="btn sm ${x.verified?'ghost':''}" data-a="verify" data-v="${x.id}">${x.verified?'Снять «Проверенный»':'✓ Проверенный продавец'}</button>`:''}</div></div>`).join('');
-    } else {
+    } else if (tab==='users') body = usersAdmin(u);
+    else if (tab==='staff') body = staffAdmin();
+    else {
       const st = S.settings;
       body = `<div class="card pad col"><h3>Режим оплаты объявлений</h3>
         <div class="seg">${['free','per','subs'].map(m=>`<button class="${st.mode===m?'on':''}" data-a="setmode" data-v="${m}">${m==='free'?'Бесплатно':m==='per'?'За объявление':'Подписки'}</button>`).join('')}</div>
@@ -1383,7 +1479,7 @@ const SCREENS = {
     return {title:t('admin'), html:`
       <div class="stat-row"><div class="stat"><b class="num">${vis}</b><span class="tiny dim">активных</span></div><div class="stat"><b class="num">${S.users.length}</b><span class="tiny dim">пользователей</span></div><div class="stat"><b class="num">${fmt(income)}</b><span class="tiny dim">TMT оплачено</span></div></div>
       <div class="chips">${tabs.map(([k,n,c])=>`<button class="chip ${tab===k?'on':''}" data-a="atab" data-v="${k}">${n}${c?` · ${c}`:''}</button>`).join('')}</div>
-      <div class="col">${body}</div>`};
+      <div class="col">${body}</div>`, after: tab==='users' ? usersAfter : null};
   }
 };
 
@@ -1453,8 +1549,24 @@ function openZoom(photos, start){
   track.addEventListener('scroll', showN, {passive:true});
   z.querySelector('.zoom-x').addEventListener('click', closeZoom);
   z.querySelectorAll('.zoom-slide img').forEach(img => pinch(img, track));
+  galNav(z, track);
 }
 function closeZoom(){ $('#zoom')?.remove(); }
+
+// Стрелки ‹ › по бокам ленты фото; на первом фото нет «назад», на последнем — «вперёд». track.galStep(±1) — для клавиш ←/→
+function galNav(box, track){
+  const n = track.children.length; if (n < 2) return;
+  box.insertAdjacentHTML('beforeend', `<button class="gal-nav prev" aria-label="Предыдущее фото">${ic('back')}</button><button class="gal-nav next" aria-label="Следующее фото">${ic('back')}</button>`);
+  const [prev, next] = box.querySelectorAll(':scope > .gal-nav');
+  const idx = () => Math.round(track.scrollLeft/track.clientWidth);
+  const upd = () => { const i = idx(); prev.hidden = i <= 0; next.hidden = i >= n-1; };
+  // Плавно; если браузер не прокрутил (бывает в фоне и в старых WebView) — сразу ставим нужное фото
+  track.galStep = d => { const to = Math.max(0, Math.min(n-1, idx()+d))*track.clientWidth;
+    track.scrollTo({left:to, behavior:'smooth'}); setTimeout(() => { if (Math.abs(track.scrollLeft-to) > 2) track.scrollLeft = to; upd(); }, 600); };
+  prev.addEventListener('click', e => { e.stopPropagation(); track.galStep(-1); });
+  next.addEventListener('click', e => { e.stopPropagation(); track.galStep(1); });
+  track.addEventListener('scroll', upd, {passive:true}); upd();
+}
 
 function pinch(img, track){
   let k = 1, x = 0, y = 0, start = null, lastTap = 0;
@@ -1643,9 +1755,9 @@ async function publish(){
   const seek = sec==='jobs' && specs.kind==='seek';
   // Фото загружаем в общее хранилище, в объявлении остаются только ссылки
   let photos, video = '';
-  state.publishing = true; err.textContent = d.photos.length ? 'Загружаем фото…' : '';
+  state.publishing = true; err.textContent = d.photos.some(Boolean) ? 'Загружаем фото…' : '';
   try {
-    photos = await Promise.all(d.photos.map(uploadPhoto));
+    photos = await Promise.all(d.photos.filter(Boolean).map(uploadPhoto));
     if (d.video){ err.textContent = 'Загружаем видео… Это может занять минуту.'; video = await uploadVideo(d.video); }
   }
   catch { return err.textContent = 'Не удалось загрузить фото или видео. Проверьте интернет и попробуйте ещё раз.'; }
@@ -1653,6 +1765,8 @@ async function publish(){
   err.textContent = '';
   const l = {id:uid(),sec,uid:u.id,title:d.title,price,unit:d.unit||'',reg:d.reg||REGIONS[0].k,place:d.place||'',specs,desc:d.desc,tags:d.tags||'',photos,video,created:now(),views:0,likes:[],dislikes:[],
     art:{k:({moto:'moto',cars:'sedan',import:'sedan',rent:'sedan',parts:'gear',sto:'wrench',jobs:'job'})[sec] || (/(кран)/i.test(specs.ttype||'')?'crane':/реф/i.test(specs.ttype||'')?'fridge':'truck'), c:['#7c6cf0','#e67e22','#16a085','#2e86de','#c0392b'][Math.floor(Math.random()*5)]}};
+  // Объявление от своего салона (галочка в форме; база проверяет, что салон свой)
+  const dl = myDealer(); if (dl && DEALER_SECS.includes(sec) && !d.noDealer) l.dealer = dl.id;
   const flags = botCheck(d.title+' '+d.desc+' '+(d.tags||''), u, l);
   let msg;
   const mode = S.settings.mode;
@@ -1668,7 +1782,7 @@ async function publish(){
 }
 
 function activatePayment(p){
-  p.status='done';
+  p.status='done'; p.doneAt=now();   // время подтверждения — по нему считается доход в «Деньгах»
   const u = userById(p.uid);
   if (p.kind==='sub'){
     const base = S.subs.filter(s=>s.uid===p.uid && s.sec===p.sec && s.acct===p.acct && s.tier===p.tier && s.status==='active' && s.until>now()).sort((a,b)=>b.until-a.until)[0];
@@ -1708,7 +1822,7 @@ const A = {
   async logout(){ await syncing; await deviceOff(); await sb.auth.signOut(); await refresh(); toast('Вы вышли'); root('home'); },
   lang(){ A.setlang({ru:'tm',tm:'en',en:'ru'}[LANG]||'ru'); },
   setlang(v){ LANG=v; S.settings.lang=v; document.documentElement.lang = v==='tm'?'tk':v; persist(); render(); translateTree(document.body); },
-  theme(v){ S.settings.theme=v; document.body.dataset.t=v; persist(); render(); },
+  theme(v){ S.settings.theme=v; applyTheme(); persist(); render(); },
   notifs(){ notifSheet(); },
   copy(v){ copyText(v); },
   vote(v){ const u=me(); if(!u){ go('auth','login'); return; } const [k,id]=v.split(':'); const l=S.listings.find(x=>x.id===id);
@@ -1728,7 +1842,7 @@ const A = {
   draft(v){ state.draft = v ? {sec:v,specs:v==='jobs'?{kind:'hire'}:{},photos:[],reg:REGIONS[0].k,place:'',unit:(UNITS[v]||[''])[0]} : null; render(); },
   dseg(v){ const [k,x]=v.split(':'); state.draft.specs[k]=x; render(); },
   dmulti(v){ const [k,x]=v.split(':'); const cur=(state.draft.specs[k]||'').split(', ').filter(Boolean); const i=cur.indexOf(x); i<0?cur.push(x):cur.splice(i,1); state.draft.specs[k]=cur.join(', '); render(); },
-  delph(v){ state.draft.photos.splice(Number(v),1); render(); },
+  delph(v){ const p = state.draft.photos; if (SLOT_SECS.includes(state.draft.sec)) p[Number(v)] = null; else p.splice(Number(v),1); render(); },
   delvid(){ state.draft.video=null; render(); },  publish(){ publish(); },
   psec(v){ state.plan.sec=v; state.plan.tier=0; render(); }, pper(v){ state.plan.m=Number(v); render(); }, ptier(v){ state.plan.tier=Number(v); render(); },
   buy(){ const u=me(); if(!u){ go('auth','login'); return; } const p=state.plan, pi=PERIODS.findIndex(x=>x.m===p.m), P=planOf(p.sec,p.acct);
@@ -1750,6 +1864,8 @@ const A = {
   paid(){ const o=state.order; if (state.payMethod==='rf' && !state.bank){ toast('Выберите банк'); return; }
     o.method=state.payMethod; o.bank=state.payMethod==='rf'?state.bank:''; o.status='pending'; S.payments.push(o); state.order=null; persist(); go('pay', o.code, true); toast('Заявка отправлена на проверку'); },
   dellist(v){ confirmSheet('Удалить объявление? Его нельзя будет восстановить.','Удалить',{a:'dellistok',v}); },
+  galvideo(){ const g=$('#gal'), v=g?.querySelector('video'); if (!v) return; const to=[...g.children].indexOf(v)*g.clientWidth; g.scrollTo({left:to, behavior:'smooth'});
+    setTimeout(()=>{ if (Math.abs(g.scrollLeft-to)>2) g.scrollLeft=to; const b=$('#gvid'); if (b) b.hidden=true; }, 600); },
   dellistok(v){ S.listings=S.listings.filter(l=>l.id!==v); persist(); closeSheet(); toast('Объявление удалено'); render(); },
   delacc(){ confirmSheet('Удалить аккаунт и все ваши объявления?','Удалить навсегда',{a:'delaccok',v:''}); },
   async delaccok(){ await syncing; const {error}=await sb.rpc('mb_delete_me'); closeSheet(); if (error){ toast('Не удалось удалить аккаунт. Проверьте интернет.'); return; }
@@ -1759,10 +1875,9 @@ const A = {
   ano(v){ const p=S.payments.find(x=>x.id===v); p.status='rejected'; notify(p.uid,`Оплата ${p.code} не найдена. Проверьте номер и сумму или напишите в поддержку.`); persist(); render(); },
   lok(v){ const l=S.listings.find(x=>x.id===v); l.status = l.prev && l.prev!=='review' ? l.prev : 'active'; if (l.until<=now()) l.until=now()+7*DAY; l.flags=[]; notify(l.uid,`Объявление «${l.title}» прошло проверку`); persist(); render(); },
   lno(v){ const l=S.listings.find(x=>x.id===v); l.status='rejected'; notify(l.uid,`Объявление «${l.title}» отклонено модератором`); persist(); render(); },
-  cdismiss(v){ const [,id]=v.split(':'); S.complaints=S.complaints.filter(c=>c.target!==id); const l=S.listings.find(x=>x.id===id); if(l) l.hiddenByComplaints=false; const c=S.comments.find(x=>x.id===id); if(c) c.hidden=false; persist(); render(); },
+  cdismiss(v){ const [,id]=v.split(':'); S.complaints=S.complaints.filter(c=>c.target!==id); const l=S.listings.find(x=>x.id===id); if(l) l.hiddenByComplaints=false; const c=S.comments.find(x=>x.id===id); if(c) c.hidden=false; const dd=S.dealers.find(x=>x.id===id); if(dd) dd.hidden=false; persist(); render(); },
   cdel(v){ const [type,id]=v.split(':'); if (type==='listing') S.listings=S.listings.filter(l=>l.id!==id); else S.comments=S.comments.filter(c=>c.id!==id); S.complaints=S.complaints.filter(c=>c.target!==id); persist(); toast('Удалено'); render(); },
   ban(v){ const x=userById(v); x.blocked=!x.blocked; S.listings.forEach(l=>{ if(l.uid===v) l.hiddenByComplaints = x.blocked; }); persist(); toast(x.blocked?'Пользователь заблокирован':'Блокировка снята'); render(); },
-  moder(v){ const x=userById(v); x.role = x.role==='moder'?'user':'moder'; persist(); render(); },
   async resetpw(v){ const x=userById(v); const np = 'mb'+Math.floor(100000+Math.random()*900000);
     const {error} = await sb.rpc('mb_reset_password', {p_user:x.id, p_password:np}); if (error){ toast('Не удалось сбросить пароль: '+error.message); return; }
     openSheet(`<h2>Новый пароль для ${esc(x.name)}</h2><div class="copy-row"><b class="num phone-num">${np}</b><button class="btn sm ghost" data-a="copy" data-v="${np}">${ic('copy')}</button></div><p class="small dim" style="margin:0">Сообщите его пользователю и попросите сменить после входа.</p><button class="btn" data-a="closesheet">Готово</button>`); },
@@ -1780,19 +1895,23 @@ document.addEventListener('click', e => {
   e.preventDefault(); e.stopPropagation();
   fn(el.dataset.v, el);
 });
-document.addEventListener('keydown', e => { if (e.key==='Escape') back(); if ((e.key==='Enter'||e.key===' ') && e.target.matches('.lc')) { e.preventDefault(); A.open(e.target.dataset.v); } });
+document.addEventListener('keydown', e => { if (e.key==='Escape') back();
+  // ←/→ листают фото: в полноэкранном просмотре или в открытом объявлении (не когда печатают текст)
+  if ((e.key==='ArrowLeft'||e.key==='ArrowRight') && !e.target.closest?.('input,textarea,select,[contenteditable]')) ($('#zoom .zoom-track')||$('#gal'))?.galStep?.(e.key==='ArrowLeft'?-1:1);
+  if ((e.key==='Enter'||e.key===' ') && e.target.matches('.lc')) { e.preventDefault(); A.open(e.target.dataset.v); } });
 
 (async function start(){
   let local = {};
   try { local = JSON.parse(localStorage.getItem(LS)) || {}; } catch {}
   try { localStorage.removeItem('mb_store_v1'); } catch {}   // старые демо-данные прототипа
-  S = {users:[], listings:[], comments:[], complaints:[], payments:[], subs:[], notifs:[], alerts:[], support:[], msgs:[], reviews:[], session:null,
-    favs:local.favs||{}, fails:local.fails||{}, settings:{...DEFAULT_SETTINGS, theme:local.alpha&&local.theme||'alpha', lang:local.lang||'ru', fontSize:local.fontSize||1, showRub:local.showRub!==false, notifs:local.notifs!==false}};
+  S = {users:[], listings:[], comments:[], complaints:[], payments:[], subs:[], notifs:[], alerts:[], support:[], msgs:[], reviews:[], expenses:[], dealers:[], session:null,
+    favs:local.favs||{}, fails:local.fails||{}, settings:{...DEFAULT_SETTINGS, theme:local.themeV===2&&local.theme||'system', lang:local.lang||'ru', fontSize:local.fontSize||1, showRub:local.showRub!==false, notifs:local.notifs!==false}};
   applyFont();
   LANG = S.settings.lang;
   document.documentElement.lang = LANG==='tm'?'tk':LANG;
   startTranslator();
-  document.body.dataset.t = S.settings.theme;
+  applyTheme();
+  matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', applyTheme);
   render();
   try { await pull(); await ensureProfile(); tick(); checkFavPrices(); } catch (e){ console.warn(e); toast('Нет связи с сервером. Проверьте интернет.'); }
   render();

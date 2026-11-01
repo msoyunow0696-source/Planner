@@ -114,7 +114,7 @@ function similarTo(l){
       return [sc, x]; })
     .filter(([sc]) => sc >= 2).sort((a,b) => b[0]-a[0]).slice(0, 8).map(([,x]) => x);
 }
-const rowBlock = (title, arr) => arr.length ? `<div class="col"><div class="sec-title"><h2>${title}</h2><span class="tiny dim">${arr.length}</span></div><div class="vip-row">${arr.map(miniCard).join('')}</div></div>` : '';
+const rowBlock = (title, arr) => arr.length ? `<div class="col"><div class="sec-title"><h2>${title}</h2><span class="tiny dim">${arr.length}</span></div><div class="vip-row mini-row">${arr.map(miniCard).join('')}</div></div>` : '';
 
 /* ================== Экраны ================== */
 Object.assign(FEATURE_SCREENS, {
@@ -242,6 +242,63 @@ Object.assign(FEATURE_ACTIONS, {
     S.reviews.push({id:uid(), uid:u.id, to:sid, lid, stars:state.rvStars, text, time:now()});
     state.rvStars = 0; persist(); toast('Спасибо за отзыв!'); render();
   }
+});
+
+/* ================== Подборки, «Марка», нижние кнопки звонка ================== */
+// Подборки на главной: большое фото и число объявлений. Фильтр хранится как pick:[k] в state.filters.all
+const CARGO_TYPES = ['Грузовик','Фура','Газель','Рефрижератор','Самосвал'];
+const PICKS = [
+  {k:'vip', n:'VIP', test:l=>isOn(l,'vip')},
+  {k:'credit', n:'Под кредит', test:l=>l.specs?.credit==='yes'},
+  {k:'new', n:'Новые машины', test:l=>l.specs?.usage==='new'},
+  {k:'cargo', n:'Грузовые', test:l=>l.sec==='tech' && CARGO_TYPES.includes(l.specs?.ttype)}
+];
+const pickTest = f => { const p = PICKS.find(x=>x.k===f.pick?.[0]); return p ? p.test : null; };
+function picksBlock(vis){
+  const tiles = PICKS.map(p=>{ const arr = rank(vis.filter(p.test)); return {p, arr}; }).filter(x=>x.arr.length);
+  if (!tiles.length) return '';
+  return `<div class="col"><div class="sec-title"><h2>Подборки</h2></div><div class="ptiles">${tiles.map(({p,arr})=>{
+    const l = arr.find(x=>x.photos?.length) || arr[0];
+    return `<button class="ptile" data-a="collopen" data-v="${p.k}">${mainPic(l)}<span class="pt"><b>${p.n}</b><span><span class="num">${arr.length}</span> <span>объявл.</span></span></span></button>`; }).join('')}</div></div>`;
+}
+
+// «Марка»: марки раздела с числом объявлений; нажал — остаются объявления этой марки
+const brandOf = l => l.specs?.brand || l.specs?.tbrand || l.specs?.pbrand || '';
+const brandCounts = sec => { const m = {}; S.listings.filter(l=>visible(l) && (sec==='all'||l.sec===sec)).forEach(l=>{ const b = brandOf(l); if (b) m[b] = (m[b]||0)+1; });
+  return Object.entries(m).sort((a,b)=>b[1]-a[1] || a[0].localeCompare(b[0])); };
+function brandSheet(sec){
+  const list = brandCounts(sec), cur = state.filters[sec]?.brand || [];
+  openSheet(`<h2>Марка</h2><div class="list" style="gap:0">
+    <button class="between brow ${cur.length?'':'on'}" data-a="brandpick" data-v="${sec}|"><span>Все марки</span><span class="badge b-dim num">${list.reduce((s,x)=>s+x[1],0)}</span></button>
+    ${list.map(([b,n])=>`<button class="between brow ${cur.length===1&&cur[0]===b?'on':''}" data-a="brandpick" data-v="${sec}|${esc(b)}"><span>${esc(b)}</span><span class="badge b-dim num">${n}</span></button>`).join('')}</div>`);
+}
+
+// Внизу объявления всегда видны «Позвонить» и «SMS» (гость — кнопка входа)
+function callBar(l, u, phone){
+  if (u && (u.id===l.uid || isSold(l))) return '';
+  return `<div class="callbar">${u
+    ? `<a class="btn" href="tel:${esc(phone)}">${ic('phone')}${t('call')}</a><a class="btn ghost" href="sms:${esc(phone)}">${ic('chat')}SMS</a>`
+    : `<button class="btn" data-a="auth" data-v="login" style="grid-column:1/-1">${ic('lock')}${t('loginToCall')}</button>`}</div>`;
+}
+
+Object.assign(FEATURE_ACTIONS, {
+  collopen(k){ state.q=''; state.filters.all = {pick:[k]}; go('section','all'); },
+  pickoff(sec){ const f = state.filters[sec] = {...(state.filters[sec]||{})}; delete f.pick; render(); },
+  brands(sec){ brandSheet(sec); },
+  brandpick(v){ const i = v.indexOf('|'), sec = v.slice(0,i), b = v.slice(i+1); const f = state.filters[sec] = {...(state.filters[sec]||{})};
+    if (b) f.brand = [b]; else delete f.brand; closeSheet(); render(); }
+});
+
+Object.assign(TR, {
+  'Подборки':['Saýlanlar','Collections'], 'Под кредит':['Karz bilen','On credit'], 'Новые машины':['Täze maşynlar','New cars'],
+  'Все марки':['Ähli markalar','All makes'],
+  // 10 окошек «как снимать» при подаче авто
+  'Сбоку слева':['Çep tarapdan','Left side'], 'Сбоку справа':['Sag tarapdan','Right side'], 'Спереди прямо':['Göni öňünden','Straight front'],
+  'Задние сиденья':['Yzky oturgyçlar','Rear seats'], 'Спидометр':['Spidometr','Speedometer'], 'Под капотом':['Kapotyň aşagy','Under the hood'], 'Багажник':['Bagažnik','Trunk'],
+  'Главное фото: машина целиком, видны фары и бок':['Esasy surat: maşyn doly, faralar we gapdaly görünýär','Main photo: the whole car, headlights and side visible'],
+  'Другой бок целиком':['Beýleki gapdaly doly','The other side in full'], 'Фары, решётка, бампер':['Faralar, reşýotka, bamper','Headlights, grille, bumper'],
+  'Сиденья и пол сзади':['Yzky oturgyçlar we pol','Rear seats and floor'], 'Откройте багажник целиком':['Bagažnigi doly açyň','Open the trunk fully'],
+  'Добавить несколько фото сразу':['Birnäçe suraty birden goş','Add several photos at once']
 });
 
 /* ================== Переводы новых фраз ================== */

@@ -7,6 +7,7 @@ import android.content.ClipData;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -32,7 +33,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         webView = new WebView(this);
-        webView.setBackgroundColor(0xFF0F0C29);
+        webView.setBackgroundColor(0xFF0A0A0A);
         setContentView(webView);
 
         WebSettings s = webView.getSettings();
@@ -129,6 +130,10 @@ public class MainActivity extends Activity {
             return id;
         }
 
+        /** Тёмная тема в телефоне — для темы приложения «Системная». */
+        @JavascriptInterface
+        public boolean isDark() { return isNight(getResources().getConfiguration()); }
+
         /** Приложение открыли нажатием на уведомление (страница спрашивает один раз при запуске). */
         @JavascriptInterface
         public boolean openedFromNotif() {
@@ -136,6 +141,17 @@ public class MainActivity extends Activity {
             getIntent().removeExtra("openNotifs");
             return v;
         }
+    }
+
+    private static boolean isNight(Configuration c) {
+        return (c.uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;
+    }
+
+    // Тему телефона переключили, пока приложение открыто (uiMode в configChanges — активность не пересоздаётся)
+    @Override
+    public void onConfigurationChanged(Configuration c) {
+        super.onConfigurationChanged(c);
+        if (webView != null) webView.evaluateJavascript("window.applyTheme && applyTheme()", null);
     }
 
     // Ссылка вида alphadrive://l/<id> → id объявления (только буквы, цифры и дефис)

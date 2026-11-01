@@ -1,13 +1,14 @@
 /* =====================================================
    Service worker веб-версии (iPhone, Windows, браузер).
    Сначала сеть — обновления приходят сразу; без сети приложение
-   открывается из сохранённой копии. Запросы к Supabase, фото и шрифты
-   (другие адреса) не трогаем. В Android-приложении не используется.
+   открывается из сохранённой копии. Шрифты свои (fonts/) — тоже в копии.
+   Запросы к Supabase и фото (другие адреса) не трогаем. В Android-приложении не используется.
    ===================================================== */
-const CACHE = 'alpha-drive-1.4';
+const CACHE = 'alpha-drive-1.7';
 // './', а не 'index.html': на сайте index.html отвечает переадресацией на ./
-const SHELL = ['./', 'supabase.js', 'i18n.js', 'features.js', 'features-plus.js', 'pwa.js', 'refresh.js',
-  'manifest.webmanifest', 'app-192.png', 'app-512.png', 'logo.png'];
+const SHELL = ['./', 'supabase.js', 'i18n.js', 'features.js', 'features-plus.js', 'dealers.js', 'staff.js', 'helper.js', 'pwa.js', 'refresh.js',
+  'manifest.webmanifest', 'app-192.png', 'app-512.png', 'logo.png',
+  ...['onest', 'unbounded'].flatMap(f => ['latin', 'latin-ext', 'cyrillic'].map(s => `fonts/${f}-${s}.woff2`))];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));

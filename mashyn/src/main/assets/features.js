@@ -105,17 +105,47 @@ function vinCard(l){
 }
 
 /* ================== Подсказки для фото ================== */
+// 10 снимков машины по порядку: [название, подсказка, рисунок-образец]. Первый — главное фото в списке
 const PHOTO_SHOTS = [
-  ['Спереди под углом', 'Машина целиком, видны фары и бок'],
-  ['Сзади под углом', 'Задние фонари и другой бок'],
-  ['Сбоку', 'Ровно сбоку, вся машина в кадре'],
-  ['Салон спереди', 'Руль, панель, передние сиденья'],
-  ['Приборная панель', 'Включите зажигание: видно пробег и нет ошибок'],
-  ['Подкапотное пространство', 'Двигатель чистый и сухой']
+  ['Спереди под углом', 'Главное фото: машина целиком, видны фары и бок', 'fl'],
+  ['Сзади под углом', 'Задние фонари и другой бок', 'rr'],
+  ['Сбоку слева', 'Ровно сбоку, вся машина в кадре', 'l'],
+  ['Сбоку справа', 'Другой бок целиком', 'r'],
+  ['Спереди прямо', 'Фары, решётка, бампер', 'f'],
+  ['Салон спереди', 'Руль, панель, передние сиденья', 'wheel'],
+  ['Задние сиденья', 'Сиденья и пол сзади', 'seats'],
+  ['Спидометр', 'Включите зажигание: видно пробег и нет ошибок', 'gauge'],
+  ['Под капотом', 'Двигатель чистый и сухой', 'hood'],
+  ['Багажник', 'Откройте багажник целиком', 'trunk']
 ];
+// Разделы, где при подаче вместо кнопки «Добавить» — 10 окошек с образцами
+const SLOT_SECS = ['cars','import','rent'];
+
+// Маленькие анимированные рисунки «как снимать» (без файлов: SVG + CSS, классы .sa-*)
+function shotArt(k){
+  const ph = (x, y, dx, dy) => `<g class="sa-ph" style="--dx:${dx}px;--dy:${dy}px"><g transform="translate(${x} ${y})"><rect width="10" height="15" rx="2.5" fill="var(--accent)"/><circle cx="5" cy="5" r="2" fill="var(--bg1)"/></g></g>`;
+  const top = `<rect x="36" y="18" width="28" height="44" rx="9" fill="none" stroke="currentColor" stroke-width="2"/><rect x="40" y="26" width="20" height="8" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/>
+    <rect x="40" y="49" width="20" height="6" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><g fill="currentColor"><rect x="33" y="23" width="3" height="8" rx="1"/><rect x="64" y="23" width="3" height="8" rx="1"/><rect x="33" y="48" width="3" height="8" rx="1"/><rect x="64" y="48" width="3" height="8" rx="1"/></g>`;
+  const side = `<path d="M8 50V41q0-5 5-5h17l8-12h24l8 12h17q5 0 5 5v9z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="27" cy="51" r="7" fill="var(--bg1)" stroke="currentColor" stroke-width="2"/><circle cx="73" cy="51" r="7" fill="var(--bg1)" stroke="currentColor" stroke-width="2"/>`;
+  const lid = (x1, x2, ox, r) => `<path class="sa-rot" style="transform-origin:${ox}px 36px;--r:${r}deg" d="M${x1} 36H${x2}" stroke="var(--accent)" stroke-width="3.5" stroke-linecap="round"/>`;
+  const art = {
+    fl: top + ph(14, 4, 5, 4), rr: top + ph(76, 58, -5, -4), l: top + ph(8, 32, 6, 0), r: top + ph(82, 32, -6, 0), f: top + ph(45, 0, 0, 3),
+    wheel: `<path d="M6 32q44-14 88 0v8H6z" fill="none" stroke="currentColor" stroke-width="2"/><g class="sa-rot" style="transform-origin:34px 50px;--r:-14deg"><circle cx="34" cy="50" r="14" fill="none" stroke="var(--accent)" stroke-width="3"/><path d="M20 50h28M34 50v14" stroke="var(--accent)" stroke-width="3"/></g><rect x="58" y="44" width="26" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2"/>`,
+    seats: `<g fill="none" stroke="currentColor" stroke-width="2"><rect x="16" y="12" width="30" height="30" rx="7"/><rect x="13" y="42" width="36" height="12" rx="5"/><rect x="54" y="12" width="30" height="30" rx="7"/><rect x="51" y="42" width="36" height="12" rx="5"/></g>` + ph(45, 58, 0, -4),
+    gauge: `<path d="M20 58a30 30 0 0 1 60 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M50 28v5M24 44l4 3M76 44l-4 3" stroke="currentColor" stroke-width="2"/><path class="sa-needle" style="transform-origin:50px 58px" d="M50 58V34" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/><circle cx="50" cy="58" r="3.5" fill="var(--accent)"/><rect class="sa-blink" x="38" y="63" width="24" height="9" rx="2" fill="var(--accent)"/>`,
+    hood: side + lid(70, 92, 70, -32), trunk: side + lid(8, 30, 30, 32)
+  };
+  return `<svg class="shot-art" viewBox="0 0 100 76" aria-hidden="true">${art[k]||''}</svg>`;
+}
+
+// Форма подачи: 10 окошек; пустое — образец и подпись, заполненное — фото и «×»
+const shotSlots = d => `<div class="photo-grid shots">${PHOTO_SHOTS.map(([n,,a],i)=> d.photos[i]
+    ? `<div class="ph"><img src="${d.photos[i]}" alt=""><span class="sn">${n}</span><button type="button" data-a="delph" data-v="${i}" aria-label="Удалить фото">×</button></div>`
+    : `<label class="shot${i?'':' main'}">${shotArt(a)}<span class="sn">${n}</span><input type="file" accept="image/*" data-slot="${i}" hidden></label>`).join('')}</div>
+  ${d.photos.filter(Boolean).length < PHOTO_SHOTS.length ? `<label class="link small" style="cursor:pointer">${ic('photo','style="width:16px;height:16px;vertical-align:-3px"')} Добавить несколько фото сразу<input type="file" id="d_ph" accept="image/*" multiple hidden></label>` : ''}`;
 function photoTipsSheet(){
   openSheet(`<div class="between"><h2>Как сфотографировать машину</h2><button class="icon-btn" data-a="closesheet" aria-label="Закрыть">${ic('x')}</button></div>
-    <div class="list" style="gap:8px">${PHOTO_SHOTS.map(([n,d],i)=>`<div class="row" style="gap:12px;align-items:flex-start"><span class="num" style="flex:none;width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:var(--accent);color:var(--on);font-weight:700">${i+1}</span><div><b class="small">${n}</b><br><span class="tiny dim">${d}</span></div></div>`).join('')}</div>
+    <div class="list" style="gap:8px">${PHOTO_SHOTS.map(([n,d,a],i)=>`<div class="row" style="gap:12px;align-items:center"><span class="num" style="flex:none;width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:var(--accent);color:var(--on);font-weight:700">${i+1}</span><span class="tip-art">${shotArt(a)}</span><div><b class="small">${n}</b><br><span class="tiny dim">${d}</span></div></div>`).join('')}</div>
     <div class="card pad small col" style="gap:4px"><b>Советы</b>
       <span class="dim">☀️ Снимайте днём, при дневном свете, не против солнца</span>
       <span class="dim">🧽 Помойте машину — чистая продаётся быстрее и дороже</span>
@@ -231,14 +261,27 @@ const FEATURE_ACTIONS = {
   cmpopen(){ go('compare'); },
 
   verify(uid){ const x = userById(uid); x.verified = x.verified ? 0 : 1; persist(); toast(x.verified ? 'Продавец отмечен как проверенный' : 'Отметка снята'); render(); },
-  phototips(){ photoTipsSheet(); }
+  phototips(){ photoTipsSheet(); },
+
+  // Расходы (админ): добавить и удалить ошибочную запись
+  expadd(){
+    const u = me(); if (u?.role!=='admin') return;
+    const day = $('#x_day').value, amount = Math.round(Number($('#x_amt').value)*100)/100, cat = $('#x_cat').value, note = $('#x_note').value.trim().slice(0,200);
+    const err = $('#x_err'); err.textContent = '';
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(day) || day > tmDay(now())){ err.textContent = 'Укажите дату (не позже сегодня)'; return; }
+    if (!(amount > 0) || amount > 10000000){ err.textContent = 'Укажите сумму больше нуля'; return; }
+    if (!EXP_CATS.some(c=>c[0]===cat)){ err.textContent = 'Выберите категорию'; return; }
+    S.expenses.push({id:uid(), uid:u.id, day, amount, cat, note, time:now()}); persist(); toast('Расход добавлен'); render();
+  },
+  expdel(id){ confirmSheet('Удалить этот расход?', 'Удалить', {a:'expdelok', v:id}); },
+  expdelok(id){ closeSheet(); S.expenses = S.expenses.filter(e=>e.id!==id); persist(); toast('Расход удалён'); render(); }
 };
 
 /* =====================================================
    Поддержка, «О приложении», информационная панель,
    статистика продавца и «Поделиться»
    ===================================================== */
-const APP_VERSION = '1.4';
+const APP_VERSION = '1.5';
 const SITE_URL = 'https://alphadrive.pages.dev/';
 
 /* ===== «Доступна новая версия» — только в Android-приложении =====
@@ -316,15 +359,76 @@ function adminDashboard(){
     ['Оплаты ждут проверки', S.payments.filter(p=>p.status==='pending').length, 'pay'],
     ['Объявления на проверке', S.listings.filter(l=>l.status==='review').length, 'mod'],
     ['Жалобы', new Set(S.complaints.map(c=>c.target)).size, 'cmp'],
-    ['Обращения в поддержку', S.support.filter(s=>s.status==='open').length, 'sup']
+    ['Обращения в поддержку', S.support.filter(s=>s.status==='open').length, 'sup'],
+    ['Запросы сотрудников', staffPending(), 'staff']
   ];
   const topViews = [...vis].sort((a,b)=>(b.views||0)-(a.views||0)).slice(0,5);
-  return `<div class="dtiles">${tiles.map(([n,v,d])=>`<div class="card pad"><b class="num" style="font-size:1.4rem">${v}</b><div class="small">${n}</div><div class="tiny dim">${d}</div></div>`).join('')}</div>
+  return `${me()?.role==='admin' ? moneyBlock() : ''}<div class="dtiles">${tiles.map(([n,v,d])=>`<div class="card pad"><b class="num" style="font-size:1.4rem">${v}</b><div class="small">${n}</div><div class="tiny dim">${d}</div></div>`).join('')}</div>
     <div class="card pad col" style="gap:8px"><h3>Нужно сделать</h3>${todo.map(([n,v,k])=>`<button class="between" style="padding:6px 0" data-a="atab" data-v="${k}"><span class="small">${n}</span><span class="badge ${v?'b-warn':'b-ok'} num">${v}</span></button>`).join('')}</div>
     <div class="card pad col" style="gap:8px"><h3>Объявления по разделам</h3>${bar(SECTIONS.map(s=>[t('s_'+s.k), vis.filter(l=>l.sec===s.k).length]))}</div>
     <div class="card pad col" style="gap:8px"><h3>Популярные марки</h3>${bar(count(vis.filter(l=>CAR_SECS.includes(l.sec)), l=>l.specs?.brand).slice(0,6)) || '<span class="small dim">Пока нет данных</span>'}</div>
     <div class="card pad col" style="gap:8px"><h3>Регионы</h3>${bar(count(vis, l=>l.reg).slice(0,7)) || '<span class="small dim">Пока нет данных</span>'}</div>
     <div class="card pad col" style="gap:8px"><h3>Самые просматриваемые</h3>${topViews.length ? topViews.map(l=>`<button class="between" style="padding:6px 0;text-align:left" data-a="open" data-v="${l.id}"><span class="small" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(l.title)}</span><span class="tiny dim num" style="flex:none">👁 ${l.views||0}</span></button>`).join('') : '<span class="small dim">Пока нет данных</span>'}</div>`;
+}
+
+/* ===== Деньги: доход, расходы, прибыль (видит только админ) =====
+   Дни и месяцы — по времени Ашхабада (UTC+5), чтобы сводка на сервере считала так же.
+   Доход — оплаты со status 'done'; день — по doneAt (когда подтвердили), у старых оплат — по time.
+   Расход — запись expenses: {id, uid, day:'ГГГГ-ММ-ДД', amount (TMT), cat, note, time}. */
+const TM_TZ = 5*3600e3;
+const tmDay = ts => new Date(ts + TM_TZ).toISOString().slice(0,10);
+const EXP_CATS = [['ads','Реклама'],['server','Сервер'],['salary','Зарплата'],['other','Другое']];
+const PAY_KINDS = [['vip','VIP на главной'],['top','Поднять в топ'],['color','Выделить цветом'],['listing','За объявление'],
+  ['sub1','Подписка на 1 мес.'],['sub3','Подписка на 3 мес.'],['sub6','Подписка на 6 мес.'],['sub12','Подписка на 12 мес.']];
+const fmtTmt = v => (Math.round(v*100)/100).toLocaleString('ru-RU',{maximumFractionDigits:2}).replace(/\s/g,' ');   // 1 234,5
+const payKind = p => p.kind==='sub' ? 'sub'+p.months : p.kind==='listing' ? 'listing' : p.promo;
+
+function moneyStats(payments, expenses, T){
+  const today = tmDay(T), weekFrom = tmDay(T - 6*DAY), month = today.slice(0,7);
+  const d = new Date(T + TM_TZ), prev = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth()-1, 1)).toISOString().slice(0,7);
+  const done = payments.filter(p=>p.status==='done').map(p=>({kind:payKind(p), amount:Number(p.amount)||0, day:tmDay(p.doneAt||p.time||0)}));
+  const exps = expenses.map(e=>({cat:e.cat, amount:Number(e.amount)||0, day:String(e.day||'')}));
+  const sum = (arr, f) => { const a = arr.filter(f); return {sum:a.reduce((s,x)=>s+x.amount,0), n:a.length}; };
+  const group = (arr, key) => { const m = {}; arr.forEach(x=>{ const g = m[x[key]] = m[x[key]] || {sum:0,n:0}; g.sum += x.amount; g.n++; }); return m; };
+  const inMonth = x => x.day.startsWith(month), inPrev = x => x.day.startsWith(prev);
+  const inc = {today:sum(done, x=>x.day===today), week:sum(done, x=>x.day>=weekFrom && x.day<=today), month:sum(done, inMonth), prev:sum(done, inPrev)};
+  const exp = {month:sum(exps, inMonth), prev:sum(exps, inPrev)};
+  return {today, month, prev, inc, exp, kinds:group(done.filter(inMonth), 'kind'), cats:group(exps.filter(inMonth), 'cat'),
+    profit:{month:inc.month.sum - exp.month.sum, prev:inc.prev.sum - exp.prev.sum}};
+}
+
+function moneyBlock(){
+  const m = moneyStats(S.payments, S.expenses, now());
+  const tile = (n, x) => `<div class="card pad"><b class="num" style="font-size:1.4rem">${fmtTmt(x.sum)}</b><div class="small">${n}</div><div class="tiny dim">TMT · оплат: <span class="num">${x.n}</span></div></div>`;
+  const line = (n, v, n2) => `<div class="between" style="padding:4px 0"><span class="small">${n}${n2!=null?` <span class="tiny dim">· ${n2} шт.</span>`:''}</span><b class="num small">${fmtTmt(v)} TMT</b></div>`;
+  const pcol = v => v>0 ? 'var(--ok)' : v<0 ? 'var(--danger)' : 'var(--dim)';
+  const ptext = v => `${v>0?'+':v<0?'−':''}${fmtTmt(Math.abs(v))} TMT`;
+  const kinds = PAY_KINDS.filter(([k])=>m.kinds[k]).map(([k,n])=>line(n, m.kinds[k].sum, m.kinds[k].n)).join('');
+  const cats = EXP_CATS.filter(([k])=>m.cats[k]).map(([k,n])=>line(n, m.cats[k].sum, m.cats[k].n)).join('');
+  const catName = k => (EXP_CATS.find(c=>c[0]===k)||EXP_CATS[3])[1];
+  const list = [...S.expenses].sort((a,b)=>String(b.day).localeCompare(String(a.day)) || (b.time||0)-(a.time||0)).slice(0,30);
+  const profit = (n, inc, exp, p) => `<div class="col" style="gap:2px">${line(n+': доход', inc)}${line('Расходы', exp)}
+    <div class="between" style="padding:4px 0"><b class="small">Прибыль</b><b class="num" style="color:${pcol(p)}">${ptext(p)}</b></div></div>`;
+  return `<h3>Деньги</h3>
+    <div class="dtiles">${tile('Сегодня', m.inc.today)}${tile('За 7 дней', m.inc.week)}${tile('Этот месяц', m.inc.month)}${tile('Прошлый месяц', m.inc.prev)}</div>
+    <div class="card pad col" style="gap:8px"><h3>Прибыль</h3>
+      ${profit('Этот месяц', m.inc.month.sum, m.exp.month.sum, m.profit.month)}
+      <div style="border-top:1px solid var(--line)"></div>
+      ${profit('Прошлый месяц', m.inc.prev.sum, m.exp.prev.sum, m.profit.prev)}</div>
+    <div class="card pad col" style="gap:6px"><h3>Доход по видам — этот месяц</h3>${kinds || '<span class="small dim">Пока нет данных</span>'}</div>
+    <div class="card pad col" style="gap:8px"><h3>Расходы</h3>
+      ${cats ? `<div class="col" style="gap:2px"><span class="tiny dim">Этот месяц по категориям</span>${cats}</div>` : ''}
+      <div class="grid2" style="grid-template-columns:minmax(0,4fr) minmax(0,3fr)"><div class="field"><label for="x_day">Дата</label><input class="inp num" id="x_day" type="date" value="${m.today}" max="${m.today}"></div>
+      <div class="field"><label for="x_amt">Сумма, TMT</label><input class="inp num" id="x_amt" type="number" min="0" step="0.01" inputmode="decimal"></div></div>
+      <div class="field"><label for="x_cat">Категория</label><select class="inp" id="x_cat">${EXP_CATS.map(([k,n])=>`<option value="${k}">${n}</option>`).join('')}</select></div>
+      <div class="field"><label for="x_note">Комментарий</label><input class="inp" id="x_note" maxlength="200" placeholder="Например: реклама в Instagram"></div>
+      <span class="small" id="x_err" style="color:var(--danger)"></span>
+      <button class="btn" data-a="expadd">${ic('check')}Добавить расход</button>
+      ${list.length ? list.map(e=>`<div class="between" style="padding:6px 0;border-top:1px solid var(--line)"><span class="col" style="gap:0;min-width:0">
+        <span class="small"><span class="num">${esc(e.day)}</span> · ${catName(e.cat)}</span>${e.note?`<span class="tiny dim" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(e.note)}</span>`:''}</span>
+        <span class="row" style="gap:8px;flex:none"><b class="num small">${fmtTmt(e.amount)} TMT</b><button class="btn sm ghost" data-a="expdel" data-v="${esc(e.id)}">Удалить</button></span></div>`).join('')
+        : '<span class="small dim">Расходов пока нет</span>'}</div>
+    <h3>Пользователи и объявления</h3>`;
 }
 
 /* ================== Статистика продавца и «Поделиться» ================== */
@@ -343,6 +447,7 @@ Object.assign(FEATURE_SCREENS, {
     const mine = u ? S.support.filter(s=>s.uid===u.id).sort((a,b)=>b.time-a.time) : [];
     return {title:'Служба поддержки', html:`
       <div class="hero" style="min-height:0"><h1 style="font-size:1.2rem">Служба поддержки</h1><p>Ответим на вопросы, поможем с объявлением и разберёмся с жалобой</p></div>
+      ${helperCard()}
       <div class="card pad col" style="gap:8px"><h3>Связаться с нами</h3>
         ${p?`<div class="copy-row"><span class="phone-num num">${esc(fmtPhone(p))}</span><button class="btn sm ghost" data-a="copy" data-v="${esc(p)}">${ic('copy')}</button></div>
         <div class="grid2"><a class="btn" href="tel:${esc(p)}">${ic('phone')}${t('call')}</a><a class="btn ghost" href="https://wa.me/${esc(p.replace(/\D/g,''))}" target="_blank" rel="noopener">${ic('chat')}WhatsApp</a></div>
@@ -513,8 +618,7 @@ Object.assign(FEATURE_SCREENS, {
     const st = S.settings, onOff = (k, on) => `<div class="seg"><button class="${on?'on':''}" data-a="setopt" data-v="${k}:1">Вкл.</button><button class="${on?'':'on'}" data-a="setopt" data-v="${k}:0">Выкл.</button></div>`;
     return {title:'Настройки', html:`
       <div class="col"><h3>${t('language')}</h3><div class="seg"><button class="${LANG==='tm'?'on':''}" data-a="setlang" data-v="tm">Türkmençe</button><button class="${LANG==='ru'?'on':''}" data-a="setlang" data-v="ru">Русский</button><button class="${LANG==='en'?'on':''}" data-a="setlang" data-v="en">English</button></div></div>
-      <div class="col"><h3>${t('theme')}</h3><div class="themes">${THEMES.map(th=>`<button class="th-sw ${st.theme===th.k?'on':''}" style="background:linear-gradient(150deg,${th.a},${th.b})" data-a="theme" data-v="${th.k}" aria-label="${th.n}" title="${th.n}"><span style="background:${th.c}"></span></button>`).join('')}</div>
-        <div class="themes tiny dim" style="text-align:center">${THEMES.map(th=>`<span>${th.n}</span>`).join('')}</div></div>
+      <div class="col"><h3>${t('theme')}</h3><div class="themes">${THEMES.map(th=>`<button class="th-it" data-a="theme" data-v="${th.k}" title="${th.n}"><span class="th-sw ${st.theme===th.k?'on':''}" style="background:linear-gradient(150deg,${th.a},${th.b})"><span style="background:${th.c}"></span></span><span class="tiny dim">${th.n}</span></button>`).join('')}</div></div>
       <div class="col"><h3>Размер шрифта</h3><div class="seg">${FONT_SIZES.map(([k,n])=>`<button class="${(st.fontSize||1)===k?'on':''}" data-a="setfont" data-v="${k}" style="font-size:${k*.85}rem">Aa</button>`).join('')}</div>
         <span class="small dim">${FONT_SIZES.find(([k])=>k===(st.fontSize||1))?.[1]||''}: так будет выглядеть текст во всём приложении.</span></div>
       <div class="card pad col" style="gap:10px">
