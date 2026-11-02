@@ -185,7 +185,7 @@ Object.assign(FEATURE_SCREENS, {
           <div style="margin-top:4px">${ratingLine(sid)}</div></div></div>
       <div class="stat-row"><div class="stat"><b class="num">${act.length}</b><span class="tiny dim">в продаже</span></div>
         <div class="stat"><b class="num">${sold.length}</b><span class="tiny dim">продано</span></div>
-        <div class="stat"><b class="num">${x.created?Math.max(1,Math.round((now()-x.created)/(30*DAY))):'—'}</b><span class="tiny dim">мес. в Alpha Drive</span></div></div>
+        <div class="stat"><b class="num">${x.created?Math.max(1,Math.round((now()-x.created)/(30*DAY))):'—'}</b><span class="tiny dim">мес. в AlphaCars TM</span></div></div>
       <div class="card pad col" style="gap:10px"><div class="between"><h3>Отзывы</h3>${r.n?`<span><b class="num" style="font-size:1.3rem">${r.avg.toFixed(1)}</b> ${stars(r.avg,16)}</span>`:''}</div>
         ${r.n?dist.map(([s,c])=>`<div class="dbar"><span class="small num">${s} ★</span><div class="track"><i style="width:${Math.round(c/r.n*100)}%"></i></div><b class="num small">${c}</b></div>`).join(''):''}
         ${r.list.map(v => { const a = userById(v.uid)||{name:'?'}; const ll = S.listings.find(z=>z.id===v.lid);
@@ -195,7 +195,8 @@ Object.assign(FEATURE_SCREENS, {
             <div class="row" style="gap:4px">${[1,2,3,4,5].map(s=>`<button data-a="rvstar" data-v="${s}" aria-label="${s} звёзд" style="font-size:28px;color:${s<=state.rvStars?'#f6c343':'var(--line)'}">★</button>`).join('')}</div>
             <textarea class="inp" id="rv_text" style="min-height:70px" maxlength="500" placeholder="Как прошла сделка? Машина соответствовала описанию?"></textarea>
             <div class="err" id="rv_err"></div><button class="btn" data-a="rvsend" data-v="${sid}">${ic('star')}Отправить отзыв</button></div>`
-          : u && u.id!==sid && !S.reviews.some(v=>v.uid===u.id && v.to===sid) ? '<span class="tiny dim">Отзыв можно оставить после переписки с продавцом.</span>' : ''}</div>
+          : u && u.id===sid ? '<span class="tiny dim">Это ваша страница: себе отзыв поставить нельзя — его оставляют покупатели после переписки с вами.</span>'
+          : u && !S.reviews.some(v=>v.uid===u.id && v.to===sid) ? '<span class="tiny dim">Отзыв можно оставить после переписки с продавцом.</span>' : ''}</div>
       ${act.length?`<div class="col"><h3>Объявления продавца</h3><div class="list">${rank(act).map(listCard).join('')}</div></div>`:''}`};
   }
 });
@@ -262,15 +263,18 @@ function picksBlock(vis){
     return `<button class="ptile" data-a="collopen" data-v="${p.k}">${mainPic(l)}<span class="pt"><b>${p.n}</b><span><span class="num">${arr.length}</span> <span>объявл.</span></span></span></button>`; }).join('')}</div></div>`;
 }
 
-// «Марка»: марки раздела с числом объявлений; нажал — остаются объявления этой марки
+// «Марка»: все марки раздела (каталог) с числом объявлений, по странам, с иконками (brands.js); нажал — остаются объявления этой марки
 const brandOf = l => l.specs?.brand || l.specs?.tbrand || l.specs?.pbrand || '';
 const brandCounts = sec => { const m = {}; S.listings.filter(l=>visible(l) && (sec==='all'||l.sec===sec)).forEach(l=>{ const b = brandOf(l); if (b) m[b] = (m[b]||0)+1; });
   return Object.entries(m).sort((a,b)=>b[1]-a[1] || a[0].localeCompare(b[0])); };
 function brandSheet(sec){
-  const list = brandCounts(sec), cur = state.filters[sec]?.brand || [];
+  // Все марки раздела из каталога (и с нулём объявлений), плюс вписанные вручную
+  const counts = brandCounts(sec), have = new Map(counts), cur = state.filters[sec]?.brand || [];
+  const cat = (sec==='all' ? Object.keys(CATALOG) : BRAND_GROUPS[sec]||[]).flatMap(g=>Object.keys(CATALOG[g])).filter(b=>!have.has(b));
+  const list = [...counts, ...[...new Set(cat)].map(b=>[b,0])];
   openSheet(`<h2>Марка</h2><div class="list" style="gap:0">
     <button class="between brow ${cur.length?'':'on'}" data-a="brandpick" data-v="${sec}|"><span>Все марки</span><span class="badge b-dim num">${list.reduce((s,x)=>s+x[1],0)}</span></button>
-    ${list.map(([b,n])=>`<button class="between brow ${cur.length===1&&cur[0]===b?'on':''}" data-a="brandpick" data-v="${sec}|${esc(b)}"><span>${esc(b)}</span><span class="badge b-dim num">${n}</span></button>`).join('')}</div>`);
+    ${byCountry(list).map(([c,items])=>`<div class="bgh">${c}</div>`+items.map(([b,n])=>`<button class="between brow ${cur.length===1&&cur[0]===b?'on':''}" data-a="brandpick" data-v="${sec}|${esc(b)}"><span class="bname">${brandIcon(b)}<span>${esc(b)}</span></span><span class="badge b-dim num" ${n?'':'style="opacity:.5"'}>${n}</span></button>`).join('')).join('')}</div>`);
 }
 
 // Внизу объявления всегда видны «Позвонить» и «SMS» (гость — кнопка входа)
@@ -327,8 +331,9 @@ Object.assign(TR, {
   'Оставить отзыв':['Teswir galdyr','Leave a review'], 'Отправить отзыв':['Teswiri iber','Send review'], 'Спасибо за отзыв!':['Teswiriňiz üçin sag boluň!','Thanks for the review!'],
   'Как прошла сделка? Машина соответствовала описанию?':['Söwda nähili geçdi? Maşyn beýany bilen gabat geldimi?','How did the deal go? Did the car match the description?'],
   'Поставьте оценку от 1 до 5 звёзд':['1-den 5-e çenli baha goýuň','Rate from 1 to 5 stars'],
+  'Это ваша страница: себе отзыв поставить нельзя — его оставляют покупатели после переписки с вами.':['Bu siziň sahypaňyz: özüňize teswir goýup bolmaýar — ony siziň bilen hat alyşan alyjylar galdyrýar.','This is your page: you can’t review yourself — buyers review you after chatting with you.'],
   'Отзыв можно оставить после переписки с продавцом.':['Teswiri satyjy bilen hat alyşandan soň galdyryp bolýar.','You can leave a review after chatting with the seller.'],
-  'Объявления продавца':['Satyjynyň bildirişleri','Seller’s listings'], 'мес. в Alpha Drive':['aý Alpha Drive-da','months on Alpha Drive'],
+  'Объявления продавца':['Satyjynyň bildirişleri','Seller’s listings'], 'мес. в AlphaCars TM':['aý AlphaCars TM-de','months on AlphaCars TM'],
   'Все объявления продавца и отзывы':['Satyjynyň ähli bildirişleri we teswirleri','All seller listings and reviews'],
   'Вы смотрели':['Siz serediňiz','Recently viewed'], 'Похожие объявления':['Meňzeş bildirişler','Similar listings'],
   'Продавец не найден':['Satyjy tapylmady','Seller not found'], 'Отметить «Продано»':['«Satyldy» diýip belle','Mark as sold'],
@@ -341,7 +346,7 @@ Object.assign(TR, {
   'Электромотоцикл':['Elektromotosikl','Electric motorcycle'], 'Питбайк / детский':['Pitbaýk / çagalar üçin','Pit bike / kids'],
   'Авто, мото, импорт, аренда':['Awtoulag, moto, getirmek, kärende','Cars, motorcycles, imports, rental'],
   // «О приложении» и частые вопросы, версия 1.3
-  'Alpha Drive — автомаркет Туркменистана. Только машины и всё, что с ними связано: продажа авто и мотоциклов, пригон из-за рубежа, запчасти, спецтехника, аренда, СТО и работа для водителей.':['Alpha Drive — Türkmenistanyň awtobazary. Diňe maşynlar we olar bilen baglanyşykly zatlar: awtoulag we motosikl satuwy, daşary ýurtdan getirmek, şaýlar, ýörite tehnika, kärende, awtoserwis we sürüjiler üçin iş.','Alpha Drive is the car marketplace of Turkmenistan. Only vehicles and everything around them: cars and motorcycles for sale, imports, parts, heavy machinery, rental, service and driver jobs.'],
+  'AlphaCars TM — автомаркет Туркменистана. Только машины и всё, что с ними связано: продажа авто и мотоциклов, пригон из-за рубежа, запчасти, спецтехника, аренда, СТО и работа для водителей.':['AlphaCars TM — Türkmenistanyň awtobazary. Diňe maşynlar we olar bilen baglanyşykly zatlar: awtoulag we motosikl satuwy, daşary ýurtdan getirmek, şaýlar, ýörite tehnika, kärende, awtoserwis we sürüjiler üçin iş.','AlphaCars TM is the car marketplace of Turkmenistan. Only vehicles and everything around them: cars and motorcycles for sale, imports, parts, heavy machinery, rental, service and driver jobs.'],
   'Мотоциклы, скутеры и квадроциклы — отдельный раздел':['Motosikller, skuterler we kwadrosikller — aýratyn bölüm','Motorcycles, scooters and ATVs — a separate section'],
   'Новые и с пробегом — переключатель в один клик':['Täze we ulanylan — bir basyşda saýlaň','New or used — one tap to switch'],
   'Чат с продавцом прямо в приложении':['Programmanyň içinde satyjy bilen hat alyşmak','Chat with the seller right in the app'],

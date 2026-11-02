@@ -103,7 +103,7 @@ function usersAdmin(u){
   const f = state.usF || 'all';
   const all = [...S.users].sort((a,b)=>(b.created||0)-(a.created||0));
   const list = all.filter(x=>usMatch(x, f));
-  return `<label class="search">${ic('search')}<input id="us_q" type="search" placeholder="Имя, телефон или компания" value="${esc(state.usQ||'')}" aria-label="Поиск пользователей"></label>
+  return `<label class="search">${ic('search')}<input id="us_q" type="search" placeholder="Поиск" value="${esc(state.usQ||'')}" aria-label="Поиск пользователей"></label>
     <div class="chips">${US_FILTERS.map(([k,n])=>`<button class="chip ${f===k?'on':''}" data-a="usf" data-v="${k}">${n} · ${all.filter(x=>usMatch(x,k)).length}</button>`).join('')}</div>
     <span class="tiny dim" id="us_cnt">Найдено: ${list.length}</span>
     <div class="col" style="gap:8px">${list.length ? list.map(x=>{ const ls = usListings(x.id);
@@ -133,10 +133,10 @@ function userSheet(id){
       <div style="flex:1;min-width:0"><h2 style="font-size:1.05rem">${esc(x.name)}</h2><div class="row" style="gap:6px;flex-wrap:wrap;margin-top:4px">${roleBadge(x)}<span class="badge b-dim">${x.type==='company'?'Компания':'Частное лицо'}</span>${x.blocked?'<span class="badge b-bad">заблокирован</span>':''}${x.verified?'<span class="badge b-ok">✓ Проверенный</span>':''}</div></div></div>
     <div class="copy-row"><span class="phone-num num">${esc(fmtPhone(x.phone))}</span><a class="btn sm ghost" href="tel:${esc(x.phone)}" aria-label="Позвонить">${ic('phone')}</a><button class="btn sm ghost" data-a="copy" data-v="${esc(x.phone)}" aria-label="Скопировать">${ic('copy')}</button></div>
     <div class="stat-row"><div class="stat"><b class="num">${ls.filter(visible).length}</b><span class="tiny dim">активных</span></div><div class="stat"><b class="num">${ls.length}</b><span class="tiny dim">всего</span></div><div class="stat"><b class="num">${cmp}</b><span class="tiny dim">жалоб</span></div></div>
-    <span class="small dim">${x.company?esc(x.company)+' · ':''}${x.created?'В Alpha Drive с '+dateStr(x.created):''}</span>
+    <span class="small dim">${x.company?esc(x.company)+' · ':''}${x.created?'В AlphaCars TM с '+dateStr(x.created):''}</span>
     ${ls.length?`<div class="col" style="gap:6px"><b class="small">Объявления</b>${ls.slice(0,8).map(l=>`<div class="between" style="gap:8px"><button class="small" style="text-align:left;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" data-a="usgo" data-v="${l.id}">${esc(l.title)}</button>
       <span class="tiny dim" style="flex:none">${isSold(l)?'Продано':statusText(l)}</span>${staffOn(u)&&['active','review'].includes(l.status)?`<button class="btn sm ghost" style="flex:none" data-a="lno" data-v="${l.id}">Снять</button>`:''}</div>`).join('')}</div>`:''}
-    ${isAdmin && !self && x.role!=='admin' ? `<div class="col" style="gap:6px"><b class="small">Роль</b><div class="seg">${['user','operator','moder'].map(r=>`<button class="${x.role===r?'on':''}" data-a="urole" data-v="${x.id}:${r}">${roleName(r)}</button>`).join('')}</div>
+    ${isAdmin && !self && x.role!=='admin' ? `<div class="col" style="gap:6px"><b class="small">Роль</b><div class="seg" style="display:grid;grid-template-columns:1fr 1fr">${['user','operator','moder','admin'].map(r=>`<button class="${x.role===r?'on':''}" data-a="urole" data-v="${x.id}:${r}">${roleName(r)}</button>`).join('')}</div>
       ${isStaffRole(x.role)?`<span class="tiny dim">${ROLE_CAN[x.role]}</span>`:''}</div>` : ''}
     <div class="grid2">
       <button class="btn ghost sm" data-a="usgo" data-v="seller:${x.id}">${ic('user')}Профиль продавца</button>
@@ -151,7 +151,19 @@ Object.assign(FEATURE_ACTIONS, {
   usf(v){ state.usF = v; render(); },
   usopen(v){ userSheet(v); },
   usgo(v){ closeSheet(); const [k, id] = v.includes(':') ? v.split(':') : ['open', v]; if (k==='seller') go('seller', id); else A.open(id); },
-  async urole(v){
+  // Назначить администратором — только после предупреждения (adminok); снять администратора может лишь он сам (supabase-update-admins.sql)
+  urole(v){
+    const [id, r] = v.split(':'), x = userById(id);
+    if (!x || x.role===r) return;
+    if (r!=='admin') return A.uroleset(v);
+    openSheet(`<h2>Назначить администратором?</h2>
+      <div class="card pad small col" style="gap:6px;border-color:var(--danger)"><b>${esc(x.name)} · <span class="num">${esc(fmtPhone(x.phone))}</span></b>
+        <span>Администратор может всё: видит деньги и расходы, назначает роли, блокирует, сбрасывает пароли, удаляет объявления и салоны.</span>
+        <span>Снять эту роль потом сможет только он сам или владелец в Supabase.</span></div>
+      <span class="small dim">Назначайте только себе (второй аккаунт) или человеку, которому полностью доверяете.</span>
+      <div class="grid2"><button class="btn ghost" data-a="usopen" data-v="${esc(id)}">Отмена</button><button class="btn danger" data-a="uroleset" data-v="${esc(id)}:admin">Назначить</button></div>`);
+  },
+  async uroleset(v){
     const [id, r] = v.split(':'), x = userById(id), was = x.role;
     if (was===r) return;
     x.role = r; persist(); await syncing;
@@ -186,6 +198,11 @@ async function staffDecide(sid, ok){
 
 /* ================== Переводы новых фраз ================== */
 Object.assign(TR, {
+  'Назначить администратором?':['Administrator bellemelimi?','Make an administrator?'], 'Назначить':['Belle','Assign'],
+  'Администратор может всё: видит деньги и расходы, назначает роли, блокирует, сбрасывает пароли, удаляет объявления и салоны.':['Administrator hemme zady edip bilýär: pullary we çykdajylary görýär, rol berýär, petikleýär, açar sözleri täzeleýär, bildirişleri we salonlary pozýar.','An administrator can do everything: sees money and expenses, assigns roles, blocks, resets passwords, deletes listings and dealers.'],
+  'Снять эту роль потом сможет только он сам или владелец в Supabase.':['Bu roly soň diňe onuň özi ýa-da eýesi Supabase-de aýryp biler.','Later only they themselves or the owner in Supabase can remove this role.'],
+  'Назначайте только себе (второй аккаунт) или человеку, которому полностью доверяете.':['Diňe özüňize (ikinji hasap) ýa-da doly ynanýan adamyňyza belläň.','Assign only to yourself (a second account) or someone you fully trust.'],
+  'Роль администратора может снять только он сам':['Administrator roluny diňe onuň özi aýryp biler','Only the administrator can remove their own role'], 'Администратора заблокировать нельзя':['Administratory petikläp bolmaýar','An administrator can’t be blocked'],
   'Управляющий':['Dolandyryjy','Manager'], 'Оператор':['Operator','Operator'], 'Пользователь':['Ulanyjy','User'], 'Пользователи':['Ulanyjylar','Users'], 'Сотрудники':['Işgärler','Staff'],
   'Ждём разрешения администратора':['Administratoryň rugsadyna garaşýarys','Waiting for the administrator’s approval'],
   'Администратор не разрешил этот вход':['Administrator bu girişe rugsat bermedi','The administrator did not approve this sign-in'],

@@ -281,7 +281,7 @@ const FEATURE_ACTIONS = {
    Поддержка, «О приложении», информационная панель,
    статистика продавца и «Поделиться»
    ===================================================== */
-const APP_VERSION = '1.5';
+const APP_VERSION = '1.6';
 const SITE_URL = 'https://alphadrive.pages.dev/';
 
 /* ===== «Доступна новая версия» — только в Android-приложении =====
@@ -307,7 +307,7 @@ function updateCard(){
   if (!newBuild || lsGet('mb_updhide', 0) > now() - 3*DAY) return '';
   return `<div class="card pad col" style="gap:12px;border-color:var(--ok)">
     <div class="row" style="gap:12px;align-items:flex-start"><img src="app-192.png" alt="" style="width:46px;height:46px;border-radius:12px;flex:none">
-      <span style="flex:1;min-width:0"><b>Доступна новая версия Alpha Drive</b><br><span class="small dim">Скачайте и установите поверх старой — объявления и аккаунт сохранятся</span></span>
+      <span style="flex:1;min-width:0"><b>Доступна новая версия AlphaCars TM</b><br><span class="small dim">Скачайте и установите поверх старой — объявления и аккаунт сохранятся</span></span>
       <button class="icon-btn" data-a="updhide" aria-label="Скрыть">${ic('x')}</button></div>
     <a class="btn sm" href="${APK_URL}" style="text-decoration:none">${ICON_INSTALL}Обновить</a></div>`;
 }
@@ -434,7 +434,7 @@ function moneyBlock(){
 /* ================== Статистика продавца и «Поделиться» ================== */
 const sellerStats = l => `<span class="tiny dim num">👁 ${l.views||0} · 👍 ${l.likes?.length||0} · 💬 ${S.comments.filter(c=>c.lid===l.id).length}</span>`;
 function shareRow(l){
-  const text = `${l.title} — ${priceText(l)}. Alpha Drive: ${SITE_URL}`;
+  const text = `${l.title} — ${priceText(l)}. AlphaCars TM: ${SITE_URL}`;
   return `<div class="card pad col" style="gap:8px"><h3>Поделиться</h3><div class="grid2">
     <a class="btn ghost" href="https://wa.me/?text=${encodeURIComponent(text)}" target="_blank" rel="noopener">${ic('chat')}WhatsApp</a>
     <a class="btn ghost" href="https://t.me/share/url?url=${encodeURIComponent(SITE_URL)}&text=${encodeURIComponent(l.title+' — '+priceText(l))}" target="_blank" rel="noopener">${ic('up')}Telegram</a></div>
@@ -468,11 +468,11 @@ Object.assign(FEATURE_SCREENS, {
 
   about(){
     return {title:'О приложении', html:`
-      <div class="col" style="align-items:center;text-align:center;gap:8px;padding-top:6px"><img src="logo.png" alt="" style="width:84px;height:84px;border-radius:24px">
-        <h1 style="font-size:1.4rem">Alpha <span style="color:var(--accent)">Drive</span></h1><span class="small dim">Версия ${APP_VERSION}${myBuild()?` (${myBuild()})`:''}</span></div>
-      <div class="card pad col" style="gap:6px"><p style="margin:0">Alpha Drive — автомаркет Туркменистана. Только машины и всё, что с ними связано: продажа авто и мотоциклов, пригон из-за рубежа, запчасти, спецтехника, аренда, СТО и работа для водителей.</p></div>
+      <div class="col" style="align-items:center;text-align:center;gap:8px;padding-top:6px"><img class="logo-full wm-d" src="logo/full-dark.webp" alt=""><img class="logo-full wm-l" src="logo/full-light.webp" alt="">
+        <h1 style="font-size:1.4rem">AlphaCars TM</h1><span class="small dim">Версия ${APP_VERSION}${myBuild()?` (${myBuild()})`:''}</span></div>
+      <div class="card pad col" style="gap:6px"><p style="margin:0">AlphaCars TM — автомаркет Туркменистана. Только машины и всё, что с ними связано: продажа авто и мотоциклов, пригон из-за рубежа, запчасти, спецтехника, аренда, СТО и работа для водителей.</p></div>
       <div class="card pad col" style="gap:8px"><h3>Что умеет приложение</h3>
-        ${['Объявления о машинах с фото, VIN и ✓ кредитом / обменом','Мотоциклы, скутеры и квадроциклы — отдельный раздел','Новые и с пробегом — переключатель в один клик','Чат с продавцом прямо в приложении','Оценка цены: дешевле или дороже рынка','История цены и отметка «Цена снижена»','Отзывы и рейтинг продавцов','Уведомления о новых машинах по вашему поиску','Сравнение 2–3 машин рядом','Проверенные продавцы и автосалоны','Установка на iPhone и компьютер, уведомления даже при закрытом приложении','Потяните ленту вниз — объявления обновятся','Три языка: Türkmençe, Русский, English'].map(x=>`<div class="row small" style="gap:8px">${ic('check','style="width:18px;height:18px;color:var(--ok);flex:none"')}<span>${x}</span></div>`).join('')}</div>
+        ${['Объявления о машинах с фото, VIN и ✓ кредитом / обменом','Мотоциклы, скутеры и квадроциклы — отдельный раздел','Новые и с пробегом — переключатель в один клик','Чат с продавцом прямо в приложении','Оценка цены: дешевле или дороже рынка','История цены и отметка «Цена снижена»','Отзывы и рейтинг продавцов','Уведомления о новых машинах по вашему поиску','Сравнение 2–3 машин рядом','Проверенные продавцы и автосалоны','Установка на iPhone и компьютер, уведомления даже при закрытом приложении','Потяните ленту вниз — объявления обновятся','Четыре языка: Türkmençe, Русский, English, Türkçe'].map(x=>`<div class="row small" style="gap:8px">${ic('check','style="width:18px;height:18px;color:var(--ok);flex:none"')}<span>${x}</span></div>`).join('')}</div>
       <details class="faq"><summary>Правила размещения</summary><div class="small dim col" style="gap:6px">
         <span>1. Только настоящие машины, запчасти и услуги. Без одежды, техники для дома и прочего.</span>
         <span>2. Фото — только вашей машины. Чужие фото из интернета запрещены.</span>
@@ -489,7 +489,7 @@ Object.assign(FEATURE_SCREENS, {
       <div class="card menu">
         <button data-a="support">${ic('chat')}<span class="grow">Служба поддержки</span></button>
         <a href="${SITE_URL}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:12px">${ic('globe')}<span class="grow">Сайт приложения</span></a></div>
-      <span class="tiny dim" style="text-align:center">© ${new Date().getFullYear()} Alpha Drive · Performance | Style | Service</span>`};
+      <span class="tiny dim" style="text-align:center">© ${new Date().getFullYear()} AlphaCars TM · Performance | Style | Service</span>`};
   }
 });
 
@@ -617,7 +617,7 @@ Object.assign(FEATURE_SCREENS, {
   settings(){
     const st = S.settings, onOff = (k, on) => `<div class="seg"><button class="${on?'on':''}" data-a="setopt" data-v="${k}:1">Вкл.</button><button class="${on?'':'on'}" data-a="setopt" data-v="${k}:0">Выкл.</button></div>`;
     return {title:'Настройки', html:`
-      <div class="col"><h3>${t('language')}</h3><div class="seg"><button class="${LANG==='tm'?'on':''}" data-a="setlang" data-v="tm">Türkmençe</button><button class="${LANG==='ru'?'on':''}" data-a="setlang" data-v="ru">Русский</button><button class="${LANG==='en'?'on':''}" data-a="setlang" data-v="en">English</button></div></div>
+      <div class="col"><h3>${t('language')}</h3><div class="seg"><button class="${LANG==='tm'?'on':''}" data-a="setlang" data-v="tm">Türkmençe</button><button class="${LANG==='ru'?'on':''}" data-a="setlang" data-v="ru">Русский</button><button class="${LANG==='en'?'on':''}" data-a="setlang" data-v="en">English</button><button class="${LANG==='tr'?'on':''}" data-a="setlang" data-v="tr">Türkçe</button></div></div>
       <div class="col"><h3>${t('theme')}</h3><div class="themes">${THEMES.map(th=>`<button class="th-it" data-a="theme" data-v="${th.k}" title="${th.n}"><span class="th-sw ${st.theme===th.k?'on':''}" style="background:linear-gradient(150deg,${th.a},${th.b})"><span style="background:${th.c}"></span></span><span class="tiny dim">${th.n}</span></button>`).join('')}</div></div>
       <div class="col"><h3>Размер шрифта</h3><div class="seg">${FONT_SIZES.map(([k,n])=>`<button class="${(st.fontSize||1)===k?'on':''}" data-a="setfont" data-v="${k}" style="font-size:${k*.85}rem">Aa</button>`).join('')}</div>
         <span class="small dim">${FONT_SIZES.find(([k])=>k===(st.fontSize||1))?.[1]||''}: так будет выглядеть текст во всём приложении.</span></div>
@@ -633,7 +633,7 @@ Object.assign(FEATURE_SCREENS, {
           : `<button data-a="updcheck">${ic('up')}<span class="grow">Проверить обновления</span></button>`}
         ${CMP.length?`<button data-a="cmpclear">${ic('trash')}<span class="grow">Очистить сравнение (${CMP.length})</span></button>`:''}
       </div>
-      <span class="tiny dim" style="text-align:center">Alpha Drive · ${APP_VERSION}</span>`};
+      <span class="tiny dim" style="text-align:center">AlphaCars TM · ${APP_VERSION}</span>`};
   }
 });
 
@@ -655,7 +655,7 @@ Object.assign(FEATURE_ACTIONS, {
 });
 
 Object.assign(TR, {
-  'Доступна новая версия Alpha Drive':['Alpha Drive-yň täze wersiýasy çykdy','A new version of Alpha Drive is available'],
+  'Доступна новая версия AlphaCars TM':['AlphaCars TM-iň täze wersiýasy çykdy','A new version of AlphaCars TM is available'],
   'Скачайте и установите поверх старой — объявления и аккаунт сохранятся':['Ýükläp, köne wersiýanyň üstünden guruň — bildirişler we hasap saklanar','Download and install over the old one — your listings and account stay'],
   'Обновить':['Täzelemek','Update'],
   'Обновить приложение':['Programmany täzelemek','Update the app'],

@@ -1,5 +1,5 @@
 /* =====================================================
-   Переводы Alpha Drive: туркменский и английский.
+   Переводы AlphaCars TM: туркменский и английский.
    Интерфейс пишется по-русски, а после отрисовки русские фразы
    заменяются по словарю TR (точное совпадение или кусок текста).
    ===================================================== */
@@ -7,7 +7,7 @@
 // Английские варианты для ключей T из index.html
 const T_EN = {
   home:'Home', catalog:'Catalog', post:'Post', favs:'Favorites', profile:'Profile',
-  searchPh:'Make, model, city…',
+  searchPh:'Search',
   s_cars:'Cars', s_moto:'Motorcycles', s_import:'Imported', s_parts:'Parts', s_tech:'Machinery & services',
   s_jobs:'Driver jobs', s_rent:'Rental', s_sto:'Service & repair', s_all:'All listings',
   heroT:'Cars, machinery and jobs — in one place', heroP:'First listing — free for 7 days',
@@ -57,7 +57,13 @@ const TR = {
   'Нравится':['Halaýaryn','Like'], 'Не нравится':['Halamok','Dislike'], 'Иллюстрация':['Surat','Illustration'],
   'Найдено:':['Tapyldy:','Found:'], 'Не выбрано':['Saýlanmady','Not selected'], 'Неверный':['Nädogry','Wrong'],
   'номер':['belgi','phone'], 'адрес':['salgy','email'], 'Компания':['Kompaniýa','Company'], 'Частное лицо':['Hususy şahs','Private person'],
-  'Системная':['Ulgamdaky','System'], 'Ночь':['Gije','Night'], 'Изумруд':['Zümerret','Emerald'], 'Золото':['Altyn','Gold'], 'Океан':['Ummán','Ocean'], 'Светлая':['Ýagty','Light'],
+  'Системная':['Ulgamdaky','System'], 'Белая':['Ak','White'], 'Видео можно добавить с подпиской или в VIP-объявлении.':['Wideony abuna ýa-da VIP-bildirişde goşup bolýar.','Video can be added with a subscription or in a VIP listing.'], 'Изменить профиль':['Profili üýtget','Edit profile'], 'Имя и фамилия':['Ady we familiýasy','First and last name'],
+  'Номер для связи':['Habarlaşmak üçin belgi','Contact number'], 'Профиль сохранён':['Profil ýatda saklandy','Profile saved'],
+  'Изменить объявление':['Bildirişi üýtget','Edit listing'], 'Сохранить изменения':['Üýtgeşmeleri ýatda sakla','Save changes'], 'Изменения сохранены':['Üýtgeşmeler ýatda saklandy','Changes saved'],
+  'Раздел, марку и модель изменить нельзя. После сохранения объявление снова пройдёт автопроверку.':['Bölümi, markany we modeli üýtgedip bolmaýar. Ýatda saklanandan soň bildiriş ýene awtomatik barlagdan geçer.','Section, make and model can’t be changed. After saving, the listing is checked again automatically.'],
+  'Видео уже загружено':['Wideo eýýäm ýüklendi','Video already uploaded'], 'Это имя занято. Выберите другое.':['Bu at eýýäm bar. Başgasyny saýlaň.','This name is taken. Choose another.'],
+  'Номер: 8 цифр (например 61234567) или с кодом страны, например +99361234567':['Belgi: 8 san (meselem 61234567) ýa-da ýurt kody bilen, meselem +99361234567','Number: 8 digits (e.g. 61234567) or with country code, e.g. +99361234567'],
+  'Этот номер увидят покупатели в ваших объявлениях. Пусто — будет номер входа.':['Bu belgini alyjylar siziň bildirişleriňizde görer. Boş — giriş belgisi görkeziler.','Buyers will see this number in your listings. Empty — your login number is shown.'], 'Загружаем…':['Ýüklenýär…','Loading…'], 'Чёрная':['Gara','Black'], 'Ночь':['Gije','Night'], 'Изумруд':['Zümerret','Emerald'], 'Золото':['Altyn','Gold'], 'Океан':['Ummán','Ocean'], 'Светлая':['Ýagty','Light'],
   'Сменить раздел':['Bölümi çalyş','Change section'], 'Тип объявления':['Bildirişiň görnüşi','Listing type'],
   'Что вы хотите разместить?':['Näme ýerleşdirmek isleýärsiňiz?','What do you want to post?'],
   'Начните вводить':['Ýazyp başlaň','Start typing'], 'Найти марку':['Marka tap','Find make'],
@@ -148,7 +154,7 @@ const TR = {
   'Удалить объявление? Его нельзя будет восстановить.':['Bildirişi pozmalymy? Ony dikeldip bolmaz.','Delete the listing? It cannot be restored.'],
 
   // ====== Вход и регистрация ======
-  'Вход в Alpha Drive':['Alpha Drive-a giriş','Sign in to Alpha Drive'], 'Создать аккаунт':['Hasap döret','Create an account'],
+  'Вход в AlphaCars TM':['AlphaCars TM-e giriş','Sign in to AlphaCars TM'], 'Создать аккаунт':['Hasap döret','Create an account'],
   'Войдите по номеру телефона или почте':['Telefon belgisi ýa-da e-poçta bilen giriň','Sign in with phone or email'],
   'Регистрация бесплатная. Платить нужно только за объявления.':['Hasaba alyş mugt. Diňe bildirişler üçin tölenýär.','Sign-up is free. You only pay for listings.'],
   'По телефону':['Telefon bilen','By phone'], 'По почте':['E-poçta bilen','By email'], 'Тип аккаунта':['Hasabyň görnüşi','Account type'],
@@ -353,7 +359,8 @@ const TR_RE = [
   [/^([\d\s.,]+) (км|л|лет)$/, (m,n,u) => [n+' '+({км:'km',л:'l',лет:'ýyl'})[u], n+' '+({км:'km',л:'L',лет:'years'})[u]]]
 ];
 
-const LANG_IDX = () => LANG==='tm' ? 0 : 1;
+const LANG_IDX = () => LANG==='tm' ? 0 : 1;   // турецкий: сначала TR_TK (i18n-tr.js), иначе английский
+const trOf = k => LANG==='tr' && typeof TR_TK!=='undefined' && TR_TK[k] || TR[k][LANG_IDX()];
 const CYR = /[А-Яа-яЁё]/;
 // Короткие слова (одно слово) заменяем только целиком, длинные фразы — и внутри текста
 const TR_SUB = Object.keys(TR).filter(k => k.length >= 6 && /[ «»:,.→₽]/.test(k)).sort((a,b) => b.length - a.length);
@@ -361,7 +368,8 @@ const TR_SUB = Object.keys(TR).filter(k => k.length >= 6 && /[ «»:,.→₽]/.t
 function trString(s){
   if (LANG==='ru' || !s || !CYR.test(s)) return s;
   const i = LANG_IDX(), k = s.trim();
-  if (TR[k]) return s.replace(k, TR[k][i]);
+  if (TR[k]) return s.replace(k, trOf(k));
+  if (LANG==='tr' && typeof TR_RE_TK!=='undefined') for (const [re, fn] of TR_RE_TK){ const m = k.match(re); if (m) return s.replace(m[0], fn(...m)); }
   for (const [re, fn] of TR_RE){ const m = k.match(re); if (m) return s.replace(m[0], fn(...m)[i]); }
   // Строка из частей через « · » или «, » (например «2015 · Ашхабад») — переводим каждую часть
   if (/ · |, /.test(k)){
@@ -370,7 +378,7 @@ function trString(s){
     if (done.join('') !== k) return s.replace(k, done.join(''));
   }
   let out = s;
-  for (const key of TR_SUB){ if (out.includes(key)) out = out.split(key).join(TR[key][i]); if (!CYR.test(out)) break; }
+  for (const key of TR_SUB){ if (out.includes(key)) out = out.split(key).join(trOf(key)); if (!CYR.test(out)) break; }
   return out;
 }
 
@@ -508,13 +516,13 @@ Object.assign(TR, {
   'Откройте раздел, настройте фильтры и нажмите «Сообщить о новых по этому поиску». Уведомление придёт, даже если приложение закрыто.':['Bölümi açyň, süzgüçleri sazlaň we «Bu gözleg boýunça täzeler barada habar ber» basyň. Programma ýapyk bolsa-da habar geler.','Open a section, set filters and tap «Notify me about new matches». You get a notification even when the app is closed.'],
   'Как удалить аккаунт?':['Hasaby nädip pozmaly?','How do I delete my account?'], 'Профиль → внизу кнопка «Удалить аккаунт». Все ваши объявления тоже удалятся.':['Profil → aşakda «Hasaby poz» düwmesi. Ähli bildirişleriňiz hem pozular.','Profile → «Delete account» at the bottom. All your listings will be deleted too.'],
   'О приложении':['Programma barada','About'],
-  'Alpha Drive — автомаркет Туркменистана. Только машины и всё, что с ними связано: продажа, пригон из-за рубежа, запчасти, спецтехника, аренда, СТО и работа для водителей.':['Alpha Drive — Türkmenistanyň awtobazary. Diňe maşynlar we olar bilen baglanyşykly zatlar: satuw, daşary ýurtdan getirmek, şaýlar, ýörite tehnika, kärende, awtoserwis we sürüjiler üçin iş.','Alpha Drive is the car marketplace of Turkmenistan. Only cars and everything around them: sales, imports, parts, heavy machinery, rental, service and driver jobs.'],
+  'AlphaCars TM — автомаркет Туркменистана. Только машины и всё, что с ними связано: продажа, пригон из-за рубежа, запчасти, спецтехника, аренда, СТО и работа для водителей.':['AlphaCars TM — Türkmenistanyň awtobazary. Diňe maşynlar we olar bilen baglanyşykly zatlar: satuw, daşary ýurtdan getirmek, şaýlar, ýörite tehnika, kärende, awtoserwis we sürüjiler üçin iş.','AlphaCars TM is the car marketplace of Turkmenistan. Only cars and everything around them: sales, imports, parts, heavy machinery, rental, service and driver jobs.'],
   'Что умеет приложение':['Programma näme edip bilýär','What the app can do'],
   'Объявления о машинах с фото, VIN и ✓ кредитом / обменом':['Surat, VIN we ✓ kredit / çalyşmak bilen maşyn bildirişleri','Car listings with photos, VIN and ✓ credit / trade-in'],
   'Оценка цены: дешевле или дороже рынка':['Baha bahalandyrmasy: bazardan arzanmy ýa gymmatmy','Price check: below or above market'],
   'Уведомления о новых машинах по вашему поиску':['Gözlegiňiz boýunça täze maşynlar barada habarnamalar','Alerts about new cars for your search'],
   'Сравнение 2–3 машин рядом':['2–3 maşyny ýanaşyk deňeşdirmek','Compare 2–3 cars side by side'], 'Проверенные продавцы и автосалоны':['Barlanan satyjylar we awtosalonlar','Verified sellers and dealers'],
-  'Три языка: Türkmençe, Русский, English':['Üç dil: Türkmençe, Русский, English','Three languages: Türkmençe, Русский, English'],
+  'Четыре языка: Türkmençe, Русский, English, Türkçe':['Dört dil: Türkmençe, Русский, English, Türkçe','Four languages: Türkmençe, Русский, English, Türkçe'],
   'Правила размещения':['Ýerleşdiriş düzgünleri','Posting rules'],
   '1. Только настоящие машины, запчасти и услуги. Без одежды, техники для дома и прочего.':['1. Diňe hakyky maşynlar, şaýlar we hyzmatlar. Eşik, öý tehnikasy we başga zatlar däl.','1. Only real cars, parts and services. No clothes, home appliances or other goods.'],
   '2. Фото — только вашей машины. Чужие фото из интернета запрещены.':['2. Surat — diňe öz maşynyňyzyňky. Internetden alnan suratlar gadagan.','2. Photos of your own car only. Pictures from the internet are not allowed.'],
@@ -647,3 +655,5 @@ Object.assign(TR, {
 Object.assign(TR, {'Скачать приложение для Android':['Android üçin programmany ýükle','Download the Android app']});
 Object.assign(TR, {'Код страны':['Ýurduň kody','Country code']});
 TR_RE.push([/^Проверьте номер\. Пример: (\+\d+ [\d ]+)$/, (m,n) => ['Belgini barlaň. Mysal: '+n, 'Check the number. Example: '+n]]);
+// Профиль: номер для связи
+TR_RE.push([/^Для связи: (.+)$/, (m,p) => ['Habarlaşmak üçin: '+p, 'Contact: '+p]], [/^Входить по-прежнему по номеру (.+)\.$/, (m,p) => ['Öňküsi ýaly '+p+' belgi bilen giriň.', 'You still sign in with '+p+'.']]);

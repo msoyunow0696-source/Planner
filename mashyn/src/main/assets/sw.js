@@ -1,14 +1,18 @@
 /* =====================================================
    Service worker веб-версии (iPhone, Windows, браузер).
    Сначала сеть — обновления приходят сразу; без сети приложение
-   открывается из сохранённой копии. Шрифты свои (fonts/) — тоже в копии.
+   открывается из сохранённой копии. Шрифты свои (fonts/) иконки марок (brands/) и 3D-иконки разделов (icons3d/) — тоже в копии.
    Запросы к Supabase и фото (другие адреса) не трогаем. В Android-приложении не используется.
    ===================================================== */
-const CACHE = 'alpha-drive-1.7';
+importScripts('brands.js');
+const CACHE = 'alpha-drive-2.0';
 // './', а не 'index.html': на сайте index.html отвечает переадресацией на ./
-const SHELL = ['./', 'supabase.js', 'i18n.js', 'features.js', 'features-plus.js', 'dealers.js', 'staff.js', 'helper.js', 'pwa.js', 'refresh.js',
+const SHELL = ['./', 'supabase.js', 'i18n.js', 'i18n-tr.js', 'features.js', 'features-plus.js', 'dealers.js', 'brands.js', 'staff.js', 'helper.js', 'pwa.js', 'refresh.js',
   'manifest.webmanifest', 'app-192.png', 'app-512.png', 'logo.png',
-  ...['onest', 'unbounded'].flatMap(f => ['latin', 'latin-ext', 'cyrillic'].map(s => `fonts/${f}-${s}.woff2`))];
+  ...['word-dark', 'word-light', 'full-dark', 'full-light'].map(v => `logo/${v}.webp`),
+  ...['onest', 'unbounded'].flatMap(f => ['latin', 'latin-ext', 'cyrillic'].map(s => `fonts/${f}-${s}.woff2`)),
+  ...[...new Set(Object.values(BRAND_LOGO))].map(b => `brands/${b}.webp`),
+  ...['avto', 'moto', 'abroad', 'tech', 'drivers', 'parts', 'rent', 'sto', 'all', 'dealers', 'assistant', 'price'].map(i => `icons3d/${i}.webp`)];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
@@ -25,7 +29,7 @@ self.addEventListener('push', e => {
   let d = {};
   try { d = e.data ? e.data.json() : {}; } catch { d = {body: e.data ? e.data.text() : ''}; }
   e.waitUntil(Promise.all([
-    self.registration.showNotification(d.title || 'Alpha Drive', {body: d.body || '', icon: 'app-192.png', badge: 'app-192.png', tag: d.tag, data: {open: d.open || 'notifs'}}),
+    self.registration.showNotification(d.title || 'AlphaCars TM', {body: d.body || '', icon: 'app-192.png', badge: 'app-192.png', tag: d.tag, data: {open: d.open || 'notifs'}}),
     self.clients.matchAll({type: 'window'}).then(list => list.forEach(c => c.postMessage({refresh: 1})))
   ]));
 });

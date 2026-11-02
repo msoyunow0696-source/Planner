@@ -201,7 +201,7 @@ const HELPER_CHIPS = ['Седан до 15 000 TMT', 'Внедорожник в �
 
 Object.assign(FEATURE_SCREENS, {
   helper(){
-    if (!BOT.length){ botSay('Здравствуйте! Я помощник Alpha Drive. Напишите, какую машину ищете, — например: «Нужна Камри до 20 000, автомат, не старше 2015». Или задайте вопрос о приложении.'); botSave(); }
+    if (!BOT.length){ botSay('Здравствуйте! Я помощник AlphaCars TM. Напишите, какую машину ищете, — например: «Нужна Камри до 20 000, автомат, не старше 2015». Или задайте вопрос о приложении.'); botSave(); }
     const u = me();
     return {title:'Помощник', html:`
       <div class="card pad row small" style="gap:10px">${ic('chat','style="width:22px;height:22px;color:var(--accent);flex:none"')}<span class="dim">Подбираю объявления и отвечаю на частые вопросы. Сложный вопрос передам оператору.</span></div>
@@ -271,12 +271,15 @@ function helperAlert(m){
   toast('Нажмите «Сообщить о новых по этому поиску»');
 }
 
-// Помощник на главной: карточка и круглая кнопка
-const helperCard = () => `<button class="card pad row" data-a="helper" style="text-align:left;gap:12px"><span class="ci" style="width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:var(--accent);color:var(--on);flex:none">${ic('chat')}</span><span style="flex:1"><b>Помощник подберёт машину</b><br><span class="small dim">Напишите, что ищете: модель, бюджет, год</span></span>${ic('back','style="width:18px;transform:rotate(180deg);color:var(--dim)"')}</button>`;
+// Помощник на главной: карточка и круглая кнопка (листают вниз — кнопка прячется, вверх — появляется, чтобы не закрывать сердечко и цену)
+let fabY = 0;
+addEventListener('scroll', () => { const f = document.querySelector('.helper-fab'), y = scrollY; if (f) f.classList.toggle('hide', y > fabY && y > 80); fabY = y; }, {passive:true});
+const helperCard = () => `<button class="card pad row" data-a="helper" style="text-align:left;gap:12px">${i3d('helper')}<span style="flex:1"><b>Помощник подберёт машину</b><br><span class="small dim">Напишите, что ищете: модель, бюджет, год</span></span>${ic('back','style="width:18px;transform:rotate(180deg);color:var(--dim)"')}</button>`;
 const helperFab = () => `<button class="helper-fab" data-a="helper" aria-label="Помощник">${ic('chat')}</button>`;
 document.head.insertAdjacentHTML('beforeend', `<style>
-.helper-fab{position:fixed;right:max(16px,calc(50% - 320px));bottom:calc(88px + env(safe-area-inset-bottom,0px));z-index:30;width:56px;height:56px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--on);box-shadow:0 6px 20px rgba(0,0,0,.3)}
-.helper-fab svg{width:26px;height:26px}
+.helper-fab{position:fixed;right:max(16px,calc(50% - 320px));bottom:calc(88px + env(safe-area-inset-bottom,0px));z-index:30;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--on);box-shadow:0 6px 20px rgba(0,0,0,.3);transition:transform .25s ease,opacity .25s ease}
+.helper-fab svg{width:22px;height:22px}
+.helper-fab.hide{transform:translateY(24px) scale(.6);opacity:0;pointer-events:none}
 </style>`);
 
 /* ================== Переводы новых фраз ================== */
@@ -294,7 +297,7 @@ Object.assign(TR, {
   'Чтобы оператор ответил, войдите в аккаунт.':['Operator jogap bermegi üçin hasaba giriň.','Sign in so an operator can reply.'],
   'Этот вопрос лучше задать оператору — он ответит в течение дня.':['Bu soragy operatora bermek gowy — ol gün dowamynda jogap berer.','Better to ask an operator — they’ll reply within a day.'],
   'Я пока умею подбирать машины и отвечать на частые вопросы о приложении. Переформулируйте или передам вопрос оператору.':['Men häzirlikçe maşyn saýlap we programma barada köp berilýän soraglara jogap berip bilýärin. Başgaça ýazyň ýa-da soragy operatora geçireýin.','For now I can find cars and answer common questions about the app. Rephrase it, or I’ll pass it to an operator.'],
-  'Здравствуйте! Я помощник Alpha Drive. Напишите, какую машину ищете, — например: «Нужна Камри до 20 000, автомат, не старше 2015». Или задайте вопрос о приложении.':['Salam! Men Alpha Drive kömekçisi. Haýsy maşyny gözleýändigiňizi ýazyň, mysal üçin: «20 000 çenli Camry, awtomat, 2015-den täze». Ýa-da programma barada sorag beriň.','Hello! I’m the Alpha Drive assistant. Tell me what car you need, e.g. “Camry under 20 000, automatic, 2015 or newer”. Or ask about the app.'],
+  'Здравствуйте! Я помощник AlphaCars TM. Напишите, какую машину ищете, — например: «Нужна Камри до 20 000, автомат, не старше 2015». Или задайте вопрос о приложении.':['Salam! Men AlphaCars TM kömekçisi. Haýsy maşyny gözleýändigiňizi ýazyň, mysal üçin: «20 000 çenli Camry, awtomat, 2015-den täze». Ýa-da programma barada sorag beriň.','Hello! I’m the AlphaCars TM assistant. Tell me what car you need, e.g. “Camry under 20 000, automatic, 2015 or newer”. Or ask about the app.'],
   'Здравствуйте! Напишите, какую машину ищете — модель, бюджет, год, коробку, город. Подберу объявления.':['Salam! Haýsy maşyny gözleýändigiňizi ýazyň — model, býudžet, ýyl, korobka, şäher. Bildirişleri saýlaýyn.','Hello! Tell me what car you need — model, budget, year, gearbox, city. I’ll find listings.'],
   'Подскажите подробнее: какая марка или кузов, бюджет, год? Например: «Седан до 15 000, автомат, не старше 2012».':['Has jikme-jik ýazyň: haýsy marka ýa-da kuzow, býudžet, ýyl? Mysal: «15 000 çenli sedan, awtomat, 2012-den täze».','Tell me more: which make or body, budget, year? E.g. “Sedan under 15 000, automatic, 2012 or newer”.'],
   'Нажмите «Сообщить о новых по этому поиску»':['«Bu gözleg boýunça täzeler barada habar ber» basyň','Tap “Notify me about new ones for this search”'],

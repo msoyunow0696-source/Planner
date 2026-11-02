@@ -11,8 +11,8 @@ android {
         minSdk 26
         targetSdk 34
         // На GitHub номер сборки = номер выпуска build-N: по нему приложение узнаёт, что вышла новая версия
-        versionCode System.getenv('GITHUB_RUN_NUMBER')?.toInteger() ?: 15
-        versionName '1.5'
+        versionCode System.getenv('GITHUB_RUN_NUMBER')?.toInteger() ?: 16
+        versionName '1.6'
     }
 
     buildTypes {

@@ -28,7 +28,7 @@ const dealerLink = l => { const d = l.dealer && dealerById(l.dealer); if (!deale
 
 // Карточка на главной: вход в раздел
 const dealersHomeCard = () => { const n = S.dealers.filter(d=>!d.hidden).length;
-  return `<button class="card pad row" data-a="dealers" style="text-align:left;gap:12px"><span class="ci" style="width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:var(--accent);color:var(--on);flex:none">${ic('store')}</span>
+  return `<button class="card pad row" data-a="dealers" style="text-align:left;gap:12px">${i3d('dealers')}
     <span style="flex:1"><b>Автосалоны</b><br><span class="small dim">${n ? `<span class="num">${n}</span> <span>салонов</span> · ` : ''}<span>машины от салонов и их услуги</span></span></span>${ic('back','style="width:18px;transform:rotate(180deg);color:var(--dim)"')}</button>`; };
 
 Object.assign(FEATURE_SCREENS, {
@@ -53,7 +53,7 @@ Object.assign(FEATURE_SCREENS, {
     const brands = {}; cars.forEach(l=>{ const b = brandOf(l); if (b) brands[b] = (brands[b]||0)+1; });
     const sel = (state.dBrand||{})[d.id] || '';
     const shown = sel ? cars.filter(l=>brandOf(l)===sel) : cars;
-    const phone = d.phone || owner.phone || '';
+    const phone = d.phone || contactPhone(owner);
     const loose = own ? S.listings.filter(l=>l.uid===u.id && !l.dealer && DEALER_SECS.includes(l.sec)).length : 0;
     return {title:'Автосалон', html:`
       <div class="dhead">${dealerBanner(d)}<div class="dh-logo">${dealerLogo(d,72)}</div></div>
@@ -71,7 +71,7 @@ Object.assign(FEATURE_SCREENS, {
       ${own?`<div class="grid2"><button class="btn ghost" data-a="dealeredit">${ic('gear')}Изменить</button><button class="btn ghost" data-a="tab" data-v="post">${ic('plus')}Добавить авто</button></div>
         ${loose?`<button class="btn ghost" data-a="dealerlink">${ic('list')}Привязать мои объявления к салону · <span class="num">${loose}</span></button>`:''}`:''}
       <div class="col"><div class="sec-title"><h2>Машины салона</h2><span class="tiny dim num">${cars.length}</span></div>
-        ${Object.keys(brands).length>1?`<div class="chips"><button class="chip ${sel?'':'on'}" data-a="dbrand" data-v="${esc(d.id)}|"><span>Все</span> <span class="num">(${cars.length})</span></button>${Object.entries(brands).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).map(([b,n])=>`<button class="chip ${sel===b?'on':''}" data-a="dbrand" data-v="${esc(d.id)}|${esc(b)}">${esc(b)} <span class="num">(${n})</span></button>`).join('')}</div>`:''}
+        ${Object.keys(brands).length>1?`<div class="chips"><button class="chip ${sel?'':'on'}" data-a="dbrand" data-v="${esc(d.id)}|"><span>Все</span> <span class="num">(${cars.length})</span></button>${Object.entries(brands).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).map(([b,n])=>`<button class="chip ${sel===b?'on':''}" data-a="dbrand" data-v="${esc(d.id)}|${esc(b)}">${brandIcon(b,'sm')}${esc(b)} <span class="num">(${n})</span></button>`).join('')}</div>`:''}
         <div class="list">${shown.length ? shown.map(listCard).join('') : emptyBox('Машин пока нет', own ? 'Подайте объявление — оно появится здесь' : 'Салон ещё не выставил машины')}</div></div>
       <div class="row" style="flex-wrap:wrap;gap:8px">
         ${u && !own?`<button class="btn sm danger" data-a="complain" data-v="dealer:${esc(d.id)}">${ic('flag')}${t('complain')}</button>`:''}

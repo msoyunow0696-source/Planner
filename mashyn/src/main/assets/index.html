@@ -1,14 +1,29 @@
 <!doctype html>
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}img{max-width:100%}</style>
-<title>Alpha Drive</title>
-<meta name="description" content="Alpha Drive — автомаркет Туркменистана: машины, техника, запчасти и работа для водителей">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}img{max-width:100%}
+/* Заставка при запуске: логотип AlphaCars TM появляется, под ним пробегает красная полоса, затем всё растворяется (~1,6 с).
+   Фон как у окна Android (@color/bg). Один раз за вкладку/запуск (sessionStorage), при «уменьшить движение» — сразу */
+#splash{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;background:#0a0a0a;transition:opacity .4s ease,visibility .4s}
+#splash.out{opacity:0;visibility:hidden}
+#splash .sp{width:min(340px,72vw);animation:sp-in .7s cubic-bezier(.2,.8,.2,1) both}
+#splash img{display:block;width:100%;height:auto}
+#splash .sp-logo{position:relative;display:block}
+#splash .sp-logo::after{content:"";position:absolute;inset:0;-webkit-mask:url(logo/full-dark.webp) center/100% 100% no-repeat;mask:url(logo/full-dark.webp) center/100% 100% no-repeat;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.28) 50%,transparent 65%);
+  background-size:250% 100%;background-position:120% 0;mix-blend-mode:screen;animation:sp-shine .9s .45s ease-in-out both;pointer-events:none}
+#splash .sp-line{display:block;height:3px;margin:14px auto 0;border-radius:2px;background:#e3262c;width:0;animation:sp-line .6s .55s ease-out both}
+@keyframes sp-in{from{opacity:0;transform:translateY(14px) scale(.94);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
+@keyframes sp-shine{to{background-position:-120% 0}}
+@keyframes sp-line{to{width:46%}}
+@media (prefers-reduced-motion:reduce){#splash .sp,#splash .sp-logo::after,#splash .sp-line{animation:none}#splash .sp-line{width:46%}}
+</style>
+<title>AlphaCars TM</title>
+<meta name="description" content="AlphaCars TM — автомаркет Туркменистана: машины, техника, запчасти и работа для водителей">
 <meta name="theme-color" content="#0a0a0a">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="logo.png">
 <link rel="apple-touch-icon" href="app-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Alpha Drive">
+<meta name="apple-mobile-web-app-title" content="AlphaCars TM">
 <meta name="claude:viewport-fit-sides" content="cover">
 <style>
 /* Мобильное приложение: шапка сверху, лента карточек, нижняя навигация. Темы задаются на body[data-t]. */
@@ -35,6 +50,13 @@ body[data-t="alpha"]{--bg1:#0a0a0a;--bg2:#1f1c10;--bg3:#121210;--accent:#ffd60a;
 body[data-t="emerald"]{--bg1:#01140e;--bg2:#0b4a36;--bg3:#04271c;--accent:#e9c45b;--accent2:#34d399;--text:#eafff6;--dim:#9ccab9;--on:#1f1700;--glow:rgba(233,196,91,.3)}
 body[data-t="gold"]{--bg1:#070707;--bg2:#2e230b;--bg3:#121008;--accent:#f6c343;--accent2:#ff9f1c;--text:#fff8e8;--dim:#c2b28e;--on:#1b1200;--glow:rgba(246,195,67,.3)}
 body[data-t="ocean"]{--bg1:#03101c;--bg2:#0b4466;--bg3:#061f33;--accent:#3fe3f7;--accent2:#6ee7b7;--text:#e9fbff;--dim:#92bccc;--on:#00262f;--glow:rgba(63,227,247,.3)}
+/* AlphaCars TM: «Белая» и «Чёрная» — цвета логотипа (белый/чёрный, серые карточки, красный акцент); фон ровный, без свечения */
+body[data-t="cars-light"]{--bg1:#f4f4f6;--bg2:#f4f4f6;--bg3:#f7f7f9;--card:#ffffff;--card2:#ececef;--line:rgba(0,0,0,.09);--text:#111114;--dim:#6b6b73;--accent:#d32f2f;--accent2:#b71c1c;--on:#ffffff;--glow:rgba(211,47,47,.18);--danger:#dc2626;--ok:#059669;--warn:#b45309;--shadow:0 6px 18px rgba(0,0,0,.08);color-scheme:light}
+body[data-t="cars-dark"]{--bg1:#000000;--bg2:#000000;--bg3:#111113;--card:#1c1c1e;--card2:#2a2a2d;--line:rgba(255,255,255,.10);--text:#f5f5f7;--dim:#9a9aa1;--accent:#e5383b;--accent2:#b81d24;--on:#ffffff;--glow:rgba(229,56,59,.25);--shadow:0 10px 30px rgba(0,0,0,.5)}
+body:is([data-t="cars-light"],[data-t="cars-dark"]){background:var(--bg1)}
+body:is([data-t="cars-light"],[data-t="cars-dark"]) .nav button.on{color:var(--text);font-weight:700}
+body:is([data-t="cars-light"],[data-t="cars-dark"]) .cat{background:var(--card2)}
+body[data-t="cars-light"] .cat{background:#ececef;border-color:rgba(0,0,0,.06)}
 body[data-t="light"]{--bg1:#f7f8fd;--bg2:#e3e7fb;--bg3:#f3f4fb;--card:#ffffff;--card2:#eef0f8;--line:rgba(24,28,70,.10);--text:#161935;--dim:#5b6187;--accent:#4f46e5;--accent2:#db2777;--on:#ffffff;--glow:rgba(79,70,229,.25);--danger:#dc2626;--ok:#059669;--warn:#b45309;--shadow:0 8px 24px rgba(30,40,90,.12);color-scheme:light}
 
 *{box-sizing:border-box}
@@ -156,6 +178,11 @@ select.inp option{background:var(--bg1);color:var(--text)}
 .lc .p{font-family:var(--font-d);font-weight:700;font-size:1rem}
 .lc .m{font-size:.76rem;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .lc .bd{display:flex;gap:4px;flex-wrap:wrap}
+.lc.sk{pointer-events:none}
+.lc.sk .th,.lc.sk i{background:linear-gradient(90deg,var(--card2) 25%,color-mix(in srgb,var(--card2) 55%,var(--line)) 50%,var(--card2) 75%);background-size:300% 100%;animation:sk 1.3s ease-in-out infinite}
+.lc.sk i{display:block;height:12px;border-radius:6px;margin-top:6px}.lc.sk i:nth-child(1){width:80%}.lc.sk i:nth-child(2){width:45%;height:16px}.lc.sk i:nth-child(3){width:60%}
+@keyframes sk{from{background-position:100% 0}to{background-position:0 0}}
+@media (prefers-reduced-motion:reduce){.lc.sk .th,.lc.sk i{animation:none}}
 .fav{position:absolute;top:8px;right:8px;width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:color-mix(in srgb,var(--bg1) 55%,transparent);color:var(--text)}
 .fav svg{width:18px;height:18px}
 .fav.on{color:var(--accent2)}
@@ -209,6 +236,13 @@ select.inp option{background:var(--bg1);color:var(--text)}
 .zoom-x{position:absolute;top:14px;right:14px;width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.15);color:#fff;display:grid;place-items:center}
 .zoom-x svg{width:22px;height:22px}
 .zoom-n{position:absolute;bottom:18px;left:0;right:0;text-align:center;color:#fff;font-size:.9rem;opacity:.8}
+.gal-thumbs{display:none}
+@media (min-width:720px){
+  .gal-thumbs{display:flex;gap:8px;overflow-x:auto;padding:2px 0 4px;scrollbar-width:thin}
+  .gal-th{flex:0 0 96px;height:68px;border-radius:12px;overflow:hidden;border:2px solid transparent;background:var(--card2);opacity:.65;transition:opacity .15s,border-color .15s;display:grid;place-items:center;color:var(--text);font-size:1.2rem}
+  .gal-th img{width:100%;height:100%;object-fit:cover;display:block}
+  .gal-th:hover{opacity:1}.gal-th.on{opacity:1;border-color:var(--accent)}
+}
 .gal-dots{position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:center;gap:6px}
 .gal-dots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.45)}
 .gal-dots i.on{background:#fff;width:18px;border-radius:4px}
@@ -285,11 +319,12 @@ select.inp option{background:var(--bg1);color:var(--text)}
 .sheet[hidden]{display:none!important}
 .sheet-panel{width:100%;max-width:560px;max-height:86%;overflow-y:auto;border-radius:24px 24px 0 0;background:var(--bg3);border:1px solid var(--line);border-bottom:0;
   padding:10px max(16px,env(safe-area-inset-right,0px)) calc(18px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));animation:up .25s ease both;display:flex;flex-direction:column;gap:14px}
-body[data-t="light"] .sheet-panel{background:#fff}
+body:is([data-t="light"],[data-t="cars-light"]) .sheet-panel{background:#fff}
 .sheet-foot{position:sticky;bottom:calc(-18px - env(safe-area-inset-bottom,0px));margin-bottom:calc(-18px - env(safe-area-inset-bottom,0px));padding:10px 0 calc(18px + env(safe-area-inset-bottom,0px));background:var(--bg3);border-top:1px solid var(--line)}
-body[data-t="light"] .sheet-foot{background:#fff}
+body:is([data-t="light"],[data-t="cars-light"]) .sheet-foot{background:#fff}
 .grab{width:42px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 4px}
 @keyframes up{from{transform:translateY(40px);opacity:.5}to{transform:none;opacity:1}}
+
 .toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);opacity:0;z-index:50;
   padding:12px 18px;border-radius:14px;background:var(--text);color:var(--bg1);font-weight:600;font-size:.88rem;transition:.25s;pointer-events:none;max-width:calc(100% - 32px);text-align:center}
 .toast.show{opacity:1;transform:translateX(-50%)}
@@ -343,9 +378,14 @@ body[data-t="light"] .sheet-foot{background:#fff}
 .chips.wrapc{flex-wrap:wrap;overflow:visible}
 .blist{max-height:240px;overflow-y:auto;border:1px solid var(--line);border-radius:14px;padding:2px 12px;background:var(--card)}
 .blist .check{min-height:38px;font-size:.88rem}
+.bico{width:34px;height:26px;flex:none;display:inline-grid;place-items:center;padding:2px 3px;border-radius:8px;background:#f4f4f5;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+.bico img{max-width:100%;max-height:100%;object-fit:contain}
+.bico.l{color:#52525b;font:700 .78rem 'Unbounded',sans-serif}
+.bico.sm{width:24px;height:18px;border-radius:6px;padding:1px 2px}.bico.sm.l{font-size:.6rem}
+.bname{display:flex;align-items:center;gap:10px;min-width:0}
 .bgh{font-size:.68rem;color:var(--dim);text-transform:uppercase;letter-spacing:.07em;padding:10px 0 2px}
 .pk-list{display:flex;flex-direction:column;max-height:46vh;overflow-y:auto;border:1px solid var(--line);border-radius:14px;background:var(--card)}
-.pk-list button{padding:12px 14px;text-align:left;border-bottom:1px solid var(--line);font-size:.92rem}
+.pk-list button{display:flex;align-items:center;gap:10px;padding:12px 14px;text-align:left;border-bottom:1px solid var(--line);font-size:.92rem}
 .pk-list button.on{color:var(--accent);font-weight:700}
 .pk-list .bgh{padding:10px 14px 4px}
 .mode-banner{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:16px;border:1px solid color-mix(in srgb,var(--ok) 45%,transparent);background:color-mix(in srgb,var(--ok) 12%,transparent);font-size:.86rem}
@@ -369,8 +409,78 @@ html{overscroll-behavior-y:contain}
 .fresh-pill{position:fixed;left:0;right:0;margin:0 auto;width:max-content;top:calc(env(safe-area-inset-top,0px) + 70px);z-index:30;display:flex;align-items:center;gap:6px;
   padding:9px 16px;border:0;border-radius:999px;background:var(--accent);color:var(--on);font:inherit;font-weight:700;font-size:.9rem;box-shadow:var(--shadow);cursor:pointer;animation:in .25s ease both}
 .fresh-pill svg{width:18px;height:18px}
+/* Логотип AlphaCars TM (logo/, из 8_Dizayn/ikonki_real/logo.jpg без фона): белый — тёмные темы, тёмный — светлая */
+.wordmark{display:flex;align-items:center}.wordmark img{height:46px;width:auto;display:block}
+.wm-l,body:is([data-t="light"],[data-t="cars-light"]) .wm-d{display:none!important}body:is([data-t="light"],[data-t="cars-light"]) .wm-l{display:block!important}
+.logo-full{display:block;margin:0 auto;width:min(260px,70%);height:auto}
+/* Реалистичные 3D-иконки разделов (icons3d/, из 8_Dizayn/ikonki_real). Под тёмными предметами (седан, руль) — светлое свечение */
+.ci3{width:52px;height:52px;flex:none;display:grid;place-items:center;border-radius:15px;
+  background:radial-gradient(closest-side,color-mix(in srgb,var(--accent) 22%,transparent),transparent)}
+.ci3 img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 4px 6px rgba(0,0,0,.35))}
+.ci3 .i3d-avto,.ci3 .i3d-drivers{filter:drop-shadow(0 0 1px rgba(255,255,255,.7)) drop-shadow(0 0 8px rgba(255,255,255,.35)) drop-shadow(0 4px 6px rgba(0,0,0,.35))}
+body:is([data-t="light"],[data-t="cars-light"]) .ci3{background:radial-gradient(closest-side,rgba(0,0,0,.06),transparent)}
+body:is([data-t="light"],[data-t="cars-light"]) .ci3 img{filter:drop-shadow(0 4px 6px rgba(0,0,0,.18))}
+.cat .ci3{width:68px;height:68px;margin:-6px 0 -4px}
+@media (min-width:1024px){.cat .ci3{width:76px;height:76px}}
+/* Широкий экран (веб-версия на компьютере): меню слева, объявления сеткой, окна по центру. Телефон — без изменений */
+.nav-wide{display:none!important}
+@media (min-width:720px){
+  .wrap{max-width:760px}
+  .list:has(>.lc){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+  .list>.lc{grid-template-columns:1fr;padding:0;gap:0;overflow:hidden;align-content:start}
+  .list>.lc .th{width:100%;height:auto;aspect-ratio:4/3;border-radius:0}
+  .list>.lc .info{padding:10px 12px 12px}
+  .list>.lc:hover{border-color:color-mix(in srgb,var(--accent) 60%,var(--line))}
+  .cats{grid-template-columns:repeat(5,minmax(0,1fr))}
+  .sheet{align-items:center;padding:24px}
+  .sheet-panel{max-width:600px;max-height:88vh;border-radius:24px;border-bottom:1px solid var(--line)}
+  .sheet-foot{bottom:-18px;margin-bottom:-18px;padding-bottom:18px}
+  .grab{display:none}
+}
+@media (min-width:1024px){
+  body{padding-left:240px}
+  .wrap{max-width:1240px;padding-inline:28px}
+  main{padding-block:22px 48px}
+  .top .logo{display:none}
+  .nav{top:0;right:auto;width:240px;border-top:0;border-right:1px solid var(--line);padding-bottom:0}
+  .nav .wrap{display:flex;flex-direction:column;align-items:stretch;gap:2px;height:100%;overflow-y:auto;padding:16px 12px 20px}
+  .nav-wide{display:flex!important}
+  .nav .logo{flex-direction:row;padding:4px 10px 18px;font-size:1.15rem;color:var(--text)}
+  .nav button{flex-direction:row;justify-content:flex-start;gap:12px;font-size:.9rem;padding:10px 12px;border-radius:12px;color:var(--text)}
+  .nav button svg{width:20px;height:20px;color:var(--dim)}
+  .nav button:hover{background:var(--card)}
+  .nav button.on{background:var(--card);color:var(--accent);font-weight:700}
+  .nav button.on svg{color:var(--accent)}
+  .nav .plus{order:-1;margin:0 0 10px;justify-content:center;font-weight:700;color:var(--on);background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 8px 24px var(--glow)}
+  .nav .plus:hover{background:linear-gradient(135deg,var(--accent),var(--accent2));filter:brightness(1.06)}
+  .nav .plus span.p{width:auto;height:auto;margin:0;border-radius:0;background:none;box-shadow:none}
+  .nav .plus svg{width:20px;height:20px;color:var(--on)}
+  .nav .logo{order:-2}
+  .nav .wordmark img{height:56px}
+  .nav-secs{flex-direction:column;gap:2px;margin-top:14px;padding-top:6px;border-top:1px solid var(--line)}
+  .nav-secs .bgh{padding:8px 12px 4px}
+  .list:has(>.lc){grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+  .cats{grid-template-columns:repeat(9,minmax(0,1fr))}
+  .vc{flex-basis:260px}.vc .th{height:160px}
+  .hero{padding:28px 32px}.hero h1{font-size:1.7rem;max-width:22ch}.hero p{max-width:40ch}.hero .art{width:300px;right:-20px}
+  /* Формы, объявление, профиль — удобной ширины по центру; списки — во всю ширину */
+  body:not([data-scr=home]):not([data-scr=section]):not([data-scr=catalog]):not([data-scr=favs]):not([data-scr=dealers]):not([data-scr=dealer]):not([data-scr=admin]) .screen-in{max-width:860px;width:100%;margin-inline:auto}
+  .toast{left:calc(50% + 120px);bottom:32px}
+  .callbar{bottom:0}
+  .cmp-bar{left:calc(50% + 120px);bottom:24px}
+  .fresh-pill{left:240px}
+  body .helper-fab{right:28px;bottom:28px}
+  .ptr{left:calc(50% + 120px)}
+}
 </style>
 </head><body>
+<div id="splash" aria-hidden="true"><div class="sp"><span class="sp-logo"><img src="logo/full-dark.webp" alt=""></span><i class="sp-line"></i></div></div>
+<script>(function(){
+  var el = document.getElementById('splash'), seen = false, fast = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  try { seen = sessionStorage.getItem('splash') === '1'; sessionStorage.setItem('splash', '1'); } catch(e){}
+  if (seen){ el.remove(); return; }
+  setTimeout(function(){ el.classList.add('out'); setTimeout(function(){ el.remove(); }, 450); }, fast ? 250 : 1600);
+})();</script>
 
 <div id="appbar" class="top"></div>
 <main id="view" class="wrap"></main>
@@ -380,9 +490,11 @@ html{overscroll-behavior-y:contain}
 
 <script src="supabase.js"></script>
 <script src="i18n.js"></script>
+<script src="i18n-tr.js"></script>
 <script src="features.js"></script>
 <script src="features-plus.js"></script>
 <script src="dealers.js"></script>
+<script src="brands.js"></script>
 <script src="staff.js"></script>
 <script src="helper.js"></script>
 <script src="pwa.js"></script>
@@ -421,6 +533,7 @@ const I = {
   trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
   copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',
   check:'<path d="m5 12 5 5 9-10"/>',
+  edit:'<path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/>',
   store:'<path d="M3 9l1.6-5h14.8L21 9"/><path d="M4 9v11h16V9"/><path d="M3 9h18"/><path d="M9.5 20v-5.5h5V20"/>',
   star:'<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>',
   clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
@@ -437,7 +550,7 @@ const ic = (n, extra='') => `<svg viewBox="0 0 24 24" fill="none" stroke="curren
 /* ================== Перевод ================== */
 const T = {
   home:['Главная','Baş sahypa'], catalog:['Каталог','Katalog'], post:['Подать','Goş'], favs:['Избранное','Halanlarym'], profile:['Профиль','Profil'],
-  searchPh:['Марка, модель, город…','Marka, model, şäher…'],
+  searchPh:['Поиск','Gözleg'],
   s_cars:['Авто','Awtoulaglar'], s_import:['Из-за рубежа','Daşary ýurtdan'], s_parts:['Запчасти','Şaýlar'], s_tech:['Техника и услуги','Tehnika we hyzmatlar'],
   s_moto:['Мотоциклы','Motosikller'], s_jobs:['Работа водителям','Sürüjiler üçin iş'], s_rent:['Аренда','Kärende'], s_sto:['СТО и сервис','Awtoserwis'], s_all:['Все объявления','Ähli bildirişler'],
   heroT:['Машины, техника и работа — в одном месте','Maşynlar, tehnika we iş — bir ýerde'],
@@ -461,7 +574,7 @@ const T = {
   guestTitle:['Войдите в аккаунт','Hasabyňyza giriň'], guestP:['Чтобы звонить продавцам, подавать объявления и писать комментарии','Satyjylara jaň etmek, bildiriş goşmak we teswir ýazmak üçin'],
 };
 let LANG = 'ru';
-const t = k => (LANG==='en' && T_EN[k]) || (T[k] ? T[k][LANG==='tm'?1:0] : k);
+const t = k => (LANG==='tr' && typeof T_TR!=='undefined' && T_TR[k]) || ((LANG==='en' || LANG==='tr') && T_EN[k]) || (T[k] ? T[k][LANG==='tm'?1:0] : k);
 
 /* ================== Справочники ================== */
 /* Велаяты и этрапы (по постановлению Меджлиса от 19.09.2025).
@@ -477,7 +590,7 @@ const REGIONS = [
   {k:'Марыйский велаят', short:'Мары', tm:'Mary welaýaty', en:'Mary', places:['Мары','Байрамали','Векильбазар','Гарагум','Ёлётен','Мургап','Огузхан','Сакарчаге','Тагтабазар','Туркменгала']}
 ];
 // Название велаята в выпадающем списке — на языке приложения
-const regLabel = r => LANG==='tm' ? r.tm : LANG==='en' ? r.en : r.short;
+const regLabel = r => LANG==='tm' || LANG==='tr' ? r.tm : LANG==='en' ? r.en : r.short;
 // Старые названия из прежнего списка (до версии 1.3) → новые: старые объявления показываются и ищутся по новым
 const PLACE_OLD = {
   'Ак бугдайский этрап':'Ак бугдай','Алтынасырский этрап':'Алтын асыр','Бабадайханский этрап':'Бабадайхан','Бахарденский этрап':'Бахарден',
@@ -501,126 +614,160 @@ const placeText = l => { const p = placeOf(l.place); return p ? (p===regShort(l.
 /* Марки и модели. Группы: легковые, грузовые, спецтехника. */
 const CATALOG = {
   'Легковые':{
-    'Toyota':['Camry','Corolla','Land Cruiser 300','Land Cruiser 200','Land Cruiser Prado','RAV4','Highlander','Sequoia','Tundra','Tacoma','4Runner','Avalon','Yaris','Sienna','Fortuner','Hilux','C-HR','Venza','Crown','Hiace'],
-    'Lexus':['ES','IS','GS','LS','RX','NX','GX','LX','UX','TX','LC'],
-    'Hyundai':['Accent','Solaris','Elantra','Sonata','Grandeur','Tucson','Santa Fe','Palisade','Creta','Kona','i30','Staria','Starex','Ioniq 5'],
-    'Kia':['Rio','Cerato','K5','Optima','K8','Sportage','Sorento','Seltos','Carnival','Stinger','Soul','Mohave','Telluride','EV6'],
-    'Chevrolet':['Cobalt','Nexia','Lacetti','Gentra','Malibu','Cruze','Spark','Damas','Captiva','Tracker','Equinox','Tahoe','Traverse','Camaro','Silverado','Onix'],
-    'Nissan':['Altima','Sentra','Maxima','Teana','Almera','X-Trail','Qashqai','Murano','Patrol','Pathfinder','Rogue','Juke','Navara','Leaf'],
-    'Mercedes-Benz':['A-Class','C-Class','E-Class','S-Class','CLA','CLS','G-Class','GLA','GLC','GLE','GLS','Maybach S','Sprinter','Vito','V-Class'],
-    'BMW':['3 серии','5 серии','7 серии','X1','X3','X5','X6','X7','M5','i4','iX'],
-    'Audi':['A3','A4','A6','A8','Q3','Q5','Q7','Q8','e-tron'],
-    'Volkswagen':['Polo','Jetta','Passat','Golf','Tiguan','Touareg','Teramont','Transporter','Multivan','ID.4','ID.6'],
-    'Ford':['Focus','Fusion','Mustang','Explorer','Expedition','Escape','Edge','F-150','Ranger','Transit'],
-    'Honda':['Accord','Civic','CR-V','HR-V','Pilot','Odyssey','Fit'],
-    'Mitsubishi':['Lancer','Outlander','Pajero','Pajero Sport','ASX','L200','Eclipse Cross'],
-    'Mazda':['3','6','CX-5','CX-9','CX-30','CX-60'],
-    'Subaru':['Forester','Outback','Impreza','XV'],
-    'Infiniti':['Q50','QX50','QX60','QX80'],
-    'Genesis':['G70','G80','G90','GV70','GV80'],
-    'Land Rover':['Range Rover','Range Rover Sport','Range Rover Velar','Evoque','Defender','Discovery'],
+    'Toyota':['Camry','Corolla','Corolla Cross','Land Cruiser 300','Land Cruiser 250','Land Cruiser 200','Land Cruiser Prado','RAV4','Highlander','Grand Highlander','Sequoia','Tundra','Tacoma','4Runner','Avalon','Yaris','Yaris Cross','Sienna','Fortuner','Hilux','C-HR','Venza','Crown','Alphard','bZ3','bZ4X','Hiace'],
+    'Lexus':['ES','IS','GS','LS','RX','NX','GX','LX','UX','TX','LM','LC','RZ'],
+    'Hyundai':['Accent','Solaris','Elantra','Sonata','Grandeur','Tucson','Santa Fe','Palisade','Creta','Kona','Venue','Mufasa','i30','Staria','Starex','Ioniq 5','Ioniq 6'],
+    'Kia':['Rio','Cerato','K3','K5','Optima','K8','K9','Sportage','Sorento','Seltos','Sonet','Carnival','Stinger','Soul','Mohave','Telluride','EV5','EV6','EV9'],
+    'Chevrolet':['Cobalt','Nexia','Lacetti','Gentra','Malibu','Cruze','Spark','Damas','Labo','Captiva','Tracker','Equinox','Trailblazer','Tahoe','Suburban','Traverse','Camaro','Silverado','Onix','Monza'],
+    'Nissan':['Altima','Sentra','Maxima','Teana','Almera','Kicks','X-Trail','Qashqai','Murano','Patrol','Armada','Pathfinder','Rogue','Juke','Terra','Navara','Z','Leaf'],
+    'Mercedes-Benz':['A-Class','C-Class','E-Class','S-Class','CLA','CLS','G-Class','GLA','GLB','GLC','GLE','GLS','AMG GT','EQE','EQS','Maybach S','Maybach GLS','Sprinter','Vito','V-Class'],
+    'BMW':['1 серии','2 серии','3 серии','4 серии','5 серии','7 серии','8 серии','X1','X2','X3','X4','X5','X6','X7','XM','M3','M5','i4','i5','i7','iX','iX3'],
+    'Audi':['A3','A4','A5','A6','A7','A8','Q2','Q3','Q5','Q6','Q7','Q8','e-tron','Q8 e-tron','RS6'],
+    'Volkswagen':['Polo','Jetta','Passat','Golf','Tiguan','Touareg','Teramont','Atlas','Tharu','Talagon','Transporter','Multivan','ID.3','ID.4','ID.6'],
+    'Ford':['Focus','Fusion','Mustang','Mustang Mach-E','Explorer','Expedition','Escape','Edge','Bronco','Territory','F-150','Ranger','Transit'],
+    'Honda':['Accord','Civic','CR-V','HR-V','ZR-V','Vezel','Pilot','Odyssey','Fit','e:NS1'],
+    'Mitsubishi':['Lancer','Outlander','Pajero','Pajero Sport','ASX','Xpander','L200','Eclipse Cross'],
+    'Mazda':['3','6','CX-3','CX-30','CX-5','CX-50','CX-60','CX-9','CX-90'],
+    'Subaru':['Forester','Outback','Impreza','XV','Crosstrek','Legacy','WRX'],
+    'Infiniti':['Q50','QX50','QX55','QX60','QX70','QX80'],
+    'Genesis':['G70','G80','G90','GV60','GV70','GV80'],
+    'Land Rover':['Range Rover','Range Rover Sport','Range Rover Velar','Evoque','Defender','Discovery','Discovery Sport'],
     'Porsche':['Cayenne','Macan','Panamera','911','Taycan'],
-    'Jeep':['Grand Cherokee','Wrangler','Cherokee','Compass'],
+    'Jeep':['Grand Cherokee','Grand Cherokee L','Wrangler','Gladiator','Cherokee','Compass'],
     'Dodge':['Charger','Challenger','Durango','RAM 1500'],
-    'GMC':['Yukon','Sierra','Acadia'],
-    'Cadillac':['Escalade','CT5','XT5','XT6'],
-    'Volvo':['S60','S90','XC40','XC60','XC90'],
-    'Tesla':['Model 3','Model Y','Model S','Model X'],
-    'Chery':['Tiggo 4','Tiggo 7 Pro','Tiggo 8 Pro','Arrizo 8'],
-    'Haval':['Jolion','H6','Dargo','H9'],
-    'Geely':['Coolray','Monjaro','Atlas','Tugella','Emgrand'],
-    'BYD':['Han','Song Plus','Seal','Atto 3','Qin Plus','Tang'],
-    'Changan':['CS35 Plus','CS55 Plus','CS75 Plus','UNI-K','UNI-V'],
-    'Exeed':['TXL','VX','RX'],
-    'Hongqi':['H5','H9','HS5','E-HS9'],
-    'Tank':['300','500'],
-    'Jetour':['Dashing','X70','X90'],
-    'Omoda':['C5','S5'],
-    'Li Auto':['L7','L8','L9'],
-    'Zeekr':['001','007','X'],
-    'Great Wall':['Wingle','Poer'],
-    'JAC':['S3','J7','T6'],
-    'Renault':['Logan','Sandero','Duster','Kaptur','Megane'],
-    'Peugeot':['301','308','408','3008','5008'],
-    'Skoda':['Octavia','Rapid','Superb','Kodiaq','Karoq'],
+    'GMC':['Yukon','Sierra','Acadia','Terrain','Hummer EV'],
+    'Cadillac':['Escalade','CT5','CT6','XT4','XT5','XT6','Lyriq'],
+    'Volvo':['S60','S90','XC40','XC60','XC90','EX30','EX90'],
+    'Tesla':['Model 3','Model Y','Model S','Model X','Cybertruck'],
+    'Chery':['Tiggo 2 Pro','Tiggo 4','Tiggo 4 Pro','Tiggo 7','Tiggo 7 Pro','Tiggo 7 Pro Max','Tiggo 8','Tiggo 8 Pro','Tiggo 8 Pro Max','Tiggo 9','Arrizo 5','Arrizo 8'],
+    'Haval':['Jolion','H3','H5','H6','M6','F7','F7x','Dargo','Dargo X','H9','Raptor'],
+    'Geely':['Coolray','Cityray','Emgrand','Okavango','Atlas','Atlas Pro','Monjaro','Tugella','Preface','Starray','Galaxy L7','Xingyue L'],
+    'BYD':['Han','Tang','Song Plus','Song Pro','Song L','Seal','Seal U','Sealion 7','Qin Plus','Qin L','Dolphin','Seagull','Atto 3','Yuan Plus'],
+    'Changan':['Alsvin','Eado Plus','CS35 Plus','CS55 Plus','CS75 Plus','CS85','CS95','UNI-K','UNI-V','UNI-T','X5 Plus','Hunter'],
+    'Exeed':['LX','TXL','VX','RX'],
+    'Hongqi':['H5','H6','H9','HS3','HS5','HS7','E-HS9','EH7'],
+    'Tank':['300','400','500','700'],
+    'Jetour':['T1','T2','Traveller','Dashing','X50','X70','X70 Plus','X90','X90 Plus','Shanhai L7'],
+    'Omoda':['C5','S5','C7','E5'],
+    'Jaecoo':['J7','J8'],
+    'Kaiyi':['X3','X3 Pro','X7'],
+    'Livan':['X3 Pro','S6 Pro','X6 Pro'],
+    'GAC':['GS3','GS8','Emkoo','Empow'],
+    'Li Auto':['L6','L7','L8','L9','Mega'],
+    'Zeekr':['001','007','7X','009','X'],
+    'Voyah':['Free','Dreamer','Passion','Courage'],
+    'Denza':['D9','N7'],
+    'Deepal':['S07','L07','G318'],
+    'Aito':['M5','M7','M9'],
+    'Avatr':['11','12'],
+    'Leapmotor':['C10','C11'],
+    'Xiaomi':['SU7','YU7'],
+    'Great Wall':['Wingle 7','Poer','Poer KingKong'],
+    'JAC':['J7','JS4','JS6','S3','S7','T6','T8','T9'],
+    'Renault':['Logan','Sandero','Duster','Kaptur','Arkana','Koleos','Megane'],
+    'Peugeot':['301','308','408','508','2008','3008','5008'],
+    'Skoda':['Octavia','Rapid','Superb','Kodiaq','Karoq','Kamiq'],
     'Opel':['Astra','Corsa','Insignia','Zafira'],
-    'Suzuki':['Swift','Vitara','Jimny','SX4'],
+    'Suzuki':['Swift','Vitara','Grand Vitara','Jimny','SX4','Ertiga','Dzire','Ciaz'],
     'Daewoo':['Nexia','Matiz','Gentra'],
     'Ravon':['R2','R3','R4','Nexia R3'],
-    'Lada':['Granta','Vesta','Niva Legend','Niva Travel','Largus','Priora','2107','XRAY'],
+    'Belgee':['X50','X70'],
+    'Tenet':['T4','T7','T8'],
+    'Москвич':['3','6'],
+    'Lada':['Granta','Vesta','Iskra','Niva Legend','Niva Travel','Largus','Priora','Kalina','2107','2114','XRAY'],
     'ГАЗ':['Газель','Газель Next','Соболь','Волга 3110'],
     'УАЗ':['Патриот','Буханка','Хантер','Профи']
   },
   'Грузовые':{
-    'КамАЗ':['5490','65115','6520','43118','4308','65206','Самосвал'],
-    'МАЗ':['5440','6430','6501','5516','Самосвал'],
-    'Volvo Trucks':['FH','FH16','FM','FMX'],
+    'КамАЗ':['54901 (К5)','5490 Neo','65115','6520','65206','65207','43118','43253','4308','Самосвал'],
+    'МАЗ':['5440','6430','6501','5516','4371 Зубрёнок','Самосвал'],
+    'Volvo Trucks':['FH','FH Aero','FH16','FM','FMX'],
     'Scania':['R-series','S-series','G-series','P-series'],
     'MAN':['TGX','TGS','TGM','TGL'],
-    'DAF':['XF','XG','CF','LF'],
-    'Mercedes-Benz Trucks':['Actros','Arocs','Atego','Axor'],
-    'Iveco':['S-Way','Stralis','Trakker','Eurocargo','Daily'],
+    'DAF':['XF','XG','XG+','CF','LF'],
+    'Mercedes-Benz Trucks':['Actros','Actros L','Arocs','Atego','Axor'],
+    'Iveco':['S-Way','Stralis','Trakker','T-Way','Eurocargo','Daily'],
     'Renault Trucks':['T','C','K','D'],
-    'Howo (Sinotruk)':['A7','T5G','TX','Самосвал 371'],
-    'Shacman':['X3000','F3000','X6000'],
-    'FAW':['J6','J7','Tiger V'],
-    'Dongfeng':['KX','KC','Captain'],
-    'Foton':['Auman','Aumark'],
+    'Ford Trucks':['F-Max','Cargo'],
+    'Mitsubishi Fuso':['Canter','Fighter','Super Great'],
+    'Howo (Sinotruk)':['A7','T5G','T7H','TX','Max','Самосвал 371'],
+    'Sitrak':['C7H','C9H','G7'],
+    'Shacman':['X3000','F3000','X5000','X6000'],
+    'FAW':['J6','J6P','J7','Tiger V'],
+    'Dongfeng':['KX','KL','GX','KC','Captain'],
+    'Foton':['Auman','Auman EST','Aumark','Aumark S'],
+    'Chenglong':['H7','M3'],
+    'Beiben':['V3','NG80'],
     'Hino':['300','500','700'],
-    'Isuzu':['NMR','NPR','NQR','Forward','Giga'],
-    'Hyundai Trucks':['HD 65','HD 78','HD 120','Mighty','Xcient'],
-    'ГАЗ Грузовые':['Газон Next','Валдай','Садко'],
-    'Урал':['4320','Next'],
+    'Isuzu':['ELF','NMR','NPR','NQR','Forward','Giga'],
+    'Hyundai Trucks':['HD 35','HD 65','HD 78','HD 120','Mighty','Pavise','Xcient'],
+    'ГАЗ Грузовые':['Газон Next','Валдай','Валдай Next','Садко','Садко Next'],
+    'Урал':['4320','Next','М'],
     'ЗИЛ':['130','131','Бычок'],
-    'Kenworth':['T680','W900'],
+    'Kenworth':['T680','T880','W900'],
     'Freightliner':['Cascadia','Columbia','Century'],
-    'Peterbilt':['579','389'],
-    'Mack':['Anthem','Granite']
+    'Peterbilt':['579','389','567'],
+    'Mack':['Anthem','Granite','Pinnacle']
   },
   'Спецтехника':{
-    'Caterpillar':['Экскаватор 320','Экскаватор 330','Погрузчик 950','Бульдозер D6','Грейдер 140'],
-    'Komatsu':['PC200','PC300','WA380','D65'],
-    'JCB':['3CX','4CX','JS220'],
-    'Hitachi':['ZX200','ZX330'],
-    'Liebherr':['LTM 1050','LTM 1090','R 924'],
-    'XCMG':['QY25K','QY50K','XE215','LW500'],
-    'Sany':['STC250','SY215','SY365'],
-    'Zoomlion':['ZTC250','ZTC500'],
-    'Hyundai CE':['R220','R330','HL760'],
-    'Doosan':['DX225','DX300'],
-    'Volvo CE':['EC210','EC290','L120'],
-    'Bobcat':['S530','S650'],
-    'Case':['580','695'],
-    'Shantui':['SD16','SD22','L55'],
-    'Ивановец':['КС-35714','КС-45717'],
-    'Клинцы':['КС-55713'],
-    'Галичанин':['КС-55713']
+    'Caterpillar':['Экскаватор 320','Экскаватор 330','Экскаватор-погрузчик 428','Погрузчик 950','Погрузчик 966','Бульдозер D6','Бульдозер D8','Грейдер 140'],
+    'Komatsu':['PC200','PC210','PC220','PC300','PC400','WA380','WA470','D65','D155','GD555'],
+    'JCB':['3CX','4CX','JS220','540-170'],
+    'Hitachi':['ZX200','ZX210','ZX330','ZX350'],
+    'Liebherr':['LTM 1050','LTM 1090','LTM 1100','R 924','R 938'],
+    'XCMG':['QY25K','QY50K','XCT25','XCT55','XE215','XE370','LW500','ZL50GN','GR165','XS123'],
+    'Sany':['STC250','STC500','SY215','SY365','SY500','SMG200'],
+    'Zoomlion':['ZTC250','ZTC500','ZE215','ZE365'],
+    'LiuGong':['CLG856','CLG862','922E','CLG4180'],
+    'SDLG':['LG936','LG956','LG958','E6210'],
+    'Lonking':['CDM855','CDM6225'],
+    'Shantui':['SD16','SD22','SD32','SL50W'],
+    'Hyundai CE':['R220','R330','HX220','HX300','HL760'],
+    'Doosan':['DX225','DX300','DX340','DL300'],
+    'Develon':['DX225LCA','DX300LCA','DL420'],
+    'Volvo CE':['EC210','EC290','EC480','L120','L150'],
+    'Bobcat':['S530','S650','S770'],
+    'Case':['580','695','CX220'],
+    'Ивановец':['КС-35714','КС-45717','КС-45719'],
+    'Клинцы':['КС-55713','КС-55732'],
+    'Галичанин':['КС-55713','КС-55729']
   }
 };
 // Мотоциклы: отдельная группа, у Honda, Suzuki и других здесь свои модели
 CATALOG['Мото'] = {
-  'Honda':['CB125F','CB300R','CB500F','CBR600RR','CBR1000RR','CRF250L','CRF450R','Africa Twin','Gold Wing','Rebel 500','Dio','PCX 125','Activa'],
-  'Yamaha':['YBR 125','MT-03','MT-07','MT-09','YZF-R3','YZF-R6','YZF-R1','XT250','WR250F','YZ450F','Tenere 700','NMAX','Aerox'],
-  'Suzuki':['GN125','GSX-R600','GSX-R1000','GSX-S750','V-Strom 650','DR-Z400','Hayabusa','Burgman'],
-  'Kawasaki':['Ninja 400','Ninja 650','Ninja ZX-6R','Ninja ZX-10R','Z650','Z900','Versys 650','KLX250','KX450','Vulcan S'],
-  'BMW Motorrad':['G 310 R','F 900 R','R 1250 GS','S 1000 RR','R nineT','K 1600'],
-  'Harley-Davidson':['Sportster','Iron 883','Fat Boy','Street Glide','Road King','Softail'],
-  'KTM':['Duke 200','Duke 390','Duke 790','EXC 300','SX-F 450','Adventure 890'],
-  'Ducati':['Monster','Panigale V4','Scrambler','Multistrada','Diavel'],
-  'Bajaj':['Boxer','Pulsar 150','Pulsar NS200','Dominar 400','Platina'],
-  'TVS':['Apache RTR 160','Apache RTR 200','Star City','Jupiter'],
+  'Honda':['CB125F','CB300R','CB500F','CB650R','CBR600RR','CBR650R','CBR1000RR','CRF250L','CRF300L','CRF450R','Africa Twin','NC750X','Gold Wing','Rebel 500','Dio','PCX 125','Activa'],
+  'Yamaha':['YBR 125','MT-03','MT-07','MT-09','YZF-R3','YZF-R6','YZF-R7','YZF-R1','XT250','WR250F','YZ450F','Tenere 700','Tracer 9','NMAX','XMAX','Aerox'],
+  'Suzuki':['GN125','GSX-R600','GSX-R1000','GSX-S750','GSX-8S','V-Strom 650','V-Strom 800','DR-Z400','Hayabusa','Burgman'],
+  'Kawasaki':['Ninja 400','Ninja 500','Ninja 650','Ninja ZX-6R','Ninja ZX-10R','Z400','Z650','Z900','Versys 650','KLX250','KX450','Vulcan S'],
+  'BMW Motorrad':['G 310 R','G 310 GS','F 900 R','F 900 GS','R 1250 GS','R 1300 GS','S 1000 RR','R nineT','K 1600'],
+  'Harley-Davidson':['Sportster S','Iron 883','Nightster','Fat Boy','Street Glide','Road King','Softail','Pan America'],
+  'KTM':['Duke 125','Duke 200','Duke 390','Duke 790','Duke 990','EXC 300','SX-F 450','Adventure 390','Adventure 890'],
+  'Ducati':['Monster','Panigale V2','Panigale V4','Scrambler','Multistrada','Diavel','DesertX'],
+  'Aprilia':['RS 457','RS 660','Tuono 660','Tuareg 660','SR GT'],
+  'Triumph':['Speed 400','Scrambler 400 X','Trident 660','Street Triple','Tiger 900','Bonneville'],
+  'Vespa':['Primavera','Sprint','GTS 300'],
+  'Bajaj':['Boxer','Pulsar 150','Pulsar NS200','Pulsar N250','Dominar 400','Platina'],
+  'TVS':['Apache RTR 160','Apache RTR 200','Apache RR 310','Star City','Jupiter','Ntorq'],
   'Hero':['Splendor','HF Deluxe','Xpulse 200'],
-  'Royal Enfield':['Classic 350','Bullet 350','Himalayan','Interceptor 650','Meteor 350'],
-  'Benelli':['TNT 135','Leoncino 500','TRK 502','302S'],
-  'CFMOTO':['150NK','300NK','450SR','650MT','CFORCE 450','CFORCE 600'],
-  'Haojue':['DK150','HJ125','DR160'],
+  'Royal Enfield':['Classic 350','Bullet 350','Hunter 350','Himalayan 450','Interceptor 650','Meteor 350'],
+  'Benelli':['TNT 135','Leoncino 500','TRK 502','TRK 702','302S'],
+  'CFMOTO':['150NK','250NK','300NK','450SR','450MT','650MT','800MT','CFORCE 450','CFORCE 600','CFORCE 1000'],
+  'Voge':['300R','300 Rally','500DS','525DSX','650DS'],
+  'Kove':['450 Rally','800X'],
+  'Haojue':['DK150','HJ125','DR160','NK150'],
   'Lifan':['LF150','KP200','X-Pect'],
-  'Loncin':['LX200','Voge 300R','Voge 500DS'],
+  'Loncin':['LX200','LX300','Voge 300R','Voge 500DS'],
   'Zongshen':['ZS150','ZS250GY','RX3'],
-  'Kayo':['T2','K1','TT125'],
+  'Kayo':['T2','K1','TT125','T4'],
+  'Motoland':['XR250','Enduro ST','Wrx 250'],
+  'Regulmoto':['Sport-003','TE 300','Athlete'],
   'Racer':['Nitro','Panther','Skyway'],
-  'Stels':['Flex 250','Delta 200','Guepard 650'],
+  'Stels':['Flex 250','Delta 200','Guepard 650','ATV 800'],
   'Linhai':['LH300','LH550','M750'],
+  'Segway':['Snarler AT6','Fugleman UT10','E-scooter'],
+  'Yadea':['G5','C1S','E8S'],
+  'Polaris':['Sportsman 570','Sportsman 850','RZR','Ranger'],
+  'Can-Am':['Outlander','Renegade','Maverick','Defender'],
   'Sym':['Wolf 125','Jet 14','Cruisym'],
   'Минск':['D4 125','C4 200','X 250'],
   'Урал':['Турист','Соло','Гир Ап'],
@@ -631,6 +778,9 @@ const BRAND_GROUPS = { moto:['Мото'], cars:['Легковые','Грузов
 const modelsOf = (brand, sec) => { for (const g of [...(BRAND_GROUPS[sec]||[]), ...Object.keys(CATALOG)]) if (CATALOG[g][brand]) return CATALOG[g][brand]; return []; };
 const ALL_BRANDS = Object.values(CATALOG).flatMap(g=>Object.keys(g));
 
+// 3D-иконки разделов и блоков: ключ раздела → icons3d/<файл>.webp (линейные ic() остаются в меню)
+const I3D = {cars:'avto', moto:'moto', import:'abroad', tech:'tech', jobs:'drivers', parts:'parts', rent:'rent', sto:'sto', all:'all', dealers:'dealers', helper:'assistant', price:'price'};
+const i3d = k => `<span class="ci3"><img class="i3d-${I3D[k]}" src="icons3d/${I3D[k]}.webp" alt=""></span>`;
 const SECTIONS = [
   {k:'cars',icon:'car'},{k:'moto',icon:'moto'},{k:'import',icon:'globe'},{k:'tech',icon:'truck'},{k:'jobs',icon:'wheel'},
   {k:'parts',icon:'gear'},{k:'rent',icon:'key'},{k:'sto',icon:'wrench'}
@@ -760,7 +910,9 @@ const REASONS = ['Мошенничество','Неверная цена','Уж�
 const DAY = 864e5;
 // «Системная»: как в телефоне — светлый телефон → «Светлая», тёмный → «Изумруд». Выбирается при первом запуске
 const THEMES = [
-  {k:'system',n:'Системная',a:'#f7f8fd',b:'#0b4a36',c:'#e9c45b'},
+  {k:'system',n:'Системная',a:'#f4f4f6',b:'#000000',c:'#d32f2f'},
+  {k:'cars-light',n:'Белая',a:'#ffffff',b:'#ececef',c:'#d32f2f'},
+  {k:'cars-dark',n:'Чёрная',a:'#000000',b:'#1c1c1e',c:'#e5383b'},
   {k:'alpha',n:'Alpha',a:'#0a0a0a',b:'#1f1c10',c:'#ffd60a'},
   {k:'night',n:'Ночь',a:'#0f0c29',b:'#302b63',c:'#a78bfa'},
   {k:'emerald',n:'Изумруд',a:'#01140e',b:'#0b4a36',c:'#e9c45b'},
@@ -772,7 +924,7 @@ const THEMES = [
 /* ================== Утилиты ================== */
 // Тема на экране: «Системная» берёт тему телефона (в Android-приложении — из MBAndroid.isDark, в браузере — из prefers-color-scheme)
 const phoneDark = () => { try { if (window.MBAndroid?.isDark) return window.MBAndroid.isDark(); } catch {} return matchMedia('(prefers-color-scheme: dark)').matches; };
-function applyTheme(){ const k = S.settings.theme; document.body.dataset.t = k==='system' ? (phoneDark() ? 'emerald' : 'light') : k; }
+function applyTheme(){ const k = S.settings.theme; document.body.dataset.t = k==='system' ? (phoneDark() ? 'cars-dark' : 'cars-light') : k; }
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 // Коды стран для регистрации: Туркменистан первым, дальше — где чаще живут и работают туркменистанцы
@@ -1012,6 +1164,7 @@ function render(){
   const cur = stack[stack.length-1];
   const fn = SCREENS[cur.name] || SCREENS.home;
   const out = fn(cur.arg);
+  document.body.dataset.scr = cur.name;
   $('#view').innerHTML = `<div class="screen-in col" style="gap:18px">${out.html}</div>${cmpBar()}`;
   renderBar(out.title);
   renderNav(cur.name);
@@ -1022,7 +1175,7 @@ function renderBar(title){
   const unread = u ? S.notifs.filter(n=>n.uid===u.id && !n.read).length : 0;
   const left = stack.length>1
     ? `<button class="icon-btn" data-a="back" aria-label="${t('back')}">${ic('back')}</button><div class="top-title">${esc(title||'')}</div>`
-    : `<div class="logo"><img class="logo-mark" src="logo.png" alt=""><span>Alpha <b>Drive</b></span></div><div class="spacer"></div>`;
+    : `<div class="logo"><span class="wordmark"><img class="wm-d" src="logo/full-dark.webp" alt="AlphaCars TM"><img class="wm-l" src="logo/full-light.webp" alt="AlphaCars TM"></span></div><div class="spacer"></div>`;
   $('#appbar').innerHTML = `<div class="wrap">${left}
     <button class="icon-btn" data-a="lang" aria-label="${t('language')}" style="font-weight:700;font-size:.72rem">${LANG.toUpperCase()}</button>
     <button class="icon-btn" data-a="notifs" aria-label="${t('notifs')}">${ic('bell')}${unread?'<span class="dot"></span>':''}</button></div>`;
@@ -1030,14 +1183,16 @@ function renderBar(title){
 function renderNav(cur){
   const items = [['home','home',t('home')],['catalog','grid',t('catalog')],['post','plus',t('post')],['favs','heart',t('favs')],['profile','user',t('profile')]];
   const base = stack[0].name;
-  $('#nav').innerHTML = `<div class="wrap">${items.map(([k,i,l])=> k==='post'
+  const sec = cur==='section' ? stack[stack.length-1].arg : '';
+  $('#nav').innerHTML = `<div class="wrap"><button class="logo nav-wide" data-a="tab" data-v="home" aria-label="AlphaCars TM"><span class="wordmark"><img class="wm-d" src="logo/full-dark.webp" alt="AlphaCars TM"><img class="wm-l" src="logo/full-light.webp" alt="AlphaCars TM"></span></button>${items.map(([k,i,l])=> k==='post'
     ? `<button class="plus" data-a="tab" data-v="post"><span class="p">${ic(i)}</span>${l}</button>`
-    : `<button class="${base===k?'on':''}" data-a="tab" data-v="${k}">${ic(i)}${l}</button>`).join('')}</div>`;
+    : `<button class="${base===k&&!sec?'on':''}" data-a="tab" data-v="${k}">${ic(i)}${l}</button>`).join('')}
+    <div class="nav-wide nav-secs"><div class="bgh">${t('catalog')}</div>${[...SECTIONS,{k:'all',icon:'list'}].map(s=>`<button class="${sec===s.k?'on':''}" data-a="sec" data-v="${s.k}">${ic(s.icon)}${t(s.k==='all'?'all':'s_'+s.k)}</button>`).join('')}</div></div>`;
 }
 
-/* Кредит и обмен у авто: ✓ есть / ✗ нет */
+/* Кредит и обмен у авто: в карточке списка — только «✓ есть» зелёным; «нет» видно в характеристиках объявления */
 const YES_NO = {credit:'Кредит', swap:'Обмен'};
-const yesNoBadges = l => Object.entries(YES_NO).filter(([k])=>l.specs?.[k]).map(([k,n])=>`<span class="badge ${l.specs[k]==='yes'?'b-ok':'b-bad'}">${l.specs[k]==='yes'?'✓':'✗'} ${n}</span>`).join('');
+const yesNoBadges = l => Object.entries(YES_NO).filter(([k])=>l.specs?.[k]==='yes').map(([,n])=>`<span class="badge b-ok">✓ ${n}</span>`).join('');
 
 /* ================== Экраны ================== */
 const listCard = l => {
@@ -1056,6 +1211,21 @@ const listCard = l => {
 };
 const vipCard = l => `<button class="vc" data-a="open" data-v="${l.id}"><div class="th">${mainPic(l)}</div><span class="badge b-vip">VIP</span>
   <div class="info"><span class="small" style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(l.title)}</span><span class="p num">${esc(priceText(l))}</span><span class="tiny dim">${esc(placeText(l))}</span></div></button>`;
+// Серые заготовки карточек, пока объявления первый раз грузятся с сервера (state.loaded ставит start)
+const skel = n => Array.from({length:n}, () => `<div class="lc sk" aria-hidden="true"><div class="th"></div><div class="info"><i></i><i></i><i></i></div></div>`).join('');
+// Номер для звонков: «номер для связи» из профиля (u.tel), иначе номер входа
+const contactPhone = u => u?.tel || u?.phone || '';
+// Номер из профиля: 8 цифр — туркменский (+993), иначе код страны и 10–15 цифр; неверный → null
+const normTel = v => { const d = String(v).replace(/\D/g,''); return /^\d{8}$/.test(d) ? '+993'+d : d.length>=10 && d.length<=15 ? '+'+d : null; };
+function profileSheet(){
+  const u = me();
+  openSheet(`<div class="between"><h2>Изменить профиль</h2><button class="icon-btn" data-a="closesheet" aria-label="Закрыть">${ic('x')}</button></div>
+    <div class="field"><label for="pe_name">Имя и фамилия</label><input class="inp" id="pe_name" maxlength="60" value="${esc(u.name||'')}" autocomplete="name"></div>
+    <div class="field"><label for="pe_tel">Номер для связи</label><input class="inp num" id="pe_tel" type="tel" inputmode="tel" value="${esc(u.tel?fmtPhone(u.tel):'')}" placeholder="${esc(fmtPhone(u.phone))}" autocomplete="tel">
+      <span class="tiny dim"><span>Этот номер увидят покупатели в ваших объявлениях. Пусто — будет номер входа.</span> <span>Входить по-прежнему по номеру ${esc(fmtPhone(u.phone))}.</span></span></div>
+    <div class="err" id="pe_err"></div>
+    <button class="btn" data-a="profsave">${ic('check')}Сохранить</button>`);
+}
 const isFav = id => { const u = me(); return u ? (S.favs[u.id]||[]).includes(id) : false; };
 const emptyBox = (title, p, btn='') => `<div class="empty">${ic('search')}<h3>${title}</h3><p class="small">${p}</p>${btn}</div>`;
 
@@ -1068,16 +1238,16 @@ const SCREENS = {
       <label class="search">${ic('search')}<input id="q_home" type="search" placeholder="${t('searchPh')}" enterkeyhint="search" aria-label="Поиск"></label>
       ${updateCard()}${installCard()}
       <div class="hero"><h1>${t('heroT')}</h1><p>${S.settings.mode==='free'?t('heroFree'):t('heroP')}</p><button class="btn sm" data-a="tab" data-v="post">${ic('plus')}${t('heroBtn')}</button><div class="art">${art('suv','#ffffff',7,true)}</div></div>
-      <div class="cats">${SECTIONS.map(s=>`<button class="cat" data-a="sec" data-v="${s.k}"><span class="ci">${ic(s.icon)}</span>${t('s_'+s.k)}</button>`).join('')}
-        <button class="cat" data-a="sec" data-v="all"><span class="ci">${ic('list')}</span>${t('all')}</button></div>
+      <div class="cats">${SECTIONS.map(s=>`<button class="cat" data-a="sec" data-v="${s.k}">${i3d(s.k)}${t('s_'+s.k)}</button>`).join('')}
+        <button class="cat" data-a="sec" data-v="all">${i3d('all')}${t('all')}</button></div>
       ${helperCard()}${helperFab()}
       ${dealersHomeCard()}
-      <button class="card pad row" data-a="estimate" style="text-align:left;gap:12px"><span class="ci" style="width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:var(--accent);color:var(--on);flex:none">${ic('card')}</span><span style="flex:1"><b>Сколько стоит моя машина?</b><br><span class="small dim">Средняя цена по похожим объявлениям</span></span>${ic('back','style="width:18px;transform:rotate(180deg);color:var(--dim)"')}</button>
+      <button class="card pad row" data-a="estimate" style="text-align:left;gap:12px">${i3d('price')}<span style="flex:1"><b>Сколько стоит моя машина?</b><br><span class="small dim">Средняя цена по похожим объявлениям</span></span>${ic('back','style="width:18px;transform:rotate(180deg);color:var(--dim)"')}</button>
       ${picksBlock(vis)}
       ${vip.length?`<div class="col"><div class="sec-title"><h2>${t('vip')}</h2><span class="tiny dim">${vip.length}</span></div><div class="vip-row">${vip.map(vipCard).join('')}</div></div>`:''}
       ${rowBlock('Вы смотрели', seenList().slice(0,10))}
       <div class="col"><div class="sec-title"><h2>${t('fresh')}</h2><button class="link small" data-a="sec" data-v="all">${t('all')}</button></div>
-      <div class="list">${fresh.map(listCard).join('')}</div></div>`,
+      <div class="list">${fresh.length || state.loaded ? fresh.map(listCard).join('') : skel(4)}</div></div>`,
       after(){ const q=$('#q_home'); q.addEventListener('keydown',e=>{ if(e.key==='Enter'){ state.q=q.value.trim(); go('section','all'); } }); }
     };
   },
@@ -1085,7 +1255,7 @@ const SCREENS = {
   catalog(){
     return {title:t('catalog'), html:`<h2>${t('catalog')}</h2><div class="list">${[...SECTIONS,{k:'all',icon:'list'}].map(s=>{
       const n = S.listings.filter(l=>visible(l) && (s.k==='all'||l.sec===s.k)).length;
-      return `<button class="card pad row" data-a="sec" data-v="${s.k}" style="text-align:left"><span class="cat" style="padding:0;border:0;background:none"><span class="ci">${ic(s.icon)}</span></span>
+      return `<button class="card pad row" data-a="sec" data-v="${s.k}" style="text-align:left">${i3d(s.k)}
         <span style="flex:1"><b>${t('s_'+s.k)}</b><br><span class="small dim">${n} объявл.</span></span>${ic('back','style="width:18px;transform:rotate(180deg);color:var(--dim)"')}</button>`; }).join('')}${dealersHomeCard()}</div>`};
   },
 
@@ -1113,12 +1283,12 @@ const SCREENS = {
       <div class="chips">
         <button class="chip ${nf?'on':''}" data-a="filters" data-v="${sec}">${ic('filter','style="width:16px;height:16px"')}${t('filters')}${nf?` · ${nf}`:''}</button>
         ${f.pick?.length?`<button class="chip on" data-a="pickoff" data-v="${sec}">${PICKS.find(p=>p.k===f.pick[0])?.n||''} ✕</button>`:''}
-        ${sec!=='jobs'&&sec!=='sto'&&brandCounts(sec).length?`<button class="chip ${f.brand?.length?'on':''}" data-a="brands" data-v="${sec}">${ic('car','style="width:16px;height:16px"')}${f.brand?.length===1?esc(f.brand[0]):'Марка'}${f.brand?.length>1?` · ${f.brand.length}`:''}</button>`:''}
+        ${sec==='all'||BRAND_GROUPS[sec]?`<button class="chip ${f.brand?.length?'on':''}" data-a="brands" data-v="${sec}">${f.brand?.length===1?brandIcon(f.brand[0],'sm')+esc(f.brand[0]):ic('car','style="width:16px;height:16px"')+'Марка'}${f.brand?.length>1?` · ${f.brand.length}`:''}</button>`:''}
         ${[['new',t('sNew')],['cheap',t('sCheap')],['exp',t('sExp')]].map(([k,n])=>`<button class="chip ${state.sort===k?'on':''}" data-a="sort" data-v="${k}">${n}</button>`).join('')}
       </div>
       <button class="btn ghost sm" data-a="alertsave" data-v="${sec}">${ic('bell')}Сообщить о новых по этому поиску</button>
-      <div class="between"><span class="small dim">Найдено: <b class="num">${arr.length}</b></span>${state.q||nf?`<button class="link small" data-a="clearf" data-v="${sec}">${t('reset')}</button>`:''}</div>
-      <div class="list">${arr.length ? arr.map(listCard).join('') : emptyBox(t('nothing'), t('nothingP'))}</div>`,
+      <div class="between"><span class="small dim">${state.loaded?`Найдено: <b class="num">${arr.length}</b>`:'Загружаем…'}</span>${state.q||nf?`<button class="link small" data-a="clearf" data-v="${sec}">${t('reset')}</button>`:''}</div>
+      <div class="list">${arr.length ? arr.map(listCard).join('') : !state.loaded ? skel(6) : emptyBox(t('nothing'), t('nothingP'))}</div>`,
       after(){ const q=$('#q_sec'); q.addEventListener('keydown',e=>{ if(e.key==='Enter'){ state.q=q.value.trim(); render(); } }); }
     };
   },
@@ -1141,7 +1311,7 @@ const SCREENS = {
     const liked = u && l.likes.includes(u.id), disl = u && l.dislikes.includes(u.id);
     const own = u && u.id===l.uid;
     const statusIdx = ['На аукционе','В пути','В Туркменистане'].indexOf(s.status);
-    const phone = sel.phone || '';
+    const phone = contactPhone(sel);
     return {title:t('s_'+l.sec), html:`
       ${isSold(l)?soldBanner(l):!visible(l)?`<div class="card pad small" style="border-color:var(--warn)"><b style="color:var(--warn)">Объявление не опубликовано</b><br><span class="dim">${statusText(l)}</span></div>`:''}
       <div class="gal"><div class="gal-track" id="gal">${pics.join('')}</div>${isVideoUrl(l.video)&&pics.length>1?'<button class="gal-vid" id="gvid" data-a="galvideo">▶ Видео</button>':''}${pics.length>1?`<div class="gal-dots" id="gdots">${pics.map((_,i)=>`<i class="${i?'':'on'}"></i>`).join('')}</div>`:''}
@@ -1182,7 +1352,7 @@ const SCREENS = {
       <div class="between"><div class="react">
         <button class="${liked?'on':''}" data-a="vote" data-v="like:${l.id}" aria-label="Нравится">${ic('thumb')}<span class="num">${l.likes.length}</span></button>
         <button class="${disl?'on':''}" data-a="vote" data-v="dislike:${l.id}" aria-label="Не нравится">${ic('thumb','style="transform:scaleY(-1)"')}<span class="num">${l.dislikes.length}</span></button></div>
-        ${own?'':`<button class="btn sm danger" data-a="complain" data-v="listing:${l.id}">${ic('flag')}${t('complain')}</button>`}</div>
+        ${own?(isSold(l)?'':`<button class="btn sm ghost" data-a="ledit" data-v="${l.id}">${ic('edit')}Изменить объявление</button>`):`<button class="btn sm danger" data-a="complain" data-v="listing:${l.id}">${ic('flag')}${t('complain')}</button>`}</div>
 
       <div class="col"><h3>${t('comments')} <span class="dim num">${cms.length}</span></h3>
         ${cms.map(c=>{ const cu=userById(c.uid)||{name:'?'}; return `<div class="cm"><div class="ava">${initials(cu.name)}</div><div class="body">
@@ -1222,22 +1392,25 @@ const SCREENS = {
     if (!d) return {title:'Новое объявление', html:`<h2>Что вы хотите разместить?</h2>
       ${S.settings.mode==='free'?`<div class="mode-banner">${ic('star')}<div><b>Сейчас все объявления бесплатно</b><br><span class="dim">До 10 фото, 30 дней, продление тоже бесплатное.</span></div></div>`
         : !u.freeUsed?`<div class="card pad row" style="border-color:var(--ok)">${ic('star','style="width:22px;height:22px;color:var(--ok)"')}<div><b>Первое объявление — бесплатно на 7 дней</b><div class="small dim">До 10 фото. Потом — продление подпиской.</div></div></div>`:''}
-      <div class="list">${SECTIONS.map(s=>`<button class="card pad row" data-a="draft" data-v="${s.k}" style="text-align:left"><span class="ci" style="width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:var(--card2);color:var(--accent)">${ic(s.icon)}</span><b style="flex:1">${t('s_'+s.k)}</b>
+      <div class="list">${SECTIONS.map(s=>`<button class="card pad row" data-a="draft" data-v="${s.k}" style="text-align:left">${i3d(s.k)}<b style="flex:1">${t('s_'+s.k)}</b>
         ${s.k==='jobs'?'<span class="badge b-ok">резюме бесплатно</span>':''}</button>`).join('')}</div>`};
     const sec = d.sec, maxPh = maxPhotos(u, sec, d.specs?.kind);
     const field = f => {
       const v = d.specs[f.k] ?? '';
+      // Правка: марку и модель не меняют (чтобы оплаченное объявление не переделали под другую машину)
+      if (d.edit && (f.type==='brand' || f.type==='model') && d.lock?.[f.k]) return `<div class="field"><label>${f.l}</label><div class="inp pick" style="opacity:.75" title="Марку и модель изменить нельзя"><span class="bname">${f.type==='brand'?brandIcon(v,'sm'):''}<span>${esc(v)}</span></span>${ic('lock','style="width:16px;height:16px"')}</div></div>`;
       if (f.type==='select') return `<div class="field"><label for="f_${f.k}">${f.l}${f.req?' *':''}</label><select class="inp" id="f_${f.k}" data-f="${f.k}"><option value="">Не выбрано</option>${f.o.map(o=>`<option value="${esc(o)}" ${v===o?'selected':''}>${o}</option>`).join('')}</select></div>`;
       if (f.type==='seg') return `<div class="field"><label>${f.l}${f.req?' *':''}</label><div class="seg">${f.o.map(([k,n])=>`<button class="${v===k?'on':''}" data-a="dseg" data-v="${f.k}:${k}">${n}</button>`).join('')}</div></div>`;
       if (f.type==='multi') return `<div class="field"><label>${f.l}</label><div class="chips">${f.o.map(o=>`<button class="chip ${(v||'').split(', ').includes(o)?'on':''}" data-a="dmulti" data-v="${f.k}:${o}">${o}</button>`).join('')}</div></div>`;
-      if (f.type==='brand' || f.type==='model') return `<div class="field"><label>${f.l}${f.req?' *':''}</label><button type="button" class="inp pick" data-a="pick" data-v="${f.k}">${v?`<span>${esc(v)}</span>`:`<span class="dim">Выберите</span>`}${ic('chev')}</button></div>`;
+      if (f.type==='brand' || f.type==='model') return `<div class="field"><label>${f.l}${f.req?' *':''}</label><button type="button" class="inp pick" data-a="pick" data-v="${f.k}">${v?`<span class="bname">${f.type==='brand'?brandIcon(v,'sm'):''}<span>${esc(v)}</span></span>`:`<span class="dim">Выберите</span>`}${ic('chev')}</button></div>`;
       if (f.type==='check') return `<label class="check"><input type="checkbox" id="f_${f.k}" data-f="${f.k}" ${v?'checked':''}>${f.l}</label>`;
       return `<div class="field"><label for="f_${f.k}">${f.l}${f.req?' *':''}</label><input class="inp" id="f_${f.k}" data-f="${f.k}" ${f.type==='number'?'type="number" inputmode="decimal"':''} placeholder="${esc(f.ph||'')}" value="${esc(v)}"></div>`;
     };
     const units = UNITS[sec]||[''];
     const isSeek = sec==='jobs' && d.specs.kind==='seek';
-    return {title:t('s_'+sec), html:`
-      <div class="between"><h2>${t('s_'+sec)}</h2><button class="link small" data-a="draft" data-v="">Сменить раздел</button></div>
+    return {title:d.edit?'Изменить объявление':t('s_'+sec), html:`
+      <div class="between"><h2>${d.edit?'Изменить объявление':t('s_'+sec)}</h2>${d.edit?`<span class="badge b-dim">${t('s_'+sec)}</span>`:'<button class="link small" data-a="draft" data-v="">Сменить раздел</button>'}</div>
+      ${d.edit?'<div class="small dim">Раздел, марку и модель изменить нельзя. После сохранения объявление снова пройдёт автопроверку.</div>':''}
       <div class="field"><label for="d_title">Заголовок *</label><input class="inp" id="d_title" maxlength="80" placeholder="${sec==='jobs'?'Ищу водителя на фуру, категория CE':'Toyota Camry 3.5 XLE'}" value="${esc(d.title||'')}"></div>
       <div class="grid2">${FIELDS[sec].filter(f=>!['seg','multi','check'].includes(f.type)).map(field).join('')}</div>
       ${FIELDS[sec].filter(f=>['seg','multi','check'].includes(f.type)).map(field).join('')}
@@ -1255,11 +1428,13 @@ const SCREENS = {
         <span class="tiny dim">До 10 фото. Каждое приложение само уменьшит до 1 МБ, чтобы быстро грузилось при медленном интернете.</span>
         ${['cars','import','rent'].includes(sec)?`<button type="button" class="link small" style="text-align:left" data-a="phototips">📸 Как сфотографировать машину, чтобы продать быстрее</button>`:''}</div>
       <div class="field"><label>Видео (по желанию, 1 шт., до ${VIDEO_SEC} сек и ${VIDEO_MB} МБ)</label>
-        ${d.video?`<div class="card pad row between small" style="gap:8px"><span>🎬 ${esc(d.video.name)} · <span class="num">${(d.video.size/1048576).toFixed(1)} МБ</span></span><button class="btn sm ghost" data-a="delvid">Убрать</button></div>`
+        ${!d.video&&!d.videoUrl&&!canVideo(u, d)?`<div class="card pad row small" style="gap:10px">${ic('lock','style="width:20px;height:20px;flex:none;color:var(--dim)"')}<span style="flex:1"><span>Видео можно добавить с подпиской или в VIP-объявлении.</span></span><button class="btn sm ghost" data-a="tab" data-v="plans">Подписки</button></div>`
+          :!d.video&&d.videoUrl?`<div class="card pad row between small" style="gap:8px"><span>🎬 Видео уже загружено</span><button class="btn sm ghost" data-a="delvid">Убрать</button></div>`
+          :d.video?`<div class="card pad row between small" style="gap:8px"><span>🎬 ${esc(d.video.name)} · <span class="num">${(d.video.size/1048576).toFixed(1)} МБ</span></span><button class="btn sm ghost" data-a="delvid">Убрать</button></div>`
           :`<label class="btn ghost">${ic('plus')}Добавить видео<input type="file" id="d_vid" accept="video/*" hidden></label>`}
         <span class="tiny dim">Короткое видео: машина снаружи, салон, звук двигателя.</span></div>      <div class="err" id="d_err"></div>
-      <div class="card pad small">${postTerms(u, sec, isSeek)}</div>
-      <button class="btn wide" data-a="publish">${ic('check')}${t('publish')}</button>`,
+      ${d.edit?'':`<div class="card pad small">${postTerms(u, sec, isSeek)}</div>`}
+      <button class="btn wide" data-a="publish">${ic('check')}${d.edit?'Сохранить изменения':t('publish')}</button>`,
       after(){
         document.querySelectorAll('[data-f]').forEach(el=>el.addEventListener('change',()=>{ d.specs[el.dataset.f] = el.type==='checkbox' ? (el.checked?'Да':'') : el.value; }));
         $('#d_reg').addEventListener('change', e=>{ d.reg=e.target.value; d.place=''; $('#d_place').innerHTML = placeOptions(d.reg,''); });
@@ -1351,8 +1526,8 @@ const SCREENS = {
     const reg = mode==='register';
     const by = state.authBy || 'phone';
     return {title: reg?t('register'):t('login'), html:`
-      <div class="col" style="align-items:center;text-align:center;gap:8px;padding-top:6px"><div class="logo-mark" style="width:58px;height:58px;border-radius:20px">${ic('car','style="width:30px;height:30px"')}</div>
-        <h1 style="font-size:1.3rem">${reg?'Создать аккаунт':'Вход в Alpha Drive'}</h1><p class="small dim" style="margin:0">${reg?'Регистрация бесплатная. Платить нужно только за объявления.':'Войдите по номеру телефона или почте'}</p></div>
+      <div class="col" style="align-items:center;text-align:center;gap:8px;padding-top:6px"><img class="logo-full wm-d" src="logo/full-dark.webp" alt=""><img class="logo-full wm-l" src="logo/full-light.webp" alt="">
+        <h1 style="font-size:1.3rem">${reg?'Создать аккаунт':'Вход в AlphaCars TM'}</h1><p class="small dim" style="margin:0">${reg?'Регистрация бесплатная. Платить нужно только за объявления.':'Войдите по номеру телефона или почте'}</p></div>
       <div class="seg"><button class="${!reg?'on':''}" data-a="auth" data-v="login">${t('login')}</button><button class="${reg?'on':''}" data-a="auth" data-v="register">${t('register')}</button></div>
       <form id="authf" class="col" novalidate>
         ${reg?`<div class="field"><label for="a_name">${t('name')}</label><input class="inp" id="a_name" autocomplete="name" placeholder="Мердан"></div>
@@ -1379,8 +1554,10 @@ const SCREENS = {
     const subs = S.subs.filter(s=>s.uid===u.id && s.status==='active');
     const pend = S.payments.filter(p=>p.uid===u.id && p.status==='pending');
     return {title:t('profile'), html:`
-      <div class="card pad seller"><div class="ava" style="width:56px;height:56px;border-radius:18px;font-size:1.1rem">${initials(u.name)}</div>
+      <div class="card pad seller" style="position:relative"><div class="ava" style="width:56px;height:56px;border-radius:18px;font-size:1.1rem">${initials(u.name)}</div>
+        <button class="icon-btn" data-a="profedit" aria-label="Изменить профиль" style="position:absolute;top:12px;right:12px">${ic('edit')}</button>
         <div style="flex:1;min-width:0"><h2 style="font-size:1.05rem">${esc(u.name)}</h2><div class="small dim num">${esc(fmtPhone(u.phone))}${u.email?' · '+esc(u.email):''}</div>
+          ${u.tel?`<div class="tiny dim num">Для связи: ${esc(fmtPhone(u.tel))}</div>`:''}
         <div class="row" style="gap:6px;margin-top:4px"><span class="badge b-dim">${u.type==='company'?'Компания':'Частное лицо'}</span>${u.role!=='user'?`<span class="badge b-vip">${roleName(u.role)}</span>`:''}</div></div></div>
       ${emailCard(u)}
       <div class="stat-row"><div class="stat"><b class="num">${mine.filter(visible).length}</b><span class="tiny dim">активных</span></div>
@@ -1393,8 +1570,8 @@ const SCREENS = {
       <div class="col"><div class="sec-title"><h2>${t('myListings')}</h2><button class="link small" data-a="tab" data-v="post">+ Подать</button></div>
         ${mine.length?mine.map(l=>`<div class="card pad col" style="gap:8px"><button class="row" style="text-align:left" data-a="open" data-v="${l.id}">
           <div style="width:64px;height:48px;border-radius:10px;overflow:hidden;flex:none">${mainPic(l)}</div><div style="flex:1;min-width:0"><b class="small" style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(l.title)}</b><span class="tiny dim num">${esc(priceText(l))}</span><br>${sellerStats(l)}</div></button>
-          <div class="between"><span class="badge ${isSold(l)?'b-ok':visible(l)?(daysLeft(l.until)<=2?'b-warn':'b-ok'):'b-bad'}">${isSold(l)?'Продано':statusText(l)}</span>
-          <span class="row" style="gap:6px">${!isSold(l)&&l.price&&['active','expired'].includes(l.status)?`<button class="btn sm ghost" data-a="pricesheet" data-v="${l.id}">Цена</button>`:''}${['active','expired'].includes(l.status)?`<button class="btn sm ghost" data-a="sold" data-v="${l.id}">${ic('check')}Продано</button>`:''}${!visible(l)&&['expired','nosub'].includes(l.status)?`<button class="btn sm" data-a="renew" data-v="${l.id}">${S.settings.mode==='free'?'Продлить бесплатно':'Продлить'}</button>`:''}<button class="btn sm ghost" data-a="dellist" data-v="${l.id}" aria-label="Удалить">${ic('trash')}</button></span></div></div>`).join('')
+          <div class="between" style="flex-wrap:wrap;gap:8px"><span class="badge ${isSold(l)?'b-ok':visible(l)?(daysLeft(l.until)<=2?'b-warn':'b-ok'):'b-bad'}">${isSold(l)?'Продано':statusText(l)}</span>
+          <span class="row" style="gap:6px;flex-wrap:wrap;margin-left:auto">${!isSold(l)&&l.status!=='review'?`<button class="btn sm ghost" data-a="ledit" data-v="${l.id}" aria-label="Изменить">${ic('edit','style="width:16px;height:16px"')}</button>`:''}${!isSold(l)&&l.price&&['active','expired'].includes(l.status)?`<button class="btn sm ghost" data-a="pricesheet" data-v="${l.id}">Цена</button>`:''}${['active','expired'].includes(l.status)?`<button class="btn sm ghost" data-a="sold" data-v="${l.id}">${ic('check')}Продано</button>`:''}${!visible(l)&&['expired','nosub'].includes(l.status)?`<button class="btn sm" data-a="renew" data-v="${l.id}">${S.settings.mode==='free'?'Продлить бесплатно':'Продлить'}</button>`:''}<button class="btn sm ghost" data-a="dellist" data-v="${l.id}" aria-label="Удалить">${ic('trash')}</button></span></div></div>`).join('')
         : `<p class="small dim" style="margin:0">Пока нет объявлений.</p>`}</div>
 
       <div class="card menu">
@@ -1510,6 +1687,12 @@ function postTerms(u, sec, seek){
   if (S.settings.mode==='per') return `<b>Размещение — ${perPrice(u)} TMT за 30 дней.</b> После публикации откроется оплата. При нескольких объявлениях выгоднее <span class="link" role="button" data-a="tab" data-v="plans:${sec}">подписка</span>.`;
   return '<b>Нужна подписка.</b> Объявление сохранится и включится сразу после оплаты. <span class="link" role="button" data-a="tab" data-v="plans:'+sec+'">Смотреть цены</span>';
 }
+// Видео в объявлении — только с подпиской раздела или у VIP-объявления (персонал — всегда). Решение 2026-11-02: экономим место
+function canVideo(u, d){
+  if (!u) return false; if (u.role && u.role!=='user') return true;
+  if (S.subs.some(s => s.uid===u.id && s.sec===planKey(d.sec) && s.status==='active' && s.until>now())) return true;
+  const l = d.edit && S.listings.find(x=>x.id===d.edit); return !!(l && isOn(l,'vip'));
+}
 function freeSlot(u, sec){
   const pk = planKey(sec);
   return S.subs.find(s => s.uid===u.id && s.sec===pk && s.status==='active' && s.until>now() &&
@@ -1559,10 +1742,19 @@ function galNav(box, track){
   box.insertAdjacentHTML('beforeend', `<button class="gal-nav prev" aria-label="Предыдущее фото">${ic('back')}</button><button class="gal-nav next" aria-label="Следующее фото">${ic('back')}</button>`);
   const [prev, next] = box.querySelectorAll(':scope > .gal-nav');
   const idx = () => Math.round(track.scrollLeft/track.clientWidth);
-  const upd = () => { const i = idx(); prev.hidden = i <= 0; next.hidden = i >= n-1; };
+  const upd = () => { const i = idx(); prev.hidden = i <= 0; next.hidden = i >= n-1;
+    box.nextElementSibling?.querySelectorAll?.('.gal-th').forEach((b, j) => b.classList.toggle('on', j===i)); };
   // Плавно; если браузер не прокрутил (бывает в фоне и в старых WebView) — сразу ставим нужное фото
-  track.galStep = d => { const to = Math.max(0, Math.min(n-1, idx()+d))*track.clientWidth;
+  const go = i => { const to = Math.max(0, Math.min(n-1, i))*track.clientWidth;
     track.scrollTo({left:to, behavior:'smooth'}); setTimeout(() => { if (Math.abs(track.scrollLeft-to) > 2) track.scrollLeft = to; upd(); }, 600); };
+  track.galStep = d => go(idx()+d);
+  // Планшет и компьютер: под фото лента маленьких фото (на телефоне скрыта в CSS), нажал — открылось это фото
+  if (box.id!=='zoom' && !box.closest('#zoom')){
+    const th = [...track.children].map((c, i) => { const im = c.querySelector?.('img') || (c.tagName==='IMG' ? c : null);
+      return `<button class="gal-th" data-i="${i}" aria-label="Фото ${i+1}">${im ? `<img src="${im.getAttribute('src')}" alt="" loading="lazy">` : '<span>▶</span>'}</button>`; }).join('');
+    box.insertAdjacentHTML('afterend', `<div class="gal-thumbs">${th}</div>`);
+    box.nextElementSibling.addEventListener('click', e => { const b = e.target.closest('.gal-th'); if (b){ e.stopPropagation(); go(+b.dataset.i); } });
+  }
   prev.addEventListener('click', e => { e.stopPropagation(); track.galStep(-1); });
   next.addEventListener('click', e => { e.stopPropagation(); track.galStep(1); });
   track.addEventListener('scroll', upd, {passive:true}); upd();
@@ -1667,8 +1859,8 @@ function filterSheet(sec){
   if (groups.length){
     const selB = ff.brand || [];
     extra += `<div class="field"><label>Марка — можно несколько <b id="ffb_n" style="color:var(--accent)">${selB.length?'· '+selB.length:''}</b></label>
-      <label class="search" style="min-height:42px">${ic('search')}<input id="ffb_q" placeholder="Найти марку" aria-label="Найти марку"></label>
-      <div class="blist" id="ffb">${groups.map(g=>`<div class="bgh">${g}</div>`+Object.keys(CATALOG[g]).map(b=>`<label class="check" data-b="${esc(b.toLowerCase())}"><input type="checkbox" value="${esc(b)}" ${selB.includes(b)?'checked':''}>${esc(b)}</label>`).join('')).join('')}</div></div>`;
+      <label class="search" style="min-height:42px">${ic('search')}<input id="ffb_q" placeholder="Поиск" aria-label="Найти марку"></label>
+      <div class="blist" id="ffb">${groups.map(g=>`<div class="bgh">${g}</div>`+Object.keys(CATALOG[g]).map(b=>`<label class="check" data-b="${esc(b.toLowerCase())}"><input type="checkbox" value="${esc(b)}" ${selB.includes(b)?'checked':''}>${brandIcon(b,'sm')}${esc(b)}</label>`).join('')).join('')}</div></div>`;
   }
   if (['cars','moto','import','rent'].includes(sec)) extra += `<div class="grid2">${num('ymin','Год от','2010')}${num('ymax','Год до','2025')}</div>`;
   if (['cars','import'].includes(sec)) extra += `<div class="field"><label>Условия</label><div class="chips wrapc">${Object.entries(YES_NO).map(([k,n])=>`<button class="chip ${(ff[k]||[]).includes('yes')?'on':''}" data-a="ffchip" data-v="${k}|yes">✓ ${n}</button>`).join('')}</div></div>`;
@@ -1700,8 +1892,8 @@ function pickSheet(k){
   else { const b = d.specs[f.of||'brand']; if (!b){ toast('Сначала выберите марку'); return; } groups = [[b, modelsOf(b, d.sec)]]; }
   const cur = d.specs[k] || '';
   openSheet(`<div class="between"><h2>${f.l}</h2><button class="icon-btn" data-a="closesheet" aria-label="Закрыть">${ic('x')}</button></div>
-    <label class="search" style="min-height:46px">${ic('search')}<input id="pk_q" placeholder="Начните вводить" aria-label="Поиск"></label>
-    <div class="pk-list" id="pk_list">${groups.map(([g,items])=>(groups.length>1?`<div class="bgh">${esc(g)}</div>`:'') + items.map(it=>`<button class="${cur===it?'on':''}" data-a="pickset" data-v="${k}|${esc(it)}" data-s="${esc(it.toLowerCase())}">${esc(it)}</button>`).join('')).join('') || '<div class="small dim" style="padding:14px">Для этой марки список моделей пока пуст — впишите модель ниже.</div>'}</div>
+    <label class="search" style="min-height:46px">${ic('search')}<input id="pk_q" placeholder="Поиск" aria-label="Поиск"></label>
+    <div class="pk-list" id="pk_list">${groups.map(([g,items])=>(groups.length>1?`<div class="bgh">${esc(g)}</div>`:'') + items.map(it=>`<button class="${cur===it?'on':''}" data-a="pickset" data-v="${k}|${esc(it)}" data-s="${esc(it.toLowerCase())}">${f.type==='brand'?brandIcon(it):''}${esc(it)}</button>`).join('')).join('') || '<div class="small dim" style="padding:14px">Для этой марки список моделей пока пуст — впишите модель ниже.</div>'}</div>
     <div class="field"><label for="pk_own">Нет в списке? Впишите сами</label><div class="row"><input class="inp" id="pk_own" maxlength="40" placeholder="${f.type==='brand'?'Например, Haima':'Например, Camry Hybrid'}"><button class="btn sm" data-a="pickown" data-v="${k}" style="min-height:48px">Готово</button></div></div>`, () => {
     $('#pk_q').addEventListener('input', e => { const q = e.target.value.trim().toLowerCase(); let any = 0;
       $('#pk_list').querySelectorAll('[data-s]').forEach(b => { const hit = !q || b.dataset.s.includes(q); b.hidden = !hit; any += hit; });
@@ -1745,6 +1937,7 @@ async function publish(){
   d.title = $('#d_title').value.trim(); d.desc = $('#d_desc').value.trim(); d.tags = ($('#d_tags')?.value||'').replace(/\s+/g,' ').trim().slice(0,200); d.reg = $('#d_reg').value; d.place = $('#d_place').value;
   if ($('#d_price')) d.price = $('#d_price').value; if ($('#d_unit')) d.unit = $('#d_unit').value;
   if (d.title.length<5) return err.textContent='Заголовок: минимум 5 символов';
+  if (d.video && !canVideo(u, d)) return err.textContent='Видео можно добавить с подпиской или в VIP-объявлении.';
   for (const f of FIELDS[sec]) if (f.req && !specs[f.k]) return err.textContent=`Заполните поле «${f.l}»`;
   if (['year'].some(k=>specs[k] && (specs[k]<1950 || specs[k]>new Date().getFullYear()+1))) return err.textContent='Проверьте год выпуска';
   if (specs.vin){ specs.vin = String(specs.vin).toUpperCase().replace(/\s/g,''); if (!VIN_RE.test(specs.vin)) return err.textContent='VIN — 17 латинских букв и цифр (без I, O, Q)'; }
@@ -1763,6 +1956,7 @@ async function publish(){
   catch { return err.textContent = 'Не удалось загрузить фото или видео. Проверьте интернет и попробуйте ещё раз.'; }
   finally { state.publishing = false; }
   err.textContent = '';
+  if (d.edit) return saveEdit(d, u, {specs, price, photos, video: video || d.videoUrl || ''});
   const l = {id:uid(),sec,uid:u.id,title:d.title,price,unit:d.unit||'',reg:d.reg||REGIONS[0].k,place:d.place||'',specs,desc:d.desc,tags:d.tags||'',photos,video,created:now(),views:0,likes:[],dislikes:[],
     art:{k:({moto:'moto',cars:'sedan',import:'sedan',rent:'sedan',parts:'gear',sto:'wrench',jobs:'job'})[sec] || (/(кран)/i.test(specs.ttype||'')?'crane':/реф/i.test(specs.ttype||'')?'fridge':'truck'), c:['#7c6cf0','#e67e22','#16a085','#2e86de','#c0392b'][Math.floor(Math.random()*5)]}};
   // Объявление от своего салона (галочка в форме; база проверяет, что салон свой)
@@ -1779,6 +1973,22 @@ async function publish(){
   state.draft=null; toast(msg);
   if (l.status==='nosub' && mode==='per'){ stack=[{name:'profile'}]; state.order = newOrder({kind:'listing', lid:l.id, amount:perPrice(u)}); state.payMethod='tm'; go('pay'); }
   else if (l.status==='nosub'){ stack=[{name:'profile'}]; go('plans', sec); } else { stack=[{name:'home'}]; go('detail', l.id); }
+}
+
+// Правка своего объявления: то же объявление (id, срок, VIP, просмотры остаются); марка и модель — как были
+function saveEdit(d, u, {specs, price, photos, video}){
+  const l = S.listings.find(x=>x.id===d.edit);
+  if (!l || l.uid!==u.id){ toast('Объявление не найдено'); state.draft=null; return go('profile', null, true); }
+  for (const k of Object.keys(d.lock||{})) specs[k] = d.lock[k];
+  if (price && l.price && price!==l.price){ l.ph = l.ph?.length ? l.ph : [{p:l.price, t:l.created}]; l.ph.push({p:price, t:now()}); l.ph = l.ph.slice(-20); }
+  Object.assign(l, {title:d.title, price, unit:d.unit||'', reg:d.reg||l.reg, place:d.place||'', specs, desc:d.desc, tags:d.tags||'', photos, video, edited:now()});
+  const dl = myDealer(); if (dl && DEALER_SECS.includes(l.sec)) { if (d.noDealer) delete l.dealer; else l.dealer = dl.id; }
+  const flags = botCheck(d.title+' '+d.desc+' '+(d.tags||''), u, l);
+  let msg = 'Изменения сохранены';
+  if (flags.length && l.status!=='review'){ l.flags=flags; l.prev=l.status; l.status='review'; msg='Отправлено на проверку модератору: '+flags.join(', ').toLowerCase(); }
+  persist(); state.draft=null; toast(msg);
+  stack.pop(); const top = stack[stack.length-1];
+  if (top?.name==='detail' && top.arg===l.id) render(); else go('detail', l.id);
 }
 
 function activatePayment(p){
@@ -1820,7 +2030,7 @@ const A = {
   authby(v){ state.authBy=v; go('auth','login',true); }, actype(v){ state.acType=v; go('auth','register',true); },
   forgot(){ forgotSheet(); },
   async logout(){ await syncing; await deviceOff(); await sb.auth.signOut(); await refresh(); toast('Вы вышли'); root('home'); },
-  lang(){ A.setlang({ru:'tm',tm:'en',en:'ru'}[LANG]||'ru'); },
+  lang(){ A.setlang({ru:'tm',tm:'en',en:'tr',tr:'ru'}[LANG]||'ru'); },
   setlang(v){ LANG=v; S.settings.lang=v; document.documentElement.lang = v==='tm'?'tk':v; persist(); render(); translateTree(document.body); },
   theme(v){ S.settings.theme=v; applyTheme(); persist(); render(); },
   notifs(){ notifSheet(); },
@@ -1843,7 +2053,21 @@ const A = {
   dseg(v){ const [k,x]=v.split(':'); state.draft.specs[k]=x; render(); },
   dmulti(v){ const [k,x]=v.split(':'); const cur=(state.draft.specs[k]||'').split(', ').filter(Boolean); const i=cur.indexOf(x); i<0?cur.push(x):cur.splice(i,1); state.draft.specs[k]=cur.join(', '); render(); },
   delph(v){ const p = state.draft.photos; if (SLOT_SECS.includes(state.draft.sec)) p[Number(v)] = null; else p.splice(Number(v),1); render(); },
-  delvid(){ state.draft.video=null; render(); },  publish(){ publish(); },
+  ledit(id){ const u = me(), l = S.listings.find(x=>x.id===id); if (!u || !l || l.uid!==u.id) return;
+    const lock = {}; for (const f of FIELDS[l.sec]) if ((f.type==='brand' || f.type==='model') && l.specs?.[f.k]) lock[f.k] = l.specs[f.k];
+    state.draft = {edit:l.id, lock, sec:l.sec, specs:JSON.parse(JSON.stringify(l.specs||{})), photos:[...(l.photos||[])], videoUrl:l.video||'', video:null,
+      title:l.title, desc:l.desc||'', tags:l.tags||'', reg:l.reg, place:l.place||'', price:l.sec==='import'?'':(l.price||''), unit:l.unit||'', noDealer:!l.dealer};
+    go('post'); scrollTo(0,0); },
+  profedit(){ profileSheet(); },
+  async profsave(){ const u = me(); if (!u) return; const err = $('#pe_err');
+    const name = $('#pe_name').value.replace(/\s+/g,' ').trim(), raw = $('#pe_tel').value.trim();
+    if (name.length<2 || name.length>60) return err.textContent='Имя: от 2 до 60 символов';
+    if (/(admin|админ|модератор|moderator|поддержк|support|alpha ?drive|alpha ?cars|administrator|администрац)/i.test(name)) return err.textContent='Это имя занято. Выберите другое.';
+    const tel = raw ? normTel(raw) : '';
+    if (tel===null) return err.textContent='Номер: 8 цифр (например 61234567) или с кодом страны, например +99361234567';
+    u.name = name; if (tel && tel!==u.phone) u.tel = tel; else delete u.tel;
+    persist(); closeSheet(); toast('Профиль сохранён'); render(); },
+  delvid(){ state.draft.video=null; state.draft.videoUrl=''; render(); },  publish(){ publish(); },
   psec(v){ state.plan.sec=v; state.plan.tier=0; render(); }, pper(v){ state.plan.m=Number(v); render(); }, ptier(v){ state.plan.tier=Number(v); render(); },
   buy(){ const u=me(); if(!u){ go('auth','login'); return; } const p=state.plan, pi=PERIODS.findIndex(x=>x.m===p.m), P=planOf(p.sec,p.acct);
     const tier = Math.min(p.tier, P.tiers.length-1);
@@ -1914,6 +2138,7 @@ document.addEventListener('keydown', e => { if (e.key==='Escape') back();
   matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', applyTheme);
   render();
   try { await pull(); await ensureProfile(); tick(); checkFavPrices(); } catch (e){ console.warn(e); toast('Нет связи с сервером. Проверьте интернет.'); }
+  state.loaded = true;
   render();
   deviceOn();
   checkAppUpdate().then(n => n && render()).catch(e => console.warn(e));   // Android: вышла ли новая сборка

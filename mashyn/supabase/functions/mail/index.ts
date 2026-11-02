@@ -1,5 +1,5 @@
 // =====================================================
-// Alpha Drive — письма: подтверждение почты и «Забыли пароль?»
+// AlphaCars TM — письма: подтверждение почты и «Забыли пароль?»
 // Supabase Edge Function «mail». Письма уходят через Gmail (SMTP, порт 465).
 // Секреты (Supabase → Edge Functions → Secrets): GMAIL_USER, GMAIL_APP_PASSWORD.
 // SUPABASE_URL и SUPABASE_SERVICE_ROLE_KEY Supabase подставляет сам.
@@ -32,29 +32,29 @@ const token = () => [...crypto.getRandomValues(new Uint8Array(24))].map(b => b.t
 // ====== Тексты писем на трёх языках ======
 const T = {
   ru: {
-    verifySubj: 'Подтвердите почту — Alpha Drive', verifyTitle: 'Подтвердите почту',
-    verifyText: 'Нажмите кнопку, чтобы подтвердить эту почту для аккаунта Alpha Drive. После этого вы сможете входить по почте и восстанавливать пароль.',
+    verifySubj: 'Подтвердите почту — AlphaCars TM', verifyTitle: 'Подтвердите почту',
+    verifyText: 'Нажмите кнопку, чтобы подтвердить эту почту для аккаунта AlphaCars TM. После этого вы сможете входить по почте и восстанавливать пароль.',
     verifyBtn: 'Подтвердить почту',
-    resetSubj: 'Новый пароль — Alpha Drive', resetTitle: 'Восстановление пароля',
-    resetText: 'Кто-то (надеемся, вы) попросил сменить пароль от аккаунта Alpha Drive. Нажмите кнопку и придумайте новый пароль.',
+    resetSubj: 'Новый пароль — AlphaCars TM', resetTitle: 'Восстановление пароля',
+    resetText: 'Кто-то (надеемся, вы) попросил сменить пароль от аккаунта AlphaCars TM. Нажмите кнопку и придумайте новый пароль.',
     resetBtn: 'Задать новый пароль',
     foot: 'Ссылка действует 24 часа. Если это были не вы — просто удалите письмо, с аккаунтом ничего не случится.',
   },
   tm: {
-    verifySubj: 'E-poçtany tassyklaň — Alpha Drive', verifyTitle: 'E-poçtany tassyklaň',
-    verifyText: 'Alpha Drive hasaby üçin bu e-poçtany tassyklamak üçin düwmä basyň. Şondan soň e-poçta bilen girip we paroly dikeldip bilersiňiz.',
+    verifySubj: 'E-poçtany tassyklaň — AlphaCars TM', verifyTitle: 'E-poçtany tassyklaň',
+    verifyText: 'AlphaCars TM hasaby üçin bu e-poçtany tassyklamak üçin düwmä basyň. Şondan soň e-poçta bilen girip we paroly dikeldip bilersiňiz.',
     verifyBtn: 'E-poçtany tassykla',
-    resetSubj: 'Täze parol — Alpha Drive', resetTitle: 'Paroly dikeltmek',
-    resetText: 'Kimdir biri (umyt edýäris, siz) Alpha Drive hasabynyň parolyny çalyşmagy haýyş etdi. Düwmä basyp, täze parol oýlap tapyň.',
+    resetSubj: 'Täze parol — AlphaCars TM', resetTitle: 'Paroly dikeltmek',
+    resetText: 'Kimdir biri (umyt edýäris, siz) AlphaCars TM hasabynyň parolyny çalyşmagy haýyş etdi. Düwmä basyp, täze parol oýlap tapyň.',
     resetBtn: 'Täze parol goý',
     foot: 'Salgylanma 24 sagat işleýär. Eger bu siz bolmasaňyz — haty pozuň, hasabyňyza hiç zat bolmaz.',
   },
   en: {
-    verifySubj: 'Confirm your email — Alpha Drive', verifyTitle: 'Confirm your email',
-    verifyText: 'Tap the button to confirm this email for your Alpha Drive account. After that you can sign in with email and recover your password.',
+    verifySubj: 'Confirm your email — AlphaCars TM', verifyTitle: 'Confirm your email',
+    verifyText: 'Tap the button to confirm this email for your AlphaCars TM account. After that you can sign in with email and recover your password.',
     verifyBtn: 'Confirm email',
-    resetSubj: 'New password — Alpha Drive', resetTitle: 'Password recovery',
-    resetText: 'Someone (hopefully you) asked to change the password of your Alpha Drive account. Tap the button and choose a new password.',
+    resetSubj: 'New password — AlphaCars TM', resetTitle: 'Password recovery',
+    resetText: 'Someone (hopefully you) asked to change the password of your AlphaCars TM account. Tap the button and choose a new password.',
     resetBtn: 'Set a new password',
     foot: 'The link works for 24 hours. If this was not you, just delete this email — nothing will happen to your account.',
   },
@@ -82,7 +82,7 @@ async function send(to: string, mail: { subject: string; html: string; text: str
   const user = Deno.env.get('GMAIL_USER'), pass = Deno.env.get('GMAIL_APP_PASSWORD');
   if (!user || !pass) throw new Error('mail-not-configured');
   const tr = nodemailer.createTransport({ host: 'smtp.gmail.com', port: 465, secure: true, auth: { user, pass } });
-  await tr.sendMail({ from: `Alpha Drive <${user}>`, to, ...mail });
+  await tr.sendMail({ from: `AlphaCars TM <${user}>`, to, ...mail });
 }
 
 // Не больше 3 писем в час на одну почту — защита от рассылки спама через нашу форму

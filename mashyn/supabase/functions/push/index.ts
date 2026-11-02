@@ -1,5 +1,5 @@
 // =====================================================
-// Alpha Drive — уведомления в браузер: iPhone (Alpha Drive на экране «Домой»),
+// AlphaCars TM — уведомления в браузер: iPhone (AlphaCars TM на экране «Домой»),
 // компьютер с Windows (Edge, Chrome), Android-браузер.
 // Supabase Edge Function «push». Её вызывает база (триггер mb_push_notify)
 // при каждом новом уведомлении: {id} записи из mb_records.
@@ -108,7 +108,7 @@ if (typeof Deno !== 'undefined') Deno.serve(async req => {
   const chat = rec.data.chat ? String(rec.data.chat) : '';
   let ok = 0;
   await Promise.all(subs.map(async (s: Sub & { lang: string }) => {
-    const payload = JSON.stringify({ title: 'Alpha Drive', body: translate(String(rec.data.text || ''), s.lang), tag: id, open: chat ? 'chat=' + chat : 'notifs' });
+    const payload = JSON.stringify({ title: 'AlphaCars TM', body: translate(String(rec.data.text || ''), s.lang), tag: id, open: chat ? 'chat=' + chat : 'notifs' });
     try {
       const r = await sendPush(s, payload, D);
       if (r.status === 404 || r.status === 410) await rest(`mb_push?endpoint=eq.${encodeURIComponent(s.endpoint)}`, { method: 'DELETE' });

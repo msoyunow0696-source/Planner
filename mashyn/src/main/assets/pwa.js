@@ -25,7 +25,7 @@ function installCard(){
   return `<div class="card pad col" style="gap:12px;border-color:var(--accent)">
     <div class="row" style="gap:12px;align-items:flex-start">
       <img src="app-192.png" alt="" style="width:46px;height:46px;border-radius:12px;flex:none">
-      <span style="flex:1;min-width:0"><b>Установите Alpha Drive</b><br><span class="small dim">${installHint()}</span></span>
+      <span style="flex:1;min-width:0"><b>Установите AlphaCars TM</b><br><span class="small dim">${installHint()}</span></span>
       <button class="icon-btn" data-a="installhide" aria-label="Скрыть">${ic('x')}</button>
     </div>
     <button class="btn sm" data-a="install">${ICON_INSTALL}Установить</button></div>`;
@@ -41,7 +41,7 @@ function iosInstallSheet(){
   openSheet(`<div class="between"><h2>Установка на iPhone</h2><button class="icon-btn" data-a="closesheet" aria-label="Закрыть">${ic('x')}</button></div>
     ${step(1, 'Нажмите «Поделиться»', 'Значок внизу экрана Safari. Если его не видно — сначала нажмите «•••»', ICON_SHARE)}
     ${step(2, 'Выберите «На экран „Домой“»', 'Если пункта не видно, прокрутите список вниз')}
-    ${step(3, 'Нажмите «Добавить»', 'Значок Alpha Drive появится на экране «Домой»')}
+    ${step(3, 'Нажмите «Добавить»', 'Значок AlphaCars TM появится на экране «Домой»')}
     <p class="small dim" style="margin:0">Ссылку открыли в Telegram или Instagram? Сначала откройте её в Safari.</p>
     <button class="btn" data-a="closesheet">Понятно</button>`);
 }
@@ -50,7 +50,7 @@ function iosInstallSheet(){
    Подписка хранится в базе (mb_push), отправляет функция push в Supabase. */
 const VAPID_PUBLIC = 'BMzQNqLFnqa-Ta9dQENS7wI8cdS0bcD0pnCsSBON_yv_BKJjqR1-EcmyVBtJp_jKUySv3trudjdOpFJmGW6UePU';
 const pushSupported = () => !IN_APK && window.isSecureContext && 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
-// granted / denied / default; ios — iPhone, где Alpha Drive ещё не на экране «Домой»; no — браузер не умеет
+// granted / denied / default; ios — iPhone, где AlphaCars TM ещё не на экране «Домой»; no — браузер не умеет
 const pushState = () => pushSupported() ? Notification.permission : IS_IOS && !isStandalone() ? 'ios' : 'no';
 const swReady = () => Promise.race([navigator.serviceWorker.ready, new Promise((_, no) => setTimeout(() => no(new Error('service worker не готов')), 8000))]);
 const unb64u = s => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((s.length + 3) % 4)), c => c.charCodeAt(0));
@@ -87,7 +87,7 @@ function pushOpen(o){ if (o.startsWith('chat=')) go('chat', o.slice(5)); else no
 // Переключатель в настройках веб-версии: настоящее состояние или подсказка, почему нельзя
 function webNotifCtl(onOff){
   const s = pushState();
-  if (s === 'ios') return `<p class="tiny dim" style="margin:0">На iPhone уведомления работают, когда Alpha Drive добавлен на экран «Домой»</p><button class="btn sm ghost" data-a="install">${ICON_INSTALL}Установить</button>`;
+  if (s === 'ios') return `<p class="tiny dim" style="margin:0">На iPhone уведомления работают, когда AlphaCars TM добавлен на экран «Домой»</p><button class="btn sm ghost" data-a="install">${ICON_INSTALL}Установить</button>`;
   if (s === 'no') return `<p class="tiny dim" style="margin:0">Этот браузер не умеет показывать уведомления</p>`;
   if (s === 'denied') return `<p class="tiny dim" style="margin:0">Разрешите уведомления для этого сайта в настройках браузера и обновите страницу</p>`;
   return onOff('notifs', S.settings.notifs !== false && s === 'granted');
@@ -149,7 +149,7 @@ if (!IN_APK){
 }
 
 Object.assign(TR, {
-  'Установите Alpha Drive':['Alpha Drive-y guruň','Install Alpha Drive'],
+  'Установите AlphaCars TM':['AlphaCars TM-i guruň','Install AlphaCars TM'],
   'Установить':['Gurnamak','Install'],
   'Установить приложение':['Programmany gurnamak','Install the app'],
   'Значок на экране «Домой» — открывается как приложение':['«Öý» ekranynda nyşan — programma ýaly açylýar','An icon on your Home Screen — opens like an app'],
@@ -161,7 +161,7 @@ Object.assign(TR, {
   'Выберите «На экран „Домой“»':['«На экран „Домой“» (Add to Home Screen) saýlaň','Choose “Add to Home Screen”'],
   'Если пункта не видно, прокрутите список вниз':['Görünmese, sanawy aşak süýşüriň','If you can’t see it, scroll down the list'],
   'Нажмите «Добавить»':['«Добавить» (Add) basyň','Tap “Add”'],
-  'Значок Alpha Drive появится на экране «Домой»':['Alpha Drive nyşany «Öý» ekranynda peýda bolar','The Alpha Drive icon will appear on your Home Screen'],
+  'Значок AlphaCars TM появится на экране «Домой»':['AlphaCars TM nyşany «Öý» ekranynda peýda bolar','The AlphaCars TM icon will appear on your Home Screen'],
   'Ссылку открыли в Telegram или Instagram? Сначала откройте её в Safari.':['Salgyny Telegram ýa-da Instagram-da açdyňyzmy? Ilki ony Safari-de açyň.','Opened the link in Telegram or Instagram? Open it in Safari first.'],
   'Приложение установлено':['Programma gurnaldy','App installed'],
   'Скрыть':['Gizlemek','Hide'],
@@ -173,7 +173,7 @@ Object.assign(TR, {
   'Уведомления запрещены в настройках браузера':['Habarnamalar brauzeriň sazlamalarynda gadagan edilen','Notifications are blocked in the browser settings'],
   'Не удалось включить уведомления. Попробуйте ещё раз.':['Habarnamalary açyp bolmady. Täzeden synanyşyň.','Could not turn on notifications. Please try again.'],
   'Уведомления на это устройство':['Bu enjama habarnamalar','Notifications on this device'],
-  'На iPhone уведомления работают, когда Alpha Drive добавлен на экран «Домой»':['iPhone-da habarnamalar Alpha Drive «Öý» ekranyna goşulanda işleýär','On iPhone, notifications work once Alpha Drive is added to the Home Screen'],
+  'На iPhone уведомления работают, когда AlphaCars TM добавлен на экран «Домой»':['iPhone-da habarnamalar AlphaCars TM «Öý» ekranyna goşulanda işleýär','On iPhone, notifications work once AlphaCars TM is added to the Home Screen'],
   'Этот браузер не умеет показывать уведомления':['Bu brauzer habarnamalary görkezip bilmeýär','This browser can’t show notifications'],
   'Разрешите уведомления для этого сайта в настройках браузера и обновите страницу':['Brauzeriň sazlamalarynda bu saýt üçin habarnamalara rugsat beriň we sahypany täzeläň','Allow notifications for this site in the browser settings and reload the page'],
   'Нет':['Ýok','No']
