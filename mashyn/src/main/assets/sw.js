@@ -5,7 +5,7 @@
    Запросы к Supabase и фото (другие адреса) не трогаем. В Android-приложении не используется.
    ===================================================== */
 importScripts('brands.js');
-const CACHE = 'alpha-drive-2.0';
+const CACHE = 'alpha-drive-2.1';
 // './', а не 'index.html': на сайте index.html отвечает переадресацией на ./
 const SHELL = ['./', 'supabase.js', 'i18n.js', 'i18n-tr.js', 'features.js', 'features-plus.js', 'dealers.js', 'brands.js', 'staff.js', 'helper.js', 'pwa.js', 'refresh.js',
   'manifest.webmanifest', 'app-192.png', 'app-512.png', 'logo.png',

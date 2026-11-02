@@ -1,5 +1,5 @@
 <resources>
     <color name="bg">#0A0A0A</color>
     <color name="accent">#FFD60A</color>
-    <color name="icon_bg">#121210</color>
+    <color name="icon_bg">#000000</color>
 </resources>
