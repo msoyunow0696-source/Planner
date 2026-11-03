@@ -163,7 +163,7 @@ function alertText(a){
   if (f.brand?.length) parts.push(f.brand.join(', '));
   if (f.pmin || f.pmax) parts.push((f.pmin?'от '+fmt(f.pmin)+' ':'')+(f.pmax?'до '+fmt(f.pmax)+' ':'')+'TMT');
   if (f.ymin || f.ymax) parts.push((f.ymin||'…')+'–'+(f.ymax||'…'));
-  if (f.reg) parts.push(f.place || f.reg);
+  if (f.loc?.length) parts.push(f.loc.map(locLabel).join(', ')); else if (f.reg) parts.push(f.place || f.reg);
   for (const k of ['credit','swap']) if (f[k]?.length) parts.push('✓ '+YES_NO[k]);
   for (const k of MULTI_KEYS) if (!['credit','swap'].includes(k) && f[k]?.length) parts.push(f[k].join(', '));
   return parts.join(' · ');
@@ -281,7 +281,7 @@ const FEATURE_ACTIONS = {
    Поддержка, «О приложении», информационная панель,
    статистика продавца и «Поделиться»
    ===================================================== */
-const APP_VERSION = '1.6.1';
+const APP_VERSION = '1.7';
 const SITE_URL = 'https://alphadrive.pages.dev/';
 
 /* ===== «Доступна новая версия» — только в Android-приложении =====

@@ -5,10 +5,11 @@
    Запросы к Supabase и фото (другие адреса) не трогаем. В Android-приложении не используется.
    ===================================================== */
 importScripts('brands.js');
-const CACHE = 'alpha-drive-2.1';
+const CACHE = 'alpha-drive-3.0';
 // './', а не 'index.html': на сайте index.html отвечает переадресацией на ./
 const SHELL = ['./', 'supabase.js', 'i18n.js', 'i18n-tr.js', 'features.js', 'features-plus.js', 'dealers.js', 'brands.js', 'staff.js', 'helper.js', 'pwa.js', 'refresh.js',
-  'manifest.webmanifest', 'app-192.png', 'app-512.png', 'logo.png',
+  'manifest.webmanifest', 'app-192.png', 'app-512.png', 'logo.png', 'banner.webp', 'banner-sm.webp', 'dealers-banner.webp', 'dealers-banner-sm.webp', 'tech-banner.webp', 'tech-banner-sm.webp', 'cars-banner.webp', 'cars-banner-sm.webp', 'moto-banner.webp', 'moto-banner-sm.webp',
+  ...['parts', 'rent', 'sto', 'jobs'].flatMap(k => [`${k}-banner.webp`, `${k}-banner-sm.webp`]),
   ...['word-dark', 'word-light', 'full-dark', 'full-light'].map(v => `logo/${v}.webp`),
   ...['onest', 'unbounded'].flatMap(f => ['latin', 'latin-ext', 'cyrillic'].map(s => `fonts/${f}-${s}.woff2`)),
   ...[...new Set(Object.values(BRAND_LOGO))].map(b => `brands/${b}.webp`),

@@ -28,6 +28,8 @@ const T_TR = {
 };
 
 const TR_RE_TK = [
+  [/^Фото (\d+) из (\d+)$/, (m,a,b) => 'Fotoğraf '+a+' / '+b],
+  [/^(.+) — весь велаят$/, (m,r) => r+' — tüm vilayet'],
   [/^от (\d[\d\s]*)/, (m,n) => n+' TMT\'den'],
   [/^(\d+) жалоб$/, (m,n) => n+' şikayet'],
   [/^(\d+) мин назад$/, (m,n) => n+' dk önce'],
@@ -69,6 +71,30 @@ const TR_RE_TK = [
 ];
 
 const TR_TK = {
+  'Смотреть':'Gör',
+  'Новые и б/у запчасти, шины, диски и масла — для легковых, грузовых и спецтехники':'Sıfır ve ikinci el parçalar, lastikler, jantlar ve yağlar — otomobil, kamyon ve iş makineleri için',
+  'Посуточно, надолго, на свадьбу или с водителем':'Günlük, uzun süreli, düğün için veya şoförlü',
+  'Ремонт, диагностика, шиномонтаж, кузов и мойка — рядом с вами':'Tamir, arıza tespiti, lastik, kaporta ve yıkama — yakınınızda',
+  'Ищу водителя и ищу работу — фуры, такси, автобусы, спецтехника':'Şoför aranıyor ve iş arıyorum — tır, taksi, otobüs, iş makineleri',
+  'Мотоциклы, скутеры и квадроциклы — новые и с пробегом':'Motosikletler, scooterlar ve ATV\'ler — sıfır ve ikinci el',
+  'Новые и с пробегом — от людей и салонов по всему Туркменистану':'Sıfır ve ikinci el — Türkmenistan genelinde kişilerden ve galerilerden',
+  'Краны, самосвалы, тракторы и перевозки — купить, арендовать, заказать':'Vinçler, damperli kamyonlar, traktörler ve nakliye — satın al, kirala, sipariş ver',
+  'Ещё салон':'Bir galeri daha', 'Без салона':'Galerisiz', 'Не больше 5 салонов на один аккаунт':'Hesap başına en fazla 5 galeri',
+  'Подборка':'Koleksiyon', 'Новая подборка':'Yeni koleksiyon', 'Изменить подборку':'Koleksiyonu düzenle', 'Машины в подборке':'Koleksiyondaki araçlar',
+  'Акция, Chevrolet, Для семьи':'Kampanya, Chevrolet, Aileler için', 'Напишите название подборки':'Koleksiyon adını yazın', 'Отметьте хотя бы одну машину':'En az bir araç işaretleyin',
+  'Не больше 10 подборок':'En fazla 10 koleksiyon', 'Подборка сохранена':'Koleksiyon kaydedildi', 'Подборка удалена':'Koleksiyon silindi', 'В салоне пока нет машин':'Galeride henüz araç yok', 'Новые':'Sıfır',
+  'Публикуем объявление…':'İlan yayınlanıyor…', 'Сохраняем изменения…':'Değişiklikler kaydediliyor…', 'Загружаем видео…':'Video yükleniyor…',
+  'Это может занять минуту':'Bu bir dakika sürebilir', 'Не закрывайте приложение':'Uygulamayı kapatmayın', 'Не удалось загрузить':'Yüklenemedi',
+  'Всё, что вы заполнили, и фото сохранены.':'Doldurduğunuz her şey ve fotoğraflar kaydedildi.', 'Попробовать ещё раз':'Tekrar dene',
+  'Интернет слишком медленный: загрузка идёт дольше обычного.':'İnternet çok yavaş: yükleme normalden uzun sürüyor.', 'Нет интернета или он слишком медленный.':'İnternet yok veya çok yavaş.',
+  'Сохраняем страницу салона…':'Galeri sayfası kaydediliyor…',
+  'Город — можно несколько':'Şehir — birden fazla seçebilirsiniz',
+  'Город *':'Şehir *',
+  'Весь велаят':'Tüm vilayet',
+  'Выберите город сверху или в списке.':'Yukarıdan veya listeden bir şehir seçin.',
+  'Найти город':'Şehir bul',
+  'Выбрано':'Seçilenler',
+  'Отметьте марки слева — они появятся здесь.':'Soldan markaları işaretleyin — burada görünecek.',
   'Видео можно добавить с подпиской или в VIP-объявлении.':'Video abonelikle veya VIP ilanda eklenebilir.',
   'Все':'Tümü',
   'Авто':'Otomobil',

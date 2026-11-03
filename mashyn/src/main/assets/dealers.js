@@ -9,13 +9,19 @@
 
 const DEALER_SERVICES = [['credit','Кредит'],['swap','Обмен'],['tradein','Трейд-ин'],['import','Пригон из-за рубежа'],['warranty','Гарантия'],['testdrive','Тест-драйв'],['delivery','Доставка']];
 // В каких разделах объявление можно выставить от имени салона
-const DEALER_SECS = ['cars','import','rent','moto','tech'];
+// Разделы салона: авто, из-за рубежа, мотоциклы, техника и услуги (решения 2026-11-03)
+const DEALER_SECS = ['cars','import','moto','tech'];
 
 const dealerById = id => S.dealers.find(d=>d.id===id);
-const myDealer = () => { const u = me(); return u ? S.dealers.find(d=>d.uid===u.id) : null; };
+// Свои салоны (до DEALER_MAX — так же проверяет база, supabase-update-dealers-multi.sql)
+const DEALER_MAX = 5;
+const myDealers = () => { const u = me(); return u ? S.dealers.filter(d=>d.uid===u.id) : []; };
+const myDealer = () => myDealers()[0] || null;
+// Салон объявления при подаче: выбранный в форме, иначе первый свой; «без салона» — пусто
+const pickDealer = d => { const ds = myDealers(); if (d.noDealer || !ds.length) return ''; return ds.some(x=>x.id===d.dealerId) ? d.dealerId : ds[0].id; };
 // Скрытый салон видят только владелец и администрация
 const dealerShown = d => !!d && (!d.hidden || me()?.id===d.uid || staffOn(me()));
-const dealerCars = d => S.listings.filter(l=>l.dealer===d.id && visible(l));
+const dealerCars = d => S.listings.filter(l=>l.dealer===d.id && DEALER_SECS.includes(l.sec) && visible(l));
 const dealerPlace = d => { const r = REGIONS.find(x=>x.k===d.reg); const p = placeOf(d.place); return [p, r && regShort(r.k)].filter((x,i,a)=>x && a.indexOf(x)===i).join(', '); };
 const dealerLogo = (d, size=56) => `<span class="dlogo" style="width:${size}px;height:${size}px">${d.logo?`<img src="${esc(d.logo)}" alt="">`:esc(initials(d.name||'?'))}</span>`;
 const dealerBanner = d => `<div class="dbanner">${d.banner?`<img src="${esc(d.banner)}" alt="" loading="lazy">`:''}</div>`;
@@ -33,12 +39,12 @@ const dealersHomeCard = () => { const n = S.dealers.filter(d=>!d.hidden).length;
 
 Object.assign(FEATURE_SCREENS, {
   dealers(){
-    const u = me(), mine = myDealer();
+    const u = me(), mine = myDealers();
     const list = S.dealers.filter(dealerShown).map(d=>({d, n:dealerCars(d).length})).sort((a,b)=>b.n-a.n || (b.d.created||0)-(a.d.created||0));
     return {title:'Автосалоны', html:`
-      <div class="hero" style="min-height:0"><h1 style="font-size:1.2rem">Автосалоны</h1><p>Машины от салонов, кредит, обмен и другие услуги</p>
-        ${mine ? `<button class="btn sm" data-a="dealer" data-v="${esc(mine.id)}">${ic('store')}Мой салон</button>`
-          : `<button class="btn sm" data-a="dealernew">${ic('plus')}Создать страницу салона</button>`}</div>
+      <div class="hero dhero"><h1 style="font-size:1.2rem">Автосалоны</h1><p>Машины от салонов, кредит, обмен и другие услуги</p>
+        <div class="row" style="flex-wrap:wrap;gap:8px">${mine.map(m=>`<button class="btn sm" data-a="dealer" data-v="${esc(m.id)}">${ic('store')}${mine.length>1?esc(m.name):'Мой салон'}</button>`).join('')}
+          ${mine.length < DEALER_MAX ? `<button class="btn sm ${mine.length?'ghost':''}" data-a="dealernew">${ic('plus')}${mine.length?'Ещё салон':'Создать страницу салона'}</button>` : ''}</div></div>
       <div class="list">${list.length ? list.map(({d,n})=>`<button class="dcard" data-a="dealer" data-v="${esc(d.id)}">${dealerBanner(d)}
         <span class="dc-body">${dealerLogo(d,52)}<span style="flex:1;min-width:0"><b class="dc-name">${esc(d.name)}</b>${d.hidden?' <span class="badge b-bad">Скрыт</span>':''}
           <span class="small dim">${esc(dealerPlace(d))}</span></span><span class="dc-n"><b class="num">${n}</b><span class="tiny dim">авто</span></span></span></button>`).join('')
@@ -49,10 +55,20 @@ Object.assign(FEATURE_SCREENS, {
     const d = dealerById(id), u = me();
     if (!dealerShown(d)) return {title:'Автосалоны', html:emptyBox('Салон не найден','Возможно, его скрыли или удалили')};
     const own = u && u.id===d.uid, staff = staffOn(u), owner = userById(d.uid) || {};
-    const cars = rank(dealerCars(d));
-    const brands = {}; cars.forEach(l=>{ const b = brandOf(l); if (b) brands[b] = (brands[b]||0)+1; });
+    const all = rank(dealerCars(d));
+    // Разделы салона: Все · Авто · Из-за рубежа · Мото (только те, где есть машины); марки — внутри выбранного раздела
+    const secN = DEALER_SECS.map(k=>[k, all.filter(l=>l.sec===k).length]).filter(([,n])=>n);
+    // «Все» — только машины; техника (самосвалы, фуры) — только в своей вкладке, не рядом с новыми машинами
+    const autos = all.filter(l=>l.sec!=='tech'), ds = (state.dSec||{})[d.id] || (autos.length ? '' : 'tech'), cars = ds ? all.filter(l=>l.sec===ds) : autos;
+    // Свои подборки салона (d.cols: {id, name, ids}) → «Новые / С пробегом» → марки
+    const cols = (d.cols||[]).map(c=>({...c, n: cars.filter(l=>c.ids.includes(l.id)).length})).filter(c=>c.n || own);
+    const dc = (state.dCol||{})[d.id] || '', colIds = (d.cols||[]).find(c=>c.id===dc)?.ids;
+    const inCol = colIds ? cars.filter(l=>colIds.includes(l.id)) : cars;
+    const du = (state.dUse||{})[d.id] || '', useN = ['new','used'].map(k=>[k, inCol.filter(l=>l.specs?.usage===k).length]);
+    const pool = du ? inCol.filter(l=>l.specs?.usage===du) : inCol;
+    const brands = {}; pool.forEach(l=>{ const b = brandOf(l); if (b) brands[b] = (brands[b]||0)+1; });
     const sel = (state.dBrand||{})[d.id] || '';
-    const shown = sel ? cars.filter(l=>brandOf(l)===sel) : cars;
+    const shown = sel ? pool.filter(l=>brandOf(l)===sel) : pool;
     const phone = d.phone || contactPhone(owner);
     const loose = own ? S.listings.filter(l=>l.uid===u.id && !l.dealer && DEALER_SECS.includes(l.sec)).length : 0;
     return {title:'Автосалон', html:`
@@ -68,10 +84,13 @@ Object.assign(FEATURE_SCREENS, {
         ${u ? `<div class="copy-row"><span class="phone-num num">${esc(fmtPhone(phone))}</span><button class="btn sm ghost" data-a="copy" data-v="${esc(phone)}">${ic('copy')}</button></div>
           <div class="grid2"><a class="btn" style="text-decoration:none" href="tel:${esc(phone)}">${ic('phone')}${t('call')}</a><a class="btn ghost" style="text-decoration:none" href="sms:${esc(phone)}">${ic('chat')}SMS</a></div>`
         : `<button class="btn" data-a="auth" data-v="login">${ic('lock')}${t('loginToCall')}</button>`}</div>
-      ${own?`<div class="grid2"><button class="btn ghost" data-a="dealeredit">${ic('gear')}Изменить</button><button class="btn ghost" data-a="tab" data-v="post">${ic('plus')}Добавить авто</button></div>
-        ${loose?`<button class="btn ghost" data-a="dealerlink">${ic('list')}Привязать мои объявления к салону · <span class="num">${loose}</span></button>`:''}`:''}
-      <div class="col"><div class="sec-title"><h2>Машины салона</h2><span class="tiny dim num">${cars.length}</span></div>
-        ${Object.keys(brands).length>1?`<div class="chips"><button class="chip ${sel?'':'on'}" data-a="dbrand" data-v="${esc(d.id)}|"><span>Все</span> <span class="num">(${cars.length})</span></button>${Object.entries(brands).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).map(([b,n])=>`<button class="chip ${sel===b?'on':''}" data-a="dbrand" data-v="${esc(d.id)}|${esc(b)}">${brandIcon(b,'sm')}${esc(b)} <span class="num">(${n})</span></button>`).join('')}</div>`:''}
+      ${own?`<div class="grid2"><button class="btn ghost" data-a="dealeredit" data-v="${esc(d.id)}">${ic('gear')}Изменить</button><button class="btn ghost" data-a="tab" data-v="post">${ic('plus')}Добавить авто</button></div>
+        ${loose?`<button class="btn ghost" data-a="dealerlink" data-v="${esc(d.id)}">${ic('list')}Привязать мои объявления к салону · <span class="num">${loose}</span></button>`:''}`:''}
+      <div class="col"><div class="sec-title"><h2>Машины салона</h2><span class="tiny dim num">${all.length}</span></div>
+        ${secN.length>1?`<div class="seg">${[...(autos.length?[['',autos.length]]:[]), ...secN].map(([k,n])=>`<button class="${ds===k?'on':''}" data-a="dsec" data-v="${esc(d.id)}|${k}">${k?t('s_'+k):t('all')} <span class="num">${n}</span></button>`).join('')}</div>`:''}
+        ${cols.length || own ? `<div class="chips">${cols.map(c=>`<button class="chip ${dc===c.id?'on':''}" data-a="dcol" data-v="${esc(d.id)}|${esc(c.id)}">${ic('list','style="width:15px;height:15px"')}${esc(c.name)} <span class="num">(${c.n})</span></button>${own?`<button class="chip" data-a="dcoledit" data-v="${esc(d.id)}|${esc(c.id)}" aria-label="Изменить подборку">${ic('edit','style="width:15px;height:15px"')}</button>`:''}`).join('')}${own?`<button class="chip" data-a="dcoledit" data-v="${esc(d.id)}|">${ic('plus','style="width:15px;height:15px"')}Подборка</button>`:''}</div>` : ''}
+        ${useN.every(([,n])=>n) ? `<div class="chips">${[['',inCol.length], ...useN].map(([k,n])=>`<button class="chip ${du===k?'on':''}" data-a="duse" data-v="${esc(d.id)}|${k}">${k==='new'?'Новые':k==='used'?'С пробегом':'Все'} <span class="num">(${n})</span></button>`).join('')}</div>` : ''}
+        ${Object.keys(brands).length>1?`<div class="chips"><button class="chip ${sel?'':'on'}" data-a="dbrand" data-v="${esc(d.id)}|"><span>Все</span> <span class="num">(${pool.length})</span></button>${Object.entries(brands).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).map(([b,n])=>`<button class="chip ${sel===b?'on':''}" data-a="dbrand" data-v="${esc(d.id)}|${esc(b)}">${brandIcon(b,'sm')}${esc(b)} <span class="num">(${n})</span></button>`).join('')}</div>`:''}
         <div class="list">${shown.length ? shown.map(listCard).join('') : emptyBox('Машин пока нет', own ? 'Подайте объявление — оно появится здесь' : 'Салон ещё не выставил машины')}</div></div>
       <div class="row" style="flex-wrap:wrap;gap:8px">
         ${u && !own?`<button class="btn sm danger" data-a="complain" data-v="dealer:${esc(d.id)}">${ic('flag')}${t('complain')}</button>`:''}
@@ -88,8 +107,7 @@ Object.assign(FEATURE_SCREENS, {
       ${pic('banner','Фон сверху (баннер)','Широкое фото салона или площадки')}
       ${pic('logo','Логотип','Квадратная картинка')}
       <div class="field"><label for="de_name">Название салона *</label><input class="inp" id="de_name" maxlength="60" value="${esc(d.name||'')}" placeholder="Например: Ashgabat Motors"></div>
-      <div class="grid2"><div class="field"><label for="de_reg">Велаят</label><select class="inp" id="de_reg">${REGIONS.map(r=>`<option value="${esc(r.k)}" ${d.reg===r.k?'selected':''}>${esc(regLabel(r))}</option>`).join('')}</select></div>
-        <div class="field"><label for="de_place">Этрап или город</label><select class="inp" id="de_place">${placeOptions(d.reg, d.place)}</select></div></div>
+      <div class="field"><label>Город</label><button type="button" class="inp pick" data-a="citypick" data-v="dealer"><span>${esc(dealerPlace(d) || 'Выберите')}</span>${ic('chev')}</button></div>
       <div class="field"><label for="de_phone">Телефон салона</label><input class="inp num" id="de_phone" type="tel" maxlength="20" value="${esc(d.phone||'')}" placeholder="${esc(fmtPhone(u.phone))}"></div>
       <div class="field"><label>Услуги</label><div class="chips wrapc">${DEALER_SERVICES.map(([k,n])=>`<button type="button" class="chip ${(d.services||[]).includes(k)?'on':''}" data-a="dserv" data-v="${k}">${n}</button>`).join('')}</div></div>
       <div class="field"><label for="de_desc">О салоне</label><textarea class="inp" id="de_desc" maxlength="2000" placeholder="Адрес, часы работы, какие машины продаёте, условия кредита">${esc(d.desc||'')}</textarea></div>
@@ -99,8 +117,6 @@ Object.assign(FEATURE_SCREENS, {
       after(){
         const f = k => $('#de_'+k);
         ['name','phone','desc'].forEach(k=>f(k).addEventListener('input',()=>{ d[k]=f(k).value; }));
-        f('reg').addEventListener('change', e=>{ d.reg=e.target.value; d.place=''; f('place').innerHTML = placeOptions(d.reg,''); });
-        f('place').addEventListener('change', e=>{ d.place=e.target.value; });
         document.querySelectorAll('[data-dpic]').forEach(inp=>inp.addEventListener('change', async ()=>{ const file = inp.files[0]; if (!file) return;
           try{ d[inp.dataset.dpic] = await compress(file); }catch{ toast('Не удалось прочитать фото'); } render(); }));
       }};
@@ -111,19 +127,21 @@ Object.assign(FEATURE_ACTIONS, {
   dealers(){ go('dealers'); },
   dealer(id){ go('dealer', id); },
   dealernew(){ const u = me(); if (!u){ go('auth','login'); return; }
-    const mine = myDealer(); if (mine){ go('dealer', mine.id); return; }
+    if (myDealers().length >= DEALER_MAX){ toast('Не больше 5 салонов на один аккаунт'); return; }
     state.dEdit = {name: u.type==='company' && u.company || '', reg: REGIONS[0].k, place:'', desc:'', phone:'', services:[], logo:'', banner:''}; go('dealeredit'); },
-  dealeredit(){ const mine = myDealer(); if (!mine) return; state.dEdit = JSON.parse(JSON.stringify(mine)); go('dealeredit'); },
+  dealeredit(id){ const mine = myDealers().find(x=>x.id===id) || myDealer(); if (!mine) return; state.dEdit = JSON.parse(JSON.stringify(mine)); go('dealeredit'); },
   dserv(k, el){ const s = state.dEdit.services = state.dEdit.services || []; const i = s.indexOf(k); i<0 ? s.push(k) : s.splice(i,1); el.classList.toggle('on', i<0); },
   dpicdel(k){ state.dEdit[k] = ''; render(); },
   async dealersave(){
     const u = me(), d = state.dEdit, err = $('#de_err'); if (!u || !d || state.saving) return;
     d.name = (d.name||'').trim(); d.desc = (d.desc||'').trim(); d.phone = (d.phone||'').trim();
     if (d.name.length < 2) return err.textContent = 'Укажите название салона';
-    state.saving = true; err.textContent = (d.logo||'').startsWith('data:') || (d.banner||'').startsWith('data:') ? 'Загружаем картинки…' : '';
-    try { d.logo = d.logo ? await uploadPhoto(d.logo) : ''; d.banner = d.banner ? await uploadPhoto(d.banner) : ''; }
-    catch { return err.textContent = 'Не удалось загрузить картинки. Проверьте интернет и попробуйте ещё раз.'; }
+    state.saving = true; err.textContent = '';
+    if ((d.logo||'').startsWith('data:') || (d.banner||'').startsWith('data:')) upBusy('Сохраняем страницу салона…', 'Загружаем картинки…', null);
+    try { d.logo = d.logo ? await withTimeout(uploadPhoto(d.logo), 60000) : ''; d.banner = d.banner ? await withTimeout(uploadPhoto(d.banner), 60000) : ''; }
+    catch (e) { busyErr(upErr(e), 'dealersave'); return; }
     finally { state.saving = false; }
+    busyOff();
     const rec = {id: d.id || uid(), uid: u.id, name: d.name, reg: d.reg, place: d.place||'', desc: d.desc, phone: d.phone, services: d.services||[], logo: d.logo, banner: d.banner,
       hidden: d.hidden || false, created: d.created || now()};
     const i = S.dealers.findIndex(x=>x.id===rec.id); if (i<0) S.dealers.push(rec); else S.dealers[i] = rec;
@@ -138,12 +156,34 @@ Object.assign(FEATURE_ACTIONS, {
     state.dEdit = null; toast('Страница салона сохранена'); go('dealer', rec.id, true);
   },
   dealerdel(){ confirmSheet('Удалить страницу салона? Объявления останутся, но без салона.', 'Удалить', {a:'dealerdelok', v:''}); },
-  dealerdelok(){ closeSheet(); const mine = myDealer(); if (!mine) return;
+  dealerdelok(){ closeSheet(); const mine = myDealers().find(x=>x.id===state.dEdit?.id); if (!mine) return;
     S.listings.forEach(l=>{ if (l.dealer===mine.id && l.uid===mine.uid) delete l.dealer; });
     S.dealers = S.dealers.filter(x=>x.id!==mine.id); state.dEdit = null; persist(); toast('Страница салона удалена'); root('home'); go('dealers'); },
-  dealerlink(){ const u = me(), mine = myDealer(); if (!mine) return; let n = 0;
+  dealerlink(id){ const u = me(), mine = myDealers().find(x=>x.id===id) || myDealer(); if (!mine) return; let n = 0;
     S.listings.forEach(l=>{ if (l.uid===u.id && !l.dealer && DEALER_SECS.includes(l.sec)){ l.dealer = mine.id; n++; } });
     persist(); toast(`Привязано объявлений: ${n}`); render(); },
+  dcol(v){ const i = v.indexOf('|'), id = v.slice(0,i), c = v.slice(i+1); const cur = (state.dCol||{})[id];
+    state.dCol = {...(state.dCol||{}), [id]: cur===c ? '' : c}; state.dBrand = {...(state.dBrand||{}), [id]: ''}; render(); },
+  duse(v){ const i = v.indexOf('|'), id = v.slice(0,i); state.dUse = {...(state.dUse||{}), [id]: v.slice(i+1)}; state.dBrand = {...(state.dBrand||{}), [id]: ''}; render(); },
+  // Подборка салона: название и отмеченные машины (только владелец салона)
+  dcoledit(v){ const i = v.indexOf('|'), d = dealerById(v.slice(0,i)), u = me(); if (!d || !u || u.id!==d.uid) return;
+    const c = (d.cols||[]).find(x=>x.id===v.slice(i+1)) || {id:'', name:'', ids:[]}, cars = rank(dealerCars(d));
+    openSheet(`<div class="between"><h2>${c.id?'Подборка':'Новая подборка'}</h2><button class="icon-btn" data-a="closesheet" aria-label="Закрыть">${ic('x')}</button></div>
+      <div class="field"><label for="dc_name">Название</label><input class="inp" id="dc_name" maxlength="30" value="${esc(c.name)}" placeholder="Акция, Chevrolet, Для семьи"></div>
+      <div class="field"><label>Машины в подборке</label><div class="blist" id="dc_ids">${cars.map(l=>`<label class="check"><input type="checkbox" value="${esc(l.id)}" ${c.ids.includes(l.id)?'checked':''}>${brandIcon(brandOf(l),'sm')}<span>${esc(l.title)}</span></label>`).join('') || '<p class="small dim">В салоне пока нет машин</p>'}</div></div>
+      <div class="err" id="dc_err"></div>
+      <div class="grid2">${c.id?`<button class="btn ghost danger" data-a="dcoldel" data-v="${esc(d.id)}|${esc(c.id)}">${ic('trash')}Удалить</button>`:'<span></span>'}<button class="btn" data-a="dcolsave" data-v="${esc(d.id)}|${esc(c.id)}">${ic('check')}Сохранить</button></div>`); },
+  dcolsave(v){ const i = v.indexOf('|'), d = dealerById(v.slice(0,i)), u = me(); if (!d || !u || u.id!==d.uid) return;
+    const name = $('#dc_name').value.replace(/\s+/g,' ').trim(), ids = [...document.querySelectorAll('#dc_ids input:checked')].map(x=>x.value);
+    if (!name) return $('#dc_err').textContent = 'Напишите название подборки';
+    if (!ids.length) return $('#dc_err').textContent = 'Отметьте хотя бы одну машину';
+    const cols = (d.cols||[]).slice(), id = v.slice(i+1), k = cols.findIndex(x=>x.id===id);
+    if (k<0 && cols.length>=10) return $('#dc_err').textContent = 'Не больше 10 подборок';
+    const rec = {id: id || uid(), name, ids}; if (k<0) cols.push(rec); else cols[k] = rec;
+    d.cols = cols; persist(); closeSheet(); toast('Подборка сохранена'); render(); },
+  dcoldel(v){ const i = v.indexOf('|'), d = dealerById(v.slice(0,i)), u = me(); if (!d || !u || u.id!==d.uid) return;
+    d.cols = (d.cols||[]).filter(x=>x.id!==v.slice(i+1)); state.dCol = {...(state.dCol||{}), [d.id]: ''}; persist(); closeSheet(); toast('Подборка удалена'); render(); },
+  dsec(v){ const i = v.indexOf('|'), id = v.slice(0,i); state.dSec = {...(state.dSec||{}), [id]: v.slice(i+1)}; state.dBrand = {...(state.dBrand||{}), [id]: ''}; state.dCol = {...(state.dCol||{}), [id]: ''}; state.dUse = {...(state.dUse||{}), [id]: ''}; render(); },
   dbrand(v){ const i = v.indexOf('|'); state.dBrand = {...(state.dBrand||{}), [v.slice(0,i)]: v.slice(i+1)}; render(); },
   dealerhide(id){ const d = dealerById(id); if (!d || !staffOn(me())) return; d.hidden = !d.hidden;
     if (!d.hidden) S.complaints = S.complaints.filter(c=>c.target!==id);

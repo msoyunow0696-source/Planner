@@ -141,6 +141,13 @@ main{padding-block:14px 110px;display:flex;flex-direction:column;gap:18px}
 .search{display:flex;align-items:center;gap:10px;padding:0 14px;min-height:50px;border-radius:16px;background:var(--card);border:1px solid var(--line)}
 .search svg{width:20px;height:20px;color:var(--dim);flex:none}
 .search input{flex:1;min-width:0;border:0;background:none;outline:none;font-size:.95rem}
+/* Подсказки в поиске: марки и «марка модель» по первым буквам */
+.search{position:relative}
+.sug{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:30;display:flex;flex-direction:column;background:var(--bg3);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden;max-height:340px;overflow-y:auto}
+body:is([data-t="light"],[data-t="cars-light"]) .sug{background:#fff}
+.sug button{display:flex;align-items:center;gap:10px;padding:10px 14px;text-align:left;font-size:.92rem;border-bottom:1px solid var(--line)}
+.sug button:last-child{border-bottom:0}.sug button:hover,.sug button.on{background:var(--card2)}
+.sug b{font-weight:700}.sug .tiny{margin-left:auto}
 .field{display:flex;flex-direction:column;gap:6px}
 .field label{font-size:.78rem;color:var(--dim);font-weight:500}
 .inp{width:100%;min-height:48px;padding:0 14px;border-radius:14px;border:1px solid var(--line);background:var(--card);outline:none;font-size:.95rem}
@@ -166,6 +173,28 @@ select.inp option{background:var(--bg1);color:var(--text)}
 .hero p{margin:6px 0 12px;color:var(--text);opacity:.85;font-size:.88rem;max-width:22ch;position:relative;z-index:1}
 .hero .btn{position:relative;z-index:1}
 .hero .art{position:absolute;right:-44px;bottom:-26px;width:190px;opacity:.9;pointer-events:none}
+/* Баннер главной: фото (banner*.webp из 8_Dizayn/banner), слева тёмное затемнение под белый текст; одинаков во всех темах */
+.hero{min-height:168px;border:0;color:#fff;background:linear-gradient(90deg,rgba(0,0,0,.82) 0%,rgba(0,0,0,.6) 45%,rgba(0,0,0,.1) 100%),url(banner-sm.webp) 72% center/cover no-repeat,#1c1c1e}
+.hero h1,.hero p{color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.6)}.hero p{opacity:.92}
+/* Баннеры разделов «Авто» и «Техника и услуги»: фото, слева затемнение под текст */
+.hcar{position:relative;border-radius:22px;overflow:hidden}
+.hcar-track{display:grid}
+.hcar-track>.hero{grid-area:1/1;border-radius:0;text-align:left;display:block;opacity:0;visibility:hidden;transform:scale(1.04);transition:opacity .9s ease,transform 5.5s ease-out,visibility 0s .9s}
+.hcar-track>.hero.on{opacity:1;visibility:visible;transform:scale(1);transition:opacity .9s ease,transform 5.5s ease-out,visibility 0s}
+@media (prefers-reduced-motion:reduce){.hcar-track>.hero{transition:none}}
+.hero.sbn{min-height:150px;background:linear-gradient(90deg,rgba(0,0,0,.82) 0%,rgba(0,0,0,.55) 55%,rgba(0,0,0,.15) 100%),var(--sbn-sm) var(--sbn-pos,60%) center/cover no-repeat,#1c1c1e}
+.sbn-tech{--sbn-sm:url(tech-banner-sm.webp);--sbn:url(tech-banner.webp)}
+.sbn-cars{--sbn-sm:url(cars-banner-sm.webp);--sbn:url(cars-banner.webp);--sbn-pos:70%}
+.sbn-parts{--sbn-sm:url(parts-banner-sm.webp);--sbn:url(parts-banner.webp);--sbn-pos:65%}
+.sbn-rent{--sbn-sm:url(rent-banner-sm.webp);--sbn:url(rent-banner.webp);--sbn-pos:62%}
+.sbn-sto{--sbn-sm:url(sto-banner-sm.webp);--sbn:url(sto-banner.webp);--sbn-pos:55%}
+.sbn-jobs{--sbn-sm:url(jobs-banner-sm.webp);--sbn:url(jobs-banner.webp);--sbn-pos:60%}
+.sbn-moto{--sbn-sm:url(moto-banner-sm.webp);--sbn:url(moto-banner.webp);--sbn-pos:62%}
+@media (min-width:720px){.hero.sbn{min-height:200px;background:linear-gradient(90deg,rgba(0,0,0,.8) 0%,rgba(0,0,0,.45) 35%,rgba(0,0,0,0) 60%),var(--sbn) center/cover no-repeat,#1c1c1e}}
+/* Баннер раздела «Автосалоны»: фото салона (dealers-banner*.webp), слева затемнение под текст */
+.hero.dhero{min-height:150px;background:linear-gradient(90deg,rgba(0,0,0,.8) 0%,rgba(0,0,0,.55) 50%,rgba(0,0,0,.1) 100%),url(dealers-banner-sm.webp) 65% center/cover no-repeat,#1c1c1e}
+@media (min-width:720px){.hero.dhero{min-height:200px;background:linear-gradient(90deg,rgba(0,0,0,.78) 0%,rgba(0,0,0,.4) 35%,rgba(0,0,0,0) 60%),url(dealers-banner.webp) center/cover no-repeat,#1c1c1e}}
+@media (min-width:720px){.hero{min-height:220px;background:linear-gradient(90deg,rgba(0,0,0,.8) 0%,rgba(0,0,0,.5) 40%,rgba(0,0,0,0) 75%),url(banner.webp) center/cover no-repeat,#1c1c1e}}
 
 /* Карточки объявлений */
 .list{display:flex;flex-direction:column;gap:12px}
@@ -178,6 +207,13 @@ select.inp option{background:var(--bg1);color:var(--text)}
 .lc .p{font-family:var(--font-d);font-weight:700;font-size:1rem}
 .lc .m{font-size:.76rem;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .lc .bd{display:flex;gap:4px;flex-wrap:wrap}
+.busy{position:fixed;inset:0;z-index:150;display:grid;place-items:center;padding:24px;background:rgba(0,0,0,.55)}
+.busy-card{width:min(340px,100%);display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;padding:22px 20px;border-radius:20px;background:var(--bg3);border:1px solid var(--line);box-shadow:var(--shadow)}
+body:is([data-t="light"],[data-t="cars-light"]) .busy-card{background:#fff}
+.spin{width:38px;height:38px;border-radius:50%;border:4px solid var(--line);border-top-color:var(--accent);animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.busy-bar{width:100%;height:8px;border-radius:4px;background:var(--card2);overflow:hidden}.busy-bar i{display:block;height:100%;background:var(--accent);transition:width .3s}
+@media (prefers-reduced-motion:reduce){.spin{animation-duration:2.5s}}
 .lc.sk{pointer-events:none}
 .lc.sk .th,.lc.sk i{background:linear-gradient(90deg,var(--card2) 25%,color-mix(in srgb,var(--card2) 55%,var(--line)) 50%,var(--card2) 75%);background-size:300% 100%;animation:sk 1.3s ease-in-out infinite}
 .lc.sk i{display:block;height:12px;border-radius:6px;margin-top:6px}.lc.sk i:nth-child(1){width:80%}.lc.sk i:nth-child(2){width:45%;height:16px}.lc.sk i:nth-child(3){width:60%}
@@ -376,8 +412,10 @@ body:is([data-t="light"],[data-t="cars-light"]) .sheet-foot{background:#fff}
 .eye{position:absolute;right:4px;top:4px;width:40px;height:40px;border-radius:11px;display:grid;place-items:center;color:var(--dim)}
 .eye svg{width:20px;height:20px}
 .chips.wrapc{flex-wrap:wrap;overflow:visible}
-.blist{max-height:240px;overflow-y:auto;border:1px solid var(--line);border-radius:14px;padding:2px 12px;background:var(--card)}
+.blist{max-height:200px;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;border:1px solid var(--line);border-radius:14px;padding:2px 12px;background:var(--card)}
 .blist .check{min-height:38px;font-size:.88rem}
+.bpick-r{display:none}
+@media (min-width:720px){.bpick{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}.bpick-r{display:flex;flex-direction:column;gap:8px;padding:12px;border:1px dashed var(--line);border-radius:14px;min-height:100%}}
 .bico{width:34px;height:26px;flex:none;display:inline-grid;place-items:center;padding:2px 3px;border-radius:8px;background:#f4f4f5;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
 .bico img{max-width:100%;max-height:100%;object-fit:contain}
 .bico.l{color:#52525b;font:700 .78rem 'Unbounded',sans-serif}
@@ -1096,6 +1134,23 @@ async function deviceOff(){
 }
 window.mbOpenNotifs = () => notifSheet();
 
+// Окно «Публикуем… Фото 3 из 8» поверх экрана, пока идёт загрузка; при ошибке — «Попробовать ещё раз» (retryA — действие)
+function upBusy(title, sub, frac){
+  let b = $('#busy'); if (!b){ b = document.createElement('div'); b.id = 'busy'; b.className = 'busy'; document.body.appendChild(b); }
+  b.innerHTML = `<div class="busy-card" role="status"><div class="spin"></div><b>${esc(title)}</b>${sub?`<span class="small dim">${esc(sub)}</span>`:''}
+    ${frac!=null?`<div class="busy-bar"><i style="width:${Math.round(frac*100)}%"></i></div>`:''}<span class="tiny dim">Не закрывайте приложение</span></div>`;
+}
+function busyErr(msg, retryA){
+  upBusy('', '', null);
+  $('#busy').innerHTML = `<div class="busy-card" role="alert">${ic('x','style="width:34px;height:34px;color:var(--danger)"')}<b>Не удалось загрузить</b><span class="small dim">${esc(msg)}</span>
+    <span class="tiny dim">Всё, что вы заполнили, и фото сохранены.</span>
+    <div class="grid2" style="width:100%"><button class="btn ghost" data-a="busyclose">Закрыть</button><button class="btn" data-a="${retryA}">Попробовать ещё раз</button></div></div>`;
+}
+const busyOff = () => $('#busy')?.remove();
+// Загрузка не ждёт бесконечно: за ms не успели — ошибка «timeout»
+const withTimeout = (p, ms) => Promise.race([p, new Promise((_, no) => setTimeout(() => no(new Error('timeout')), ms))]);
+const upErr = e => e?.message==='timeout' ? 'Интернет слишком медленный: загрузка идёт дольше обычного.' : 'Нет интернета или он слишком медленный.';
+
 async function uploadPhoto(dataUrl){
   if (!dataUrl.startsWith('data:')) return dataUrl;
   const blob = await (await fetch(dataUrl)).blob();
@@ -1226,6 +1281,57 @@ function profileSheet(){
     <div class="err" id="pe_err"></div>
     <button class="btn" data-a="profsave">${ic('check')}Сохранить</button>`);
 }
+// Подсказки под полем поиска: «toy» → Toyota, Toyota Camry…; нажал — поиск по этому тексту (run)
+function searchSuggest(input, run){
+  const box = document.createElement('div'); box.className = 'sug'; box.hidden = true; input.parentNode.appendChild(box);
+  let items = [], cur = -1;
+  const show = () => {
+    const q = input.value.trim().toLowerCase(); items = [];
+    if (q.length >= 2){
+      const seen = new Set(), add = (text, b) => { if (!seen.has(text) && items.length < 8){ seen.add(text); items.push([text, b]); } };
+      const brands = [...new Set(ALL_BRANDS)];
+      brands.filter(b => b.toLowerCase().startsWith(q)).forEach(b => add(b, b));
+      brands.forEach(b => { const bl = b.toLowerCase();
+        for (const m of modelsOf(b)) { const full = (b+' '+m).toLowerCase();
+          if (full.startsWith(q) || (bl.startsWith(q.split(' ')[0]) && q.includes(' ') && full.startsWith(q)) || m.toLowerCase().startsWith(q)) add(b+' '+m, b); } });
+      brands.filter(b => !b.toLowerCase().startsWith(q) && b.toLowerCase().includes(q)).forEach(b => add(b, b));
+    }
+    cur = -1;
+    box.innerHTML = items.map(([text, b], i) => `<button type="button" data-i="${i}">${brandIcon(b,'sm')}<span>${esc(text)}</span></button>`).join('');
+    box.hidden = !items.length;
+  };
+  const pick = i => { input.value = items[i][0]; box.hidden = true; run(items[i][0]); };
+  input.setAttribute('autocomplete', 'off');
+  input.addEventListener('input', show);
+  input.addEventListener('focus', show);
+  input.addEventListener('blur', () => setTimeout(() => { box.hidden = true; }, 150));
+  box.addEventListener('mousedown', e => e.preventDefault());
+  box.addEventListener('click', e => { const b = e.target.closest('button'); if (b) pick(+b.dataset.i); });
+  input.addEventListener('keydown', e => {
+    if (box.hidden || !items.length) return;
+    if (e.key==='ArrowDown' || e.key==='ArrowUp'){ e.preventDefault(); cur = (cur + (e.key==='ArrowDown'?1:-1) + items.length) % items.length; box.querySelectorAll('button').forEach((x,j)=>x.classList.toggle('on', j===cur)); }
+    else if (e.key==='Enter' && cur>=0){ e.preventDefault(); e.stopImmediatePropagation(); pick(cur); }
+    else if (e.key==='Escape') box.hidden = true;
+  });
+}
+// Карусель на главной: главный баннер + баннеры разделов; каждые 5 с следующий плавно проявляется (после последнего — сразу первый),
+// свайп пальцем — следующий/предыдущий и автосмена останавливается
+const HCAR_SECS = ['cars','moto','tech','parts','rent','sto','jobs'];
+function hcarOn(){
+  clearInterval(window.__hcarT); const tr = $('#hcar'); if (!tr) return;
+  const sl = [...tr.children]; let i = 0;
+  const show = n => { sl[i].classList.remove('on'); i = (n + sl.length) % sl.length; sl[i].classList.add('on'); };
+  const stop = () => clearInterval(window.__hcarT);
+  let x0 = null;
+  tr.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; stop(); }, {passive:true});
+  tr.addEventListener('touchend', e => { if (x0===null) return; const dx = e.changedTouches[0].clientX - x0; x0 = null; if (Math.abs(dx) > 40){ show(i + (dx < 0 ? 1 : -1)); } }, {passive:true});
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  window.__hcarT = setInterval(() => { if (!document.body.contains(tr)) return stop(); show(i + 1); }, 5000);
+}
+// Баннеры разделов (фото sec-banner*.webp, стили .sbn-<раздел>): текст под названием раздела
+const SEC_BANNER = {cars:'Новые и с пробегом — от людей и салонов по всему Туркменистану', moto:'Мотоциклы, скутеры и квадроциклы — новые и с пробегом',
+  parts:'Новые и б/у запчасти, шины, диски и масла — для легковых, грузовых и спецтехники', rent:'Посуточно, надолго, на свадьбу или с водителем',
+  sto:'Ремонт, диагностика, шиномонтаж, кузов и мойка — рядом с вами', jobs:'Ищу водителя и ищу работу — фуры, такси, автобусы, спецтехника', tech:'Краны, самосвалы, тракторы и перевозки — купить, арендовать, заказать'};
 const isFav = id => { const u = me(); return u ? (S.favs[u.id]||[]).includes(id) : false; };
 const emptyBox = (title, p, btn='') => `<div class="empty">${ic('search')}<h3>${title}</h3><p class="small">${p}</p>${btn}</div>`;
 
@@ -1237,7 +1343,10 @@ const SCREENS = {
     return {html:`
       <label class="search">${ic('search')}<input id="q_home" type="search" placeholder="${t('searchPh')}" enterkeyhint="search" aria-label="Поиск"></label>
       ${updateCard()}${installCard()}
-      <div class="hero"><h1>${t('heroT')}</h1><p>${S.settings.mode==='free'?t('heroFree'):t('heroP')}</p><button class="btn sm" data-a="tab" data-v="post">${ic('plus')}${t('heroBtn')}</button><div class="art">${art('suv','#ffffff',7,true)}</div></div>
+      <div class="hcar"><div class="hcar-track" id="hcar">
+        <div class="hero on"><h1>${t('heroT')}</h1><p>${S.settings.mode==='free'?t('heroFree'):t('heroP')}</p><button class="btn sm" data-a="tab" data-v="post">${ic('plus')}${t('heroBtn')}</button></div>
+        ${HCAR_SECS.map(k=>`<button class="hero sbn sbn-${k}" data-a="sec" data-v="${k}"><h1>${t('s_'+k)}</h1><p>${SEC_BANNER[k]}</p><span class="btn sm">Смотреть ${ic('back','style="width:16px;height:16px;transform:rotate(180deg)"')}</span></button>`).join('')}
+      </div></div>
       <div class="cats">${SECTIONS.map(s=>`<button class="cat" data-a="sec" data-v="${s.k}">${i3d(s.k)}${t('s_'+s.k)}</button>`).join('')}
         <button class="cat" data-a="sec" data-v="all">${i3d('all')}${t('all')}</button></div>
       ${helperCard()}${helperFab()}
@@ -1248,7 +1357,7 @@ const SCREENS = {
       ${rowBlock('Вы смотрели', seenList().slice(0,10))}
       <div class="col"><div class="sec-title"><h2>${t('fresh')}</h2><button class="link small" data-a="sec" data-v="all">${t('all')}</button></div>
       <div class="list">${fresh.length || state.loaded ? fresh.map(listCard).join('') : skel(4)}</div></div>`,
-      after(){ const q=$('#q_home'); q.addEventListener('keydown',e=>{ if(e.key==='Enter'){ state.q=q.value.trim(); go('section','all'); } }); }
+      after(){ hcarOn(); const q=$('#q_home'); const run = v => { state.q=v.trim(); go('section','all'); }; searchSuggest(q, run); q.addEventListener('keydown',e=>{ if(e.key==='Enter') run(q.value); }); }
     };
   },
 
@@ -1265,8 +1374,8 @@ const SCREENS = {
     const q = state.q.toLowerCase();
     if (q){ const words = q.split(/\s+/).filter(Boolean); arr = arr.filter(l => { const h = searchText(l); return words.every(w => h.includes(w)); }); }
     if (sec==='jobs' && state.jobKind!=='all') arr = arr.filter(l=>l.specs?.kind===state.jobKind);
-    if (f.reg) arr = arr.filter(l=>l.reg===f.reg);
-    if (f.place) arr = arr.filter(l=>placeOf(l.place)===f.place);
+    if (f.loc?.length) arr = arr.filter(l=>f.loc.some(k=>locMatch(l, k)));
+    else { if (f.reg) arr = arr.filter(l=>l.reg===f.reg); if (f.place) arr = arr.filter(l=>placeOf(l.place)===f.place); }
     if (f.pmin) arr = arr.filter(l=>l.price>=f.pmin);
     if (f.pmax) arr = arr.filter(l=>l.price && l.price<=f.pmax);
     if (f.ymin) arr = arr.filter(l=>(l.specs?.year||0)>=f.ymin);
@@ -1275,8 +1384,9 @@ const SCREENS = {
     const pt = pickTest(f); if (pt) arr = arr.filter(pt);
     for (const k of MULTI_KEYS) if (f[k]?.length) arr = arr.filter(l => f[k].some(v => String(l.specs?.[k]||'').split(', ').includes(v)));
     arr = rank(arr, state.sort);
-    const nf = Object.values(f).filter(v=>Array.isArray(v)?v.length:v).length;
+    const nf = Object.entries(f).filter(([k,v])=>!(f.loc && k==='reg') && (Array.isArray(v)?v.length:v)).length;
     return {title:t('s_'+sec), html:`
+      ${SEC_BANNER[sec] && !state.q && !nf ? `<div class="hero sbn sbn-${sec}"><h1 style="font-size:1.2rem">${t('s_'+sec)}</h1><p>${SEC_BANNER[sec]}</p><button class="btn sm" data-a="postsec" data-v="${sec}">${ic('plus')}Подать объявление</button></div>` : ''}
       <label class="search">${ic('search')}<input id="q_sec" type="search" value="${esc(state.q)}" placeholder="${t('searchPh')}" enterkeyhint="search" aria-label="Поиск"></label>
       ${['cars','moto'].includes(sec)?`<div class="seg">${[['','Все'],['new','Новые'],['used','С пробегом']].map(([k,n])=>`<button class="${(f.usage?.[0]||'')===k?'on':''}" data-a="usage" data-v="${sec}:${k}">${n}</button>`).join('')}</div>`:''}
       ${sec==='jobs'?`<div class="seg">${[['all','Все'],['hire','Ищу водителя'],['seek','Ищу работу']].map(([k,n])=>`<button class="${state.jobKind===k?'on':''}" data-a="jobkind" data-v="${k}">${n}</button>`).join('')}</div>`:''}
@@ -1289,7 +1399,7 @@ const SCREENS = {
       <button class="btn ghost sm" data-a="alertsave" data-v="${sec}">${ic('bell')}Сообщить о новых по этому поиску</button>
       <div class="between"><span class="small dim">${state.loaded?`Найдено: <b class="num">${arr.length}</b>`:'Загружаем…'}</span>${state.q||nf?`<button class="link small" data-a="clearf" data-v="${sec}">${t('reset')}</button>`:''}</div>
       <div class="list">${arr.length ? arr.map(listCard).join('') : !state.loaded ? skel(6) : emptyBox(t('nothing'), t('nothingP'))}</div>`,
-      after(){ const q=$('#q_sec'); q.addEventListener('keydown',e=>{ if(e.key==='Enter'){ state.q=q.value.trim(); render(); } }); }
+      after(){ const q=$('#q_sec'); const run = v => { state.q=v.trim(); render(); }; searchSuggest(q, run); q.addEventListener('keydown',e=>{ if(e.key==='Enter') run(q.value); }); }
     };
   },
 
@@ -1417,11 +1527,12 @@ const SCREENS = {
       ${sec!=='import'?`<div class="grid2"><div class="field"><label for="d_price">${sec==='jobs'?'Зарплата, TMT':'Цена, TMT'}${['cars','moto','parts','rent'].includes(sec)?' *':''}</label><input class="inp num" id="d_price" type="number" inputmode="numeric" placeholder="${sec==='jobs'?'6500':'395000'}" value="${esc(d.price||'')}"></div>
         ${units.length>1||units[0]?`<div class="field"><label for="d_unit">Единица</label><select class="inp" id="d_unit">${units.map(x=>`<option value="${esc(x)}" ${d.unit===x?'selected':''}>${x}</option>`).join('')}</select></div>`:''}</div>`
         :`<div class="small dim">Итоговая цена «под ключ» посчитается сама: авто + доставка + растаможка.</div>`}
-      <div class="col"><div class="field"><label for="d_reg">Велаят *</label><select class="inp" id="d_reg">${REGIONS.map(r=>`<option value="${esc(r.k)}" ${d.reg===r.k?'selected':''}>${esc(regLabel(r))}</option>`).join('')}</select></div>
-        <div class="field"><label for="d_place">Этрап или город</label><select class="inp" id="d_place">${placeOptions(d.reg, d.place)}</select></div></div>
+      <div class="field"><label>Город *</label><button type="button" class="inp pick" data-a="citypick" data-v="post"><span>${esc(placeText(d))}</span>${ic('chev')}</button></div>
       <div class="field"><label for="d_desc">${t('descr')}</label><textarea class="inp" id="d_desc" maxlength="2000" placeholder="Состояние, комплектация, условия">${esc(d.desc||'')}</textarea></div>
       <div class="field"><label for="d_tags">Теги для поиска</label><input class="inp" id="d_tags" maxlength="200" placeholder="тойота, камри, семейная, cars" value="${esc(d.tags||'')}"><div class="small dim">Покупатели не видят теги, но по ним найдут ваше объявление.</div></div>
-      ${myDealer() && DEALER_SECS.includes(sec) ? `<label class="check card pad"><input type="checkbox" id="d_dealer" ${d.noDealer?'':'checked'}><span><span>Объявление от салона</span> «${esc(myDealer().name)}»</span></label>` : ''}
+      ${myDealers().length && DEALER_SECS.includes(sec) ? (myDealers().length===1
+        ? `<label class="check card pad"><input type="checkbox" id="d_dealer" ${d.noDealer?'':'checked'}><span><span>Объявление от салона</span> «${esc(myDealer().name)}»</span></label>`
+        : `<div class="field"><label for="d_dealer_sel">Объявление от салона</label><select class="inp" id="d_dealer_sel"><option value="">Без салона</option>${myDealers().map(x=>`<option value="${esc(x.id)}" ${pickDealer(d)===x.id?'selected':''}>${esc(x.name)}</option>`).join('')}</select></div>`) : ''}
       <div class="field"><label>Фото (${d.photos.filter(Boolean).length} из ${maxPh})</label>${SLOT_SECS.includes(sec) ? shotSlots(d) : `<div class="photo-grid">
         ${d.photos.map((p,i)=>`<div class="ph"><img src="${p}" alt=""><button data-a="delph" data-v="${i}" aria-label="Удалить фото">×</button></div>`).join('')}
         ${d.photos.length<maxPh?`<label class="photo-add">${ic('photo')}<span>Добавить</span><input type="file" id="d_ph" accept="image/*" multiple hidden></label>`:''}</div>`}
@@ -1437,10 +1548,9 @@ const SCREENS = {
       <button class="btn wide" data-a="publish">${ic('check')}${d.edit?'Сохранить изменения':t('publish')}</button>`,
       after(){
         document.querySelectorAll('[data-f]').forEach(el=>el.addEventListener('change',()=>{ d.specs[el.dataset.f] = el.type==='checkbox' ? (el.checked?'Да':'') : el.value; }));
-        $('#d_reg').addEventListener('change', e=>{ d.reg=e.target.value; d.place=''; $('#d_place').innerHTML = placeOptions(d.reg,''); });
-        $('#d_place').addEventListener('change', e=>{ d.place=e.target.value; });
         ['title','price','unit','desc','tags'].forEach(k=>{ const el=$('#d_'+k); el && el.addEventListener('input',()=>{ d[k]=el.value; }); });
         const dch=$('#d_dealer'); dch && dch.addEventListener('change', ()=>{ d.noDealer = !dch.checked; });
+        const dsl=$('#d_dealer_sel'); dsl && dsl.addEventListener('change', ()=>{ d.dealerId = dsl.value; d.noDealer = !dsl.value; });
         const vid=$('#d_vid'); vid && vid.addEventListener('change', async ()=>{ const f=vid.files[0]; if (f && await checkVideo(f)){ d.video=f; render(); } });
         const ph=$('#d_ph'); ph && ph.addEventListener('change', async ()=>{
           // Несколько фото сразу: по порядку в свободные окошки
@@ -1701,6 +1811,21 @@ function freeSlot(u, sec){
 
 /* ================== Фото ================== */
 const PHOTO_MAX_BYTES = 1024*1024;
+// Логотип AlphaCars TM в правом нижнем углу фото объявления (при публикации; салон и аватары — без него)
+let markImg = null;
+const markLoad = () => markImg || (markImg = new Promise(res => { const m = new Image(); m.onload = () => res(m); m.onerror = () => res(null); m.src = 'logo/word-dark.webp'; }));
+async function addMark(dataUrl){
+  if (!dataUrl.startsWith('data:')) return dataUrl;
+  const [m, img] = await Promise.all([markLoad(), new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = dataUrl; })]);
+  if (!m) return dataUrl;
+  const c = document.createElement('canvas'); c.width = img.width; c.height = img.height; const g = c.getContext('2d'); g.drawImage(img, 0, 0);
+  const w = Math.round(c.width * 0.24), h = Math.round(w * m.height / m.width), pad = Math.round(c.width * 0.025);
+  g.globalAlpha = .85; g.shadowColor = 'rgba(0,0,0,.65)'; g.shadowBlur = Math.max(4, w/30);
+  g.drawImage(m, c.width - w - pad, c.height - h - pad, w, h);
+  let q = .85, url = c.toDataURL('image/jpeg', q);
+  while (url.length*0.75 > PHOTO_MAX_BYTES && q > .3){ q -= .1; url = c.toDataURL('image/jpeg', q); }
+  return url;
+}
 function compress(file){
   return new Promise((res, rej)=>{
     const r = new FileReader();
@@ -1850,6 +1975,49 @@ function closeSheet(){ $('#sheet').hidden=true; $('#sheet').innerHTML=''; }
 const MULTI_KEYS = ['usage','mtype','credit','swap','fuel','gear','body','country','status','cond','pcat','pcond','ttype','jtech','lic','rtype','stype','sched'];
 const optsOf = (sec, k) => (FIELDS[sec].find(f=>f.k===k)||{}).o || [];
 const placeOptions = (reg, cur) => `<option value="">${reg?'Все этрапы':'Сначала выберите велаят'}</option>` + ((REGIONS.find(r=>r.k===reg)||{}).places||[]).map(p=>`<option value="${esc(p)}" ${cur===p?'selected':''}>${esc(p)}</option>`).join('');
+// Справа от списка марок (на широком экране): выбранные марки
+const selBrands = a => a.length ? `<div class="tiny dim">Выбрано</div><div class="chips wrapc">${a.map(b=>`<span class="chip">${brandIcon(b,'sm')}${esc(b)}</span>`).join('')}</div>` : `<div class="small dim">Отметьте марки слева — они появятся здесь.</div>`;
+/* ===== Выбор города: одно поле вместо «Велаят» + «Этрап» (решение 2026-11-03) =====
+   Ключ места — «велаят|этрап» (этрап пустой = весь велаят). Быстрые кнопки, поиск, список по велаятам. */
+const CITY_TOP = [['Ашхабад',''],['Аркадаг',''],['Лебапский велаят','Туркменабат'],['Дашогузский велаят','Дашогуз'],
+  ['Марыйский велаят','Мары'],['Балканский велаят','Балканабат'],['Балканский велаят','Туркменбаши'],['Ахалский велаят','Теджен']];
+const locKey = (r, p) => r + '|' + (p || '');
+const locSplit = k => { const i = k.indexOf('|'); return [k.slice(0, i), k.slice(i + 1)]; };
+const locLabel = k => { const [r, p] = locSplit(k); return p || regLabel(REGIONS.find(x => x.k===r) || {short:r}); };
+const locMatch = (l, k) => { const [r, p] = locSplit(k); return l.reg===r && (!p || placeOf(l.place)===p); };
+// multi — флажки (фильтр), иначе кнопки выбора одного места (подача, салон)
+function cityPicker(sel, multi){
+  const on = k => sel.includes(k);
+  const item = (r, k, text, sub, also='') => multi
+    ? `<label class="check" data-r="${esc(r)}" data-s="${esc((text+' '+also).toLowerCase())}"><input type="checkbox" data-loc="${esc(k)}" ${on(k)?'checked':''}>${sub?`<b>${esc(text)}</b>`:esc(text)}</label>`
+    : `<button type="button" class="${on(k)?'on':''}" data-a="cityset" data-v="${esc(k)}" data-r="${esc(r)}" data-s="${esc((text+' '+also).toLowerCase())}">${sub?`<b>${esc(text)}</b>`:esc(text)}</button>`;
+  const chips = `<div class="chips wrapc">${CITY_TOP.map(([r,p])=>{ const k = locKey(r,p); return `<button type="button" class="chip ${on(k)?'on':''}" data-loc-chip="${esc(k)}">${esc(locLabel(k))}</button>`; }).join('')}</div>`;
+  const list = `<label class="search" style="min-height:42px">${ic('search')}<input class="city-q" placeholder="Поиск" aria-label="Найти город"></label>
+    <div class="${multi?'blist':'pk-list'} city-list">${REGIONS.map(r=>`<div class="bgh" data-r="${esc(r.k)}">${esc(regLabel(r))}</div>`
+      + item(r.k, locKey(r.k,''), r.k==='Ашхабад'||r.k==='Аркадаг' ? regLabel(r) : 'Весь велаят', true, regLabel(r))
+      + r.places.map(p => item(r.k, locKey(r.k,p), p)).join('')).join('')}</div>`;
+  // Фильтр: слева поиск и список, справа выбранное (на широком экране), как у марок
+  return multi ? `${chips}<div class="bpick"><div class="bpick-l col" style="gap:8px">${list}</div><div class="bpick-r city-sel">${selLocs(sel)}</div></div>` : chips + list;
+}
+const selLocs = a => a.length ? `<div class="tiny dim">Выбрано</div><div class="chips wrapc">${a.map(k=>`<span class="chip">${esc(locLabel(k))}</span>`).join('')}</div>` : `<div class="small dim">Выберите город сверху или в списке.</div>`;
+// Поиск по списку и показ только выбранных сверху велаятов (root.cityRegions(['Ашхабад', …]); пусто — все)
+function cityPickerOn(root, onChip){
+  const q = root.querySelector('.city-q'), list = root.querySelector('.city-list'); let R = new Set();
+  const refresh = () => { const v = q.value.trim().toLowerCase(); let head = null, any = false;
+    const show = el => !(R.size && !R.has(el.dataset.r)) && !(v && !el.dataset.s.includes(v));
+    for (const el of list.children){ if (el.classList.contains('bgh')){ if (head) head.hidden = !any; head = el; any = false; }
+      else { el.hidden = !show(el); any = any || !el.hidden; } }
+    if (head) head.hidden = !any; };
+  q.addEventListener('input', refresh);
+  root.cityRegions = regs => { R = new Set(regs); refresh(); };
+  root.querySelectorAll('[data-loc-chip]').forEach(b => b.addEventListener('click', () => onChip(b.dataset.locChip, b)));
+}
+// Окно выбора одного места: cb(велаят, этрап)
+function citySheet(cur, cb){
+  state.cityCb = cb;
+  openSheet(`<div class="between"><h2>Город</h2><button class="icon-btn" data-a="closesheet" aria-label="Закрыть">${ic('x')}</button></div>${cityPicker(cur ? [cur] : [], false)}`,
+    () => cityPickerOn($('#sheet'), k => A.cityset(k)));
+}
 function filterSheet(sec){
   const ff = state.ff = JSON.parse(JSON.stringify(state.filters[sec] || {}));
   const chips = (k, label, opts) => `<div class="field"><label>${label}</label><div class="chips wrapc">${opts.map(o=>`<button class="chip ${(ff[k]||[]).includes(o)?'on':''}" data-a="ffchip" data-v="${k}|${esc(o)}">${esc(o)}</button>`).join('')}</div></div>`;
@@ -1859,11 +2027,13 @@ function filterSheet(sec){
   if (groups.length){
     const selB = ff.brand || [];
     extra += `<div class="field"><label>Марка — можно несколько <b id="ffb_n" style="color:var(--accent)">${selB.length?'· '+selB.length:''}</b></label>
-      <label class="search" style="min-height:42px">${ic('search')}<input id="ffb_q" placeholder="Поиск" aria-label="Найти марку"></label>
-      <div class="blist" id="ffb">${groups.map(g=>`<div class="bgh">${g}</div>`+Object.keys(CATALOG[g]).map(b=>`<label class="check" data-b="${esc(b.toLowerCase())}"><input type="checkbox" value="${esc(b)}" ${selB.includes(b)?'checked':''}>${brandIcon(b,'sm')}${esc(b)}</label>`).join('')).join('')}</div></div>`;
+      <div class="bpick"><div class="bpick-l col" style="gap:8px"><label class="search" style="min-height:42px">${ic('search')}<input id="ffb_q" placeholder="Поиск" aria-label="Найти марку"></label>
+      <div class="blist" id="ffb">${groups.map(g=>`<div class="bgh">${g}</div>`+Object.keys(CATALOG[g]).map(b=>`<label class="check" data-b="${esc(b.toLowerCase())}"><input type="checkbox" value="${esc(b)}" ${selB.includes(b)?'checked':''}>${brandIcon(b,'sm')}${esc(b)}</label>`).join('')).join('')}</div></div><div class="bpick-r" id="ffb_sel">${selBrands(selB)}</div></div></div>`;
   }
   if (['cars','moto','import','rent'].includes(sec)) extra += `<div class="grid2">${num('ymin','Год от','2010')}${num('ymax','Год до','2025')}</div>`;
-  if (['cars','import'].includes(sec)) extra += `<div class="field"><label>Условия</label><div class="chips wrapc">${Object.entries(YES_NO).map(([k,n])=>`<button class="chip ${(ff[k]||[]).includes('yes')?'on':''}" data-a="ffchip" data-v="${k}|yes">✓ ${n}</button>`).join('')}</div></div>`;
+  // Кредит и обмен: есть / нет; у авто и мото — новый или с пробегом
+  if (['cars','moto'].includes(sec)) extra += `<div class="field"><label>Состояние</label><div class="chips wrapc">${[['new','Новый'],['used','С пробегом']].map(([v,n])=>`<button class="chip ${(ff.usage||[]).includes(v)?'on':''}" data-a="ffchip" data-v="usage|${v}">${n}</button>`).join('')}</div></div>`;
+  if (['cars','import'].includes(sec)) extra += Object.entries(YES_NO).map(([k,n])=>`<div class="field"><label>${n}</label><div class="chips wrapc">${[['yes','✓ Есть'],['no','✗ Нет']].map(([v,t2])=>`<button class="chip ${(ff[k]||[]).includes(v)?'on':''}" data-a="ffchip" data-v="${k}|${v}">${t2}</button>`).join('')}</div></div>`).join('');
   if (sec==='cars') extra += chips('body','Кузов',optsOf('cars','body')) + chips('fuel','Топливо',optsOf('cars','fuel')) + chips('gear','Коробка',optsOf('cars','gear'));
   if (sec==='import') extra += chips('country','Откуда',optsOf('import','country')) + chips('status','Статус',optsOf('import','status')) + chips('cond','Состояние',optsOf('import','cond'));
   if (sec==='parts') extra += chips('pcat','Категория',optsOf('parts','pcat')) + chips('pcond','Состояние',['Новая','Б/у']);
@@ -1873,13 +2043,20 @@ function filterSheet(sec){
   if (sec==='rent') extra += chips('rtype','Вид аренды',optsOf('rent','rtype'));
   if (sec==='sto') extra += chips('stype','Услуга',optsOf('sto','stype'));
   openSheet(`<div class="between"><h2>${t('filters')}</h2><button class="icon-btn" data-a="closesheet" aria-label="Закрыть">${ic('x')}</button></div>
-    <div class="col"><div class="field"><label for="ff_reg">Велаят</label><select class="inp" id="ff_reg" data-ff="reg"><option value="">Вся страна</option>${REGIONS.map(r=>`<option value="${esc(r.k)}" ${ff.reg===r.k?'selected':''}>${esc(regLabel(r))}</option>`).join('')}</select></div>
-      <div class="field"><label for="ff_place">Этрап или город</label><select class="inp" id="ff_place" data-ff="place">${placeOptions(ff.reg, ff.place)}</select></div></div>
+    <div class="field"><label>Город — можно несколько <b id="ffl_n" style="color:var(--accent)">${(ff.loc||[]).length?'· '+ff.loc.length:''}</b></label><div class="col" id="ffl" style="gap:8px">${cityPicker(ff.loc || (ff.reg ? [locKey(ff.reg, ff.place)] : []), true)}</div></div>
     <div class="grid2">${num('pmin','Цена от, TMT','0')}${num('pmax','Цена до, TMT','500000')}</div>${extra}
     <div class="grid2 sheet-foot"><button class="btn ghost" data-a="clearf" data-v="${sec}">${t('reset')}</button><button class="btn" data-a="applyf" data-v="${sec}">${t('apply')}</button></div>`, () => {
-    $('#ff_reg').addEventListener('change', e => { $('#ff_place').innerHTML = placeOptions(e.target.value, ''); });
+    if (!ff.loc && ff.reg) ff.loc = [locKey(ff.reg, ff.place)]; delete ff.reg; delete ff.place;
+    const fl = $('#ffl'), setLoc = (k, v) => { const a = ff.loc = ff.loc || []; const i = a.indexOf(k); v ? (i<0 && a.push(k)) : (i>=0 && a.splice(i,1));
+      fl.querySelectorAll(`[data-loc="${CSS.escape(k)}"]`).forEach(c => c.checked = v); fl.querySelectorAll(`[data-loc-chip="${CSS.escape(k)}"]`).forEach(c => c.classList.toggle('on', v));
+      $('#ffl_n').textContent = a.length ? '· '+a.length : ''; fl.querySelector('.city-sel').innerHTML = selLocs(a);
+      // Нажали «Дашогуз» сверху — в списке остаются только его этрапы и города
+      fl.cityRegions(a.filter(x => CITY_TOP.some(([r,p]) => locKey(r,p)===x)).map(x => locSplit(x)[0])); };
+    fl.addEventListener('change', e => { if (e.target.dataset.loc) setLoc(e.target.dataset.loc, e.target.checked); });
+    cityPickerOn(fl, k => setLoc(k, !(ff.loc||[]).includes(k)));
+    fl.cityRegions((ff.loc||[]).filter(x => CITY_TOP.some(([r,p]) => locKey(r,p)===x)).map(x => locSplit(x)[0]));
     const box = $('#ffb'); if (!box) return;
-    box.addEventListener('change', e => { if (e.target.type!=='checkbox') return; const a = ff.brand = ff.brand || []; const v = e.target.value; const i = a.indexOf(v); e.target.checked ? (i<0 && a.push(v)) : (i>=0 && a.splice(i,1)); $('#ffb_n').textContent = a.length ? '· '+a.length : ''; });
+    box.addEventListener('change', e => { if (e.target.type!=='checkbox') return; const a = ff.brand = ff.brand || []; const v = e.target.value; const i = a.indexOf(v); e.target.checked ? (i<0 && a.push(v)) : (i>=0 && a.splice(i,1)); $('#ffb_n').textContent = a.length ? '· '+a.length : ''; const sl=$('#ffb_sel'); if (sl) sl.innerHTML = selBrands(a); });
     $('#ffb_q').addEventListener('input', e => { const q = e.target.value.trim().toLowerCase(); box.querySelectorAll('[data-b]').forEach(el => el.hidden = !!q && !el.dataset.b.includes(q)); box.querySelectorAll('.bgh').forEach(h => h.hidden = !!q); });
   });
 }
@@ -1934,7 +2111,7 @@ async function publish(){
   if (state.publishing) return;
   const u = me(), d = state.draft, err = $('#d_err'); err.textContent='';
   const sec = d.sec, specs = {...d.specs};
-  d.title = $('#d_title').value.trim(); d.desc = $('#d_desc').value.trim(); d.tags = ($('#d_tags')?.value||'').replace(/\s+/g,' ').trim().slice(0,200); d.reg = $('#d_reg').value; d.place = $('#d_place').value;
+  d.title = $('#d_title').value.trim(); d.desc = $('#d_desc').value.trim(); d.tags = ($('#d_tags')?.value||'').replace(/\s+/g,' ').trim().slice(0,200);
   if ($('#d_price')) d.price = $('#d_price').value; if ($('#d_unit')) d.unit = $('#d_unit').value;
   if (d.title.length<5) return err.textContent='Заголовок: минимум 5 символов';
   if (d.video && !canVideo(u, d)) return err.textContent='Видео можно добавить с подпиской или в VIP-объявлении.';
@@ -1948,19 +2125,25 @@ async function publish(){
   const seek = sec==='jobs' && specs.kind==='seek';
   // Фото загружаем в общее хранилище, в объявлении остаются только ссылки
   let photos, video = '';
-  state.publishing = true; err.textContent = d.photos.some(Boolean) ? 'Загружаем фото…' : '';
+  // Загруженное фото сразу заменяем ссылкой — при повторе грузятся только оставшиеся
+  const idx = d.photos.map((p, i) => p ? i : -1).filter(i => i >= 0), need = idx.filter(i => d.photos[i].startsWith('data:'));
+  const title = d.edit ? 'Сохраняем изменения…' : 'Публикуем объявление…';
+  let done = 0, stop = false; const step = () => !stop && upBusy(title, need.length ? `Фото ${done} из ${need.length}` : '', need.length ? done/need.length : null);
+  state.publishing = true; if (need.length || d.video) step();
   try {
-    photos = await Promise.all(d.photos.filter(Boolean).map(uploadPhoto));
-    if (d.video){ err.textContent = 'Загружаем видео… Это может занять минуту.'; video = await uploadVideo(d.video); }
+    await Promise.all(need.map(async i => { d.photos[i] = await withTimeout(uploadPhoto(await addMark(d.photos[i])), 60000); done++; step(); }));
+    photos = idx.map(i => d.photos[i]);
+    if (d.video){ upBusy('Загружаем видео…', 'Это может занять минуту', null); video = await withTimeout(uploadVideo(d.video), 300000); d.videoUrl = video; d.video = null; }
   }
-  catch { return err.textContent = 'Не удалось загрузить фото или видео. Проверьте интернет и попробуйте ещё раз.'; }
+  catch (e) { stop = true; busyErr(upErr(e), 'publish'); return; }
   finally { state.publishing = false; }
-  err.textContent = '';
+  busyOff(); err.textContent = '';
+  if (!video && d.videoUrl && !d.edit) video = d.videoUrl;
   if (d.edit) return saveEdit(d, u, {specs, price, photos, video: video || d.videoUrl || ''});
   const l = {id:uid(),sec,uid:u.id,title:d.title,price,unit:d.unit||'',reg:d.reg||REGIONS[0].k,place:d.place||'',specs,desc:d.desc,tags:d.tags||'',photos,video,created:now(),views:0,likes:[],dislikes:[],
     art:{k:({moto:'moto',cars:'sedan',import:'sedan',rent:'sedan',parts:'gear',sto:'wrench',jobs:'job'})[sec] || (/(кран)/i.test(specs.ttype||'')?'crane':/реф/i.test(specs.ttype||'')?'fridge':'truck'), c:['#7c6cf0','#e67e22','#16a085','#2e86de','#c0392b'][Math.floor(Math.random()*5)]}};
   // Объявление от своего салона (галочка в форме; база проверяет, что салон свой)
-  const dl = myDealer(); if (dl && DEALER_SECS.includes(sec) && !d.noDealer) l.dealer = dl.id;
+  const did = DEALER_SECS.includes(sec) ? pickDealer(d) : ''; if (did) l.dealer = did;
   const flags = botCheck(d.title+' '+d.desc+' '+(d.tags||''), u, l);
   let msg;
   const mode = S.settings.mode;
@@ -1982,7 +2165,7 @@ function saveEdit(d, u, {specs, price, photos, video}){
   for (const k of Object.keys(d.lock||{})) specs[k] = d.lock[k];
   if (price && l.price && price!==l.price){ l.ph = l.ph?.length ? l.ph : [{p:l.price, t:l.created}]; l.ph.push({p:price, t:now()}); l.ph = l.ph.slice(-20); }
   Object.assign(l, {title:d.title, price, unit:d.unit||'', reg:d.reg||l.reg, place:d.place||'', specs, desc:d.desc, tags:d.tags||'', photos, video, edited:now()});
-  const dl = myDealer(); if (dl && DEALER_SECS.includes(l.sec)) { if (d.noDealer) delete l.dealer; else l.dealer = dl.id; }
+  if (myDealers().length && DEALER_SECS.includes(l.sec)) { const did = pickDealer(d); if (did) l.dealer = did; else delete l.dealer; }
   const flags = botCheck(d.title+' '+d.desc+' '+(d.tags||''), u, l);
   let msg = 'Изменения сохранены';
   if (flags.length && l.status!=='review'){ l.flags=flags; l.prev=l.status; l.status='review'; msg='Отправлено на проверку модератору: '+flags.join(', ').toLowerCase(); }
@@ -2024,7 +2207,12 @@ const A = {
   usage(v){ const [sec,k]=v.split(':'); const f=state.filters[sec]={...(state.filters[sec]||{})}; if (k) f.usage=[k]; else delete f.usage; render(); },
   filters(v){ filterSheet(v); }, closesheet(){ closeSheet(); },
   applyf(v){ const f = {}; for (const [k,x] of Object.entries(state.ff||{})) if (Array.isArray(x) && x.length) f[k]=x;
-    document.querySelectorAll('[data-ff]').forEach(el=>{ if(el.value) f[el.dataset.ff]= el.type==='number'?Number(el.value):el.value; }); state.filters[v]=f; closeSheet(); render(); },
+    document.querySelectorAll('[data-ff]').forEach(el=>{ if(el.value) f[el.dataset.ff]= el.type==='number'?Number(el.value):el.value; });
+    if (f.loc){ const regs = [...new Set(f.loc.map(k=>locSplit(k)[0]))]; if (regs.length===1) f.reg = regs[0]; }
+    state.filters[v]=f; closeSheet(); render(); },
+  citypick(v){ const d = v==='dealer' ? state.dEdit : state.draft; if (!d) return;
+    citySheet(d.reg ? locKey(d.reg, d.place) : '', (r, p) => { d.reg = r; d.place = p; }); },
+  cityset(k){ const [r, p] = locSplit(k); state.cityCb && state.cityCb(r, p); state.cityCb = null; closeSheet(); render(); },
   clearf(v){ state.filters[v]={}; state.q=''; closeSheet(); render(); },
   auth(v){ const cur=stack[stack.length-1]; if (cur.name==='auth') go('auth',v,true); else go('auth',v); },
   authby(v){ state.authBy=v; go('auth','login',true); }, actype(v){ state.acType=v; go('auth','register',true); },
@@ -2049,6 +2237,7 @@ const A = {
     S.comments.push({id:uid(),lid:v,uid:u.id,text,time:now()});   // уведомление автору объявления отправляет база
     persist(); render(); },
   delcm(v){ S.comments=S.comments.filter(c=>c.id!==v); persist(); render(); },
+  postsec(v){ A.tab('post'); A.draft(v); },
   draft(v){ state.draft = v ? {sec:v,specs:v==='jobs'?{kind:'hire'}:{},photos:[],reg:REGIONS[0].k,place:'',unit:(UNITS[v]||[''])[0]} : null; render(); },
   dseg(v){ const [k,x]=v.split(':'); state.draft.specs[k]=x; render(); },
   dmulti(v){ const [k,x]=v.split(':'); const cur=(state.draft.specs[k]||'').split(', ').filter(Boolean); const i=cur.indexOf(x); i<0?cur.push(x):cur.splice(i,1); state.draft.specs[k]=cur.join(', '); render(); },
@@ -2056,7 +2245,7 @@ const A = {
   ledit(id){ const u = me(), l = S.listings.find(x=>x.id===id); if (!u || !l || l.uid!==u.id) return;
     const lock = {}; for (const f of FIELDS[l.sec]) if ((f.type==='brand' || f.type==='model') && l.specs?.[f.k]) lock[f.k] = l.specs[f.k];
     state.draft = {edit:l.id, lock, sec:l.sec, specs:JSON.parse(JSON.stringify(l.specs||{})), photos:[...(l.photos||[])], videoUrl:l.video||'', video:null,
-      title:l.title, desc:l.desc||'', tags:l.tags||'', reg:l.reg, place:l.place||'', price:l.sec==='import'?'':(l.price||''), unit:l.unit||'', noDealer:!l.dealer};
+      title:l.title, desc:l.desc||'', tags:l.tags||'', reg:l.reg, place:l.place||'', price:l.sec==='import'?'':(l.price||''), unit:l.unit||'', noDealer:!l.dealer, dealerId:l.dealer||''};
     go('post'); scrollTo(0,0); },
   profedit(){ profileSheet(); },
   async profsave(){ const u = me(); if (!u) return; const err = $('#pe_err');
@@ -2067,6 +2256,7 @@ const A = {
     if (tel===null) return err.textContent='Номер: 8 цифр (например 61234567) или с кодом страны, например +99361234567';
     u.name = name; if (tel && tel!==u.phone) u.tel = tel; else delete u.tel;
     persist(); closeSheet(); toast('Профиль сохранён'); render(); },
+  busyclose(){ busyOff(); },
   delvid(){ state.draft.video=null; state.draft.videoUrl=''; render(); },  publish(){ publish(); },
   psec(v){ state.plan.sec=v; state.plan.tier=0; render(); }, pper(v){ state.plan.m=Number(v); render(); }, ptier(v){ state.plan.tier=Number(v); render(); },
   buy(){ const u=me(); if(!u){ go('auth','login'); return; } const p=state.plan, pi=PERIODS.findIndex(x=>x.m===p.m), P=planOf(p.sec,p.acct);
