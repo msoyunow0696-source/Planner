@@ -75,6 +75,9 @@ const TR_RE_TK = [
 ];
 
 const TR_TK = {
+  'Подбираю объявления и отвечаю на частые вопросы. Можно писать по-туркменски и по-русски.':'İlanları bulur, sık sorulan soruları yanıtlarım. Türkmence veya Rusça yazabilirsiniz.',
+  'Не понял. Я подбираю машины и отвечаю на частые вопросы о приложении. Напишите иначе — например: «Седан до 15 000, автомат» или «Как подать объявление?».':'Anlamadım. Araç bulur ve uygulama hakkındaki sık soruları yanıtlarım. Başka şekilde yazın — örneğin: «15 000 TMT\'ye kadar sedan, otomatik» veya «İlan nasıl verilir?».',
+  'Помощник отвечает сам. Напишите, какую машину ищете, — например: «Toyota Camry до 20 000, автомат», или задайте вопрос о приложении.':'Asistan kendisi yanıtlar. Hangi aracı aradığınızı yazın — örneğin: «20 000 TMT\'ye kadar Toyota Camry, otomatik» — ya da uygulama hakkında soru sorun.',
   'Нет фото':'Fotoğraf yok', 'Вы искали':'Son aramalar', 'Очистить историю':'Geçmişi temizle',
   'Нет интернета — показываем сохранённое':'İnternet yok — kayıtlı veriler gösteriliyor', 'Интернет снова есть':'İnternet geri geldi',
   '— можно не писать, соберётся сам':'— yazmasanız da olur, kendisi oluşur',
@@ -979,7 +982,7 @@ const TR_TK = {
   'Отправлено. Мы ответим в уведомлениях':'Gönderildi. Bildirimlerden yanıt vereceğiz',
   'Ответ поддержки:':'Destek yanıtı:',
   'Как подать объявление?':'Nasıl ilan veririm?',
-  'Нажмите жёлтую кнопку «+» внизу, выберите раздел, заполните поля и добавьте до 10 фото. Нажмите «Опубликовать».':'Sarı «+» düğmesine dokunun, bölüm seçin, alanları doldurun ve 10\'a kadar fotoğraf ekleyin. «Yayınla»ya dokunun.',
+  'Нажмите красную кнопку «+» внизу, выберите раздел, заполните поля и добавьте до 10 фото. Нажмите «Опубликовать».':'Kırmızı «+» düğmesine dokunun, bölüm seçin, alanları doldurun ve 10\'a kadar fotoğraf ekleyin. «Yayınla»ya dokunun.',
   'Сколько стоит размещение?':'İlan vermek ne kadar?',
   'Сейчас период запуска: все объявления бесплатные на 30 дней, продление тоже бесплатное.':'Açılış dönemi: tüm ilanlar 30 gün ücretsiz, yenilemeler de.',
   'Почему объявление «На проверке»?':'İlanım neden «İncelemede»?',
@@ -1228,7 +1231,7 @@ const TR_TK = {
   'Как прошла сделка? Машина соответствовала описанию?':'Alışveriş nasıl geçti? Araç açıklamaya uyuyor muydu?',
   'Поставьте оценку от 1 до 5 звёзд':'1 ile 5 yıldız arası puan verin',
   'Это ваша страница: себе отзыв поставить нельзя — его оставляют покупатели после переписки с вами.':'Bu sizin sayfanız: kendinizi değerlendiremezsiniz — sizinle yazışan alıcılar değerlendirir.',
-  'Отзыв можно оставить после переписки с продавцом.':'Satıcıyla yazıştıktan sonra değerlendirme bırakabilirsiniz.',
+  'Чтобы оставить отзыв, сначала напишите продавцу в чат — после этого здесь появится кнопка «Оставить отзыв».':'Değerlendirme bırakmak için önce satıcıya sohbetten yazın — sonra burada «Değerlendirme bırak» düğmesi çıkar.',
   'Объявления продавца':'Satıcının ilanları',
   'мес. в AlphaCars TM':'ay AlphaCars TM\'de',
   'Все объявления продавца и отзывы':'Satıcının tüm ilanları ve değerlendirmeleri',

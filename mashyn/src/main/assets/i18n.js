@@ -574,7 +574,7 @@ Object.assign(TR, {
   'Поддержка:':['Goldaw:','Support:'], 'Есть ответ':['Jogap bar','Answered'], 'Закрыто':['Ýapyldy','Closed'], 'Ждёт ответа':['Jogap garaşýar','Waiting for reply'],
   'Отправлено. Мы ответим в уведомлениях':['Iberildi. Jogaby habarnamalarda bereris','Sent. We will reply in notifications'], 'Ответ поддержки:':['Goldaw gullugynyň jogaby:','Support reply:'],
   'Как подать объявление?':['Bildirişi nädip goşmaly?','How do I post a listing?'],
-  'Нажмите жёлтую кнопку «+» внизу, выберите раздел, заполните поля и добавьте до 10 фото. Нажмите «Опубликовать».':['Aşakdaky sary «+» düwmä basyň, bölümi saýlaň, meýdanlary dolduryň we 10 surata çenli goşuň. «Çap et» basyň.','Tap the yellow «+» button, choose a section, fill in the fields and add up to 10 photos. Tap «Publish».'],
+  'Нажмите красную кнопку «+» внизу, выберите раздел, заполните поля и добавьте до 10 фото. Нажмите «Опубликовать».':['Aşakdaky gyzyl «+» düwmä basyň, bölümi saýlaň, meýdanlary dolduryň we 10 surata çenli goşuň. «Çap et» basyň.','Tap the red «+» button, choose a section, fill in the fields and add up to 10 photos. Tap «Publish».'],
   'Сколько стоит размещение?':['Ýerleşdirmek näçe durýar?','How much does posting cost?'],
   'Сейчас период запуска: все объявления бесплатные на 30 дней, продление тоже бесплатное.':['Häzir işe giriziş döwri: ähli bildirişler 30 gün mugt, uzaltmak hem mugt.','Launch period: all listings are free for 30 days, renewals too.'],
   'Почему объявление «На проверке»?':['Näme üçin bildiriş «Barlagda»?','Why is my listing «Under review»?'],

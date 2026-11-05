@@ -196,7 +196,7 @@ Object.assign(FEATURE_SCREENS, {
             <textarea class="inp" id="rv_text" style="min-height:70px" maxlength="500" placeholder="Как прошла сделка? Машина соответствовала описанию?"></textarea>
             <div class="err" id="rv_err"></div><button class="btn" data-a="rvsend" data-v="${sid}">${ic('star')}Отправить отзыв</button></div>`
           : u && u.id===sid ? '<span class="tiny dim">Это ваша страница: себе отзыв поставить нельзя — его оставляют покупатели после переписки с вами.</span>'
-          : u && !S.reviews.some(v=>v.uid===u.id && v.to===sid) ? '<span class="tiny dim">Отзыв можно оставить после переписки с продавцом.</span>' : ''}</div>
+          : u && !S.reviews.some(v=>v.uid===u.id && v.to===sid) ? '<span class="tiny dim">Чтобы оставить отзыв, сначала напишите продавцу в чат — после этого здесь появится кнопка «Оставить отзыв».</span>' : ''}</div>
       ${act.length?`<div class="col"><h3>Объявления продавца</h3><div class="list">${rank(act).map(listCard).join('')}</div></div>`:''}`};
   }
 });
@@ -332,7 +332,7 @@ Object.assign(TR, {
   'Как прошла сделка? Машина соответствовала описанию?':['Söwda nähili geçdi? Maşyn beýany bilen gabat geldimi?','How did the deal go? Did the car match the description?'],
   'Поставьте оценку от 1 до 5 звёзд':['1-den 5-e çenli baha goýuň','Rate from 1 to 5 stars'],
   'Это ваша страница: себе отзыв поставить нельзя — его оставляют покупатели после переписки с вами.':['Bu siziň sahypaňyz: özüňize teswir goýup bolmaýar — ony siziň bilen hat alyşan alyjylar galdyrýar.','This is your page: you can’t review yourself — buyers review you after chatting with you.'],
-  'Отзыв можно оставить после переписки с продавцом.':['Teswiri satyjy bilen hat alyşandan soň galdyryp bolýar.','You can leave a review after chatting with the seller.'],
+  'Чтобы оставить отзыв, сначала напишите продавцу в чат — после этого здесь появится кнопка «Оставить отзыв».':['Teswir galdyrmak üçin ilki satyja çatda ýazyň — şondan soň bu ýerde «Teswir galdyr» düwmesi peýda bolar.','To leave a review, first message the seller in chat — then the «Leave a review» button appears here.'],
   'Объявления продавца':['Satyjynyň bildirişleri','Seller’s listings'], 'мес. в AlphaCars TM':['aý AlphaCars TM-de','months on AlphaCars TM'],
   'Все объявления продавца и отзывы':['Satyjynyň ähli bildirişleri we teswirleri','All seller listings and reviews'],
   'Вы смотрели':['Siz serediňiz','Recently viewed'], 'Похожие объявления':['Meňzeş bildirişler','Similar listings'],

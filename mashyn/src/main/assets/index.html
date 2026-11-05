@@ -1287,7 +1287,7 @@ const metaText = l => {
 };
 
 /* ================== Навигация ================== */
-let stack = [{name:'home'}];
+let stack = [{name:'home'}]; const TAB_STACKS = {};
 const state = {filters:{}, sort:'new', q:'', jobKind:'all', draft:null, plan:{sec:'cars',m:1,tier:0,acct:null}};
 function go(name, arg, replace){ if (replace) stack[stack.length-1]={name,arg}; else stack.push({name,arg}); render(); window.scrollTo(0,0); }
 function root(name){ stack=[{name}]; render(); window.scrollTo(0,0); }
@@ -2383,7 +2383,10 @@ function activatePayment(p){
 const A = {
   ...FEATURE_ACTIONS,
   exitapp(){ closeSheet(); if (NB && NB.exitApp) NB.exitApp(); else if (window.pwaExit) pwaExit(); },
-  back, tab(v){ const [n,a]=v.split(':'); if (n==='plans'){ stack=[{name:'profile'}]; go('plans',a); return; } if (n==='admin'){ go('admin'); return; } if (n==='post') state.draft=null; root(n); },
+  back, tab(v){ const [n,a]=v.split(':'); if (n==='plans'){ stack=[{name:'profile'}]; go('plans',a); return; } if (n==='admin'){ go('admin'); return; } if (n==='post') state.draft=null;
+    // Каждая нижняя вкладка помнит свои экраны; повторное нажатие на ту же вкладку — в её начало
+    const cur = stack[0].name; if (cur===n || n==='post'){ root(n); return; }
+    TAB_STACKS[cur] = stack; const sv = TAB_STACKS[n]; if (sv){ stack = sv; render(); window.scrollTo(0,0); } else root(n); },
   sec(v){ state.q=''; go('section', v); }, open(v){ go('detail', v); },
   fav(v){ const u=me(); if(!u){ go('auth','login'); return; } const a=S.favs[u.id]=S.favs[u.id]||[]; const i=a.indexOf(v); i<0?a.push(v):a.splice(i,1); if (i<0){ const fp=lsGet('mb_favprice',{}); fp[v]=S.listings.find(x=>x.id===v)?.price||0; lsSet('mb_favprice',fp); } persist(); toast(i<0?'Добавлено в избранное':'Убрано из избранного'); render(); },
   sort(v){ state.sort=v; render(); }, jobkind(v){ state.jobKind=v; render(); },
@@ -2542,4 +2545,43 @@ addEventListener('online', () => { netBadge(); toast('Интернет снов�
   // Свежие данные при возвращении в приложение и раз в минуту — refresh.js
 })();
 </script>
+<script>
+/* ===== Ленты на компьютере: стрелки ‹ › у «Вы смотрели»/«Похожие», перетаскивание мышкой, тонкая полоса прокрутки ===== */
+(() => {
+  const SEL = '.vip-row,.vs-track,.chips', fine = matchMedia('(hover:hover) and (pointer:fine)');
+  const step = el => Math.max(200, el.clientWidth * .8);
+  const arrows = el => { const w = el.parentElement; if (!w) return;
+    let l = w.querySelector(':scope>.hs-btn.l'), r = w.querySelector(':scope>.hs-btn.r');
+    if (!l){ w.classList.add('hs-wrap');
+      l = Object.assign(document.createElement('button'), {className:'hs-btn l', type:'button', textContent:'‹'}); l.setAttribute('aria-label','Назад');
+      r = Object.assign(document.createElement('button'), {className:'hs-btn r', type:'button', textContent:'›'}); r.setAttribute('aria-label','Вперёд');
+      l.onclick = () => el.scrollBy({left:-step(el), behavior:'smooth'}); r.onclick = () => el.scrollBy({left:step(el), behavior:'smooth'});
+      w.append(l, r); }
+    const top = el.offsetTop + el.clientHeight / 2; l.style.top = r.style.top = top + 'px';
+    l.hidden = el.scrollLeft < 4; r.hidden = el.scrollLeft + el.clientWidth >= el.scrollWidth - 4; };
+  const wire = el => { if (el._hs) return; el._hs = 1;
+    // Перетаскивание мышкой (клик без сдвига открывает объявление как обычно)
+    let x0 = 0, sl = 0, down = false, moved = false;
+    el.addEventListener('mousedown', e => { if (!fine.matches || e.button) return; down = true; moved = false; x0 = e.pageX; sl = el.scrollLeft; });
+    addEventListener('mousemove', e => { if (!down) return; const d = e.pageX - x0; if (Math.abs(d) > 5){ moved = true; el.style.scrollSnapType = 'none'; el.scrollLeft = sl - d; } });
+    addEventListener('mouseup', () => { if (!down) return; down = false; el.style.scrollSnapType = ''; });
+    el.addEventListener('click', e => { if (moved){ e.stopPropagation(); e.preventDefault(); moved = false; } }, true);
+    el.addEventListener('dragstart', e => e.preventDefault());
+    if (el.matches('.vip-row')) el.addEventListener('scroll', () => arrows(el), {passive:true}); };
+  const scan = () => document.querySelectorAll(SEL).forEach(el => { wire(el); if (el.matches('.vip-row') && fine.matches) arrows(el); });
+  new MutationObserver(() => requestAnimationFrame(scan)).observe(document.body, {childList:true, subtree:true});
+  addEventListener('resize', scan); scan();
+})();
+</script>
+<style>
+.hs-wrap{position:relative}
+.hs-btn{display:none}
+@media (hover:hover) and (pointer:fine){
+  .hs-btn{display:grid;place-items:center;position:absolute;z-index:3;width:36px;height:36px;margin-top:-18px;border-radius:50%;background:var(--card);color:var(--text);border:1px solid var(--line);box-shadow:0 4px 14px rgba(0,0,0,.25);font-size:22px;line-height:1;cursor:pointer}
+  .hs-btn.l{left:-6px}.hs-btn.r{right:-6px}.hs-btn[hidden]{display:none}
+  .vip-row,.vs-track,.chips{cursor:grab}
+  .vip-row{scrollbar-width:thin;scrollbar-color:var(--line) transparent;padding-bottom:8px}
+  .vip-row::-webkit-scrollbar{display:block;height:4px}.vip-row::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px}
+}
+</style>
 </body></html>
