@@ -8,8 +8,9 @@
 const T_EN = {
   home:'Home', catalog:'Catalog', post:'Post', favs:'Favorites', profile:'Profile',
   searchPh:'Search',
+  menu:'Menu', my_account:'My account', welcome:'Welcome!', messages:'Messages', search_alerts:'Search alerts', estimate_menu:'How much is my car worth?', dealers_menu:'Car dealers', support:'Support', settings:'Settings', close:'Close',
   s_cars:'Cars', s_moto:'Motorcycles', s_import:'Imported', s_parts:'Parts', s_tech:'Machinery & services',
-  s_jobs:'Driver jobs', s_rent:'Rental', s_sto:'Service & repair', s_all:'All listings',
+  s_jobs:'Driver jobs', s_rent:'Rental', s_sto:'Services', s_all:'All listings',
   heroT:'Cars, machinery and jobs — in one place', heroP:'First listing — free for 7 days',
   heroFree:'All listings are free right now', heroBtn:'Post a listing',
   vip:'VIP listings', fresh:'New listings', all:'All',
@@ -57,7 +58,20 @@ const TR = {
   'Нравится':['Halaýaryn','Like'], 'Не нравится':['Halamok','Dislike'], 'Иллюстрация':['Surat','Illustration'],
   'Найдено:':['Tapyldy:','Found:'], 'Не выбрано':['Saýlanmady','Not selected'], 'Неверный':['Nädogry','Wrong'],
   'номер':['belgi','phone'], 'адрес':['salgy','email'], 'Компания':['Kompaniýa','Company'], 'Частное лицо':['Hususy şahs','Private person'],
-  'Системная':['Ulgamdaky','System'], 'Белая':['Ak','White'], 'Смотреть':['Gör','View'], 'Новые и б/у запчасти, шины, диски и масла — для легковых, грузовых и спецтехники':['Täze we ulanylan şaýlar, tekerler, diskler we ýaglar — ýeňil, ýük we ýörite tehnika üçin','New and used parts, tires, wheels and oils — for cars, trucks and machinery'],
+  'Системная':['Ulgamdaky','System'], 'Белая':['Ak','White'], 'Нет интернета — показываем сохранённое':['Internet ýok — saklananlary görkezýäris','No internet — showing saved data'], 'Интернет снова есть':['Internet ýene bar','Back online'], '— можно не писать, соберётся сам':['— ýazmasaňyz hem bolýar, özi düzüler','— optional, it fills in by itself'],
+ 'Ещё детали':['Goşmaça maglumatlar','More details'],
+ 'У вас есть незаконченное объявление':['Siziň tamamlanmadyk bildirişiňiz bar','You have an unfinished listing'],
+ 'Продолжить':['Dowam et','Continue'],
+ 'Напишите заголовок: минимум 5 символов':['Sözbaşy ýazyň: iň az 5 harp','Write a title: at least 5 characters'],
+ 'Выберите марку и модель — заголовок соберётся сам (или напишите его)':['Markany we modeli saýlaň — sözbaşy özi düzüler (ýa-da ýazyň)','Pick the make and model — the title fills in by itself (or write it)'],
+ 'Нет такой машины? Нажмите 🔔 «Сообщить о новых» выше — пришлём уведомление, когда появится.':['Şeýle maşyn ýokmy? Ýokardaky 🔔 «Täzeleri habar ber» basyň — peýda bolanda habar ibereris.','No such car? Tap 🔔 “Notify me” above — we will notify you when it appears.'],
+ 'Сбросить поиск и фильтры':['Gözlegi we süzgüçleri arassala','Reset search and filters'],
+ 'Объявлений пока нет':['Entek bildiriş ýok','No listings yet'],
+ 'В этом разделе пока нет объявлений':['Bu bölümde entek bildiriş ýok','No listings in this section yet'],
+ 'Станьте первым — подайте объявление':['Birinji boluň — bildiriş goýuň','Be the first — post a listing'],
+ '🔔 Сообщить о новых по этому поиску':['🔔 Bu gözleg boýunça täzeleri habar ber','🔔 Notify me about new matches'],
+ 'До 10 фото. Приложение само уменьшит их, чтобы быстро грузилось даже при медленном интернете.':['10 surata çenli. Programma olary özi kiçeldýär, haýal internetde-de çalt ýüklenýär.','Up to 10 photos. The app shrinks them so they load fast even on slow internet.'],
+ 'Смотреть':['Gör','View'], 'Новые и б/у запчасти, шины, диски и масла — для легковых, грузовых и спецтехники':['Täze we ulanylan şaýlar, tekerler, diskler we ýaglar — ýeňil, ýük we ýörite tehnika üçin','New and used parts, tires, wheels and oils — for cars, trucks and machinery'],
  'Посуточно, надолго, на свадьбу или с водителем':['Gündelik, uzak möhletli, toý üçin ýa-da sürüji bilen','Daily, long-term, for weddings or with a driver'],
  'Ремонт, диагностика, шиномонтаж, кузов и мойка — рядом с вами':['Abatlaýyş, diagnostika, teker hyzmaty, kuzow we ýuwmak — size ýakyn','Repair, diagnostics, tires, bodywork and car wash — near you'],
  'Ищу водителя и ищу работу — фуры, такси, автобусы, спецтехника':['Sürüji gözleýärin we iş gözleýärin — ýük maşynlary, taksi, awtobuslar, ýörite tehnika','Hiring drivers and looking for work — trucks, taxis, buses, machinery'],
@@ -91,8 +105,8 @@ const TR = {
 
   // ====== Разделы и поля объявлений ======
   'Из-за рубежа':['Daşary ýurtdan','Imported'], 'Запчасти':['Şaýlar','Parts'], 'Техника и услуги':['Tehnika we hyzmatlar','Machinery & services'],
-  'Работа водителям':['Sürüjiler üçin iş','Driver jobs'], 'Аренда':['Kärende','Rental'], 'СТО и сервис':['Awtoserwis','Service & repair'],
-  'СТО':['Awtoserwis','Service'], 'Техника':['Tehnika','Machinery'], 'Спецтехника':['Ýörite tehnika','Heavy machinery'],
+  'Работа водителям':['Sürüjiler üçin iş','Driver jobs'], 'Аренда':['Kärende','Rental'], 'Сервисы':['Awtohyzmat','Services'],
+  'Техника':['Tehnika','Machinery'], 'Спецтехника':['Ýörite tehnika','Heavy machinery'],
   'Пробег':['Geçen ýoly','Mileage'], 'Пробег, км':['Geçen ýoly, km','Mileage, km'], 'Год выпуска':['Öndürilen ýyly','Year'],
   'Кузов':['Kuzow','Body'], 'Топливо':['Ýangyç','Fuel'], 'Коробка':['Geçiriji','Gearbox'], 'Двигатель':['Hereketlendiriji','Engine'],
   'Двигатель, л':['Hereketlendiriji, l','Engine, L'], 'Марка авто':['Awtoulagyň markasy','Car make'], 'Марка техники':['Tehnikanyň markasy','Machinery make'],
@@ -375,6 +389,50 @@ const LANG_IDX = () => LANG==='tm' ? 0 : 1;   // турецкий: сначал�
 const trOf = k => LANG==='tr' && typeof TR_TK!=='undefined' && TR_TK[k] || TR[k][LANG_IDX()];
 const CYR = /[А-Яа-яЁё]/;
 // Короткие слова (одно слово) заменяем только целиком, длинные фразы — и внутри текста
+// Схема кузова, привод, мощность, ДТП, гарантия, комплектация (2026-11-05)
+Object.assign(TR, {
+  "Комплектация":["Toplum","Trim"],
+  "Мощность, л. с.":["Kuwwaty, a. g.","Power, hp"],
+  "Мощность":["Kuwwaty","Power"],
+  "Привод":["Hereket geçiriji","Drive"],
+  "Передний":["Öň","Front-wheel"],
+  "Задний":["Yzky","Rear-wheel"],
+  "Полный":["Doly","All-wheel"],
+  "Было серьёзное ДТП":["Agyr heläkçilik bolupdy","Serious accident"],
+  "Серьёзное ДТП":["Agyr heläkçilik","Serious accident"],
+  "Было":["Bolupdy","Yes"],
+  "Гарантия":["Kepillik","Warranty"],
+  "Окрас и замена деталей":["Reňklenen we çalşylan bölekler","Paint and replaced parts"],
+  "Родная":["Asyl","Original"],
+  "Подкрашена":["Ýerli reňklenen","Touched up"],
+  "Крашена":["Reňklenen","Painted"],
+  "Заменена":["Çalşylan","Replaced"],
+  "Передний бампер":["Öň bamper","Front bumper"],
+  "Капот":["Kapot","Hood"],
+  "Переднее левое крыло":["Öň çep ganat","Front left fender"],
+  "Переднее правое крыло":["Öň sag ganat","Front right fender"],
+  "Передняя левая дверь":["Öň çep gapy","Front left door"],
+  "Передняя правая дверь":["Öň sag gapy","Front right door"],
+  "Крыша":["Üçek","Roof"],
+  "Задняя левая дверь":["Yzky çep gapy","Rear left door"],
+  "Задняя правая дверь":["Yzky sag gapy","Rear right door"],
+  "Заднее левое крыло":["Yzky çep ganat","Rear left fender"],
+  "Заднее правое крыло":["Yzky sag ganat","Rear right fender"],
+  "Багажник":["Bagažnik","Trunk"],
+  "Задний бампер":["Yzky bamper","Rear bumper"],
+  "Указать на схеме":["Shemada görkezmek","Mark on the diagram"],
+  "Не указывать":["Görkezmezlik","Skip"],
+  "Нажимайте на деталь: родная → подкрашена → крашена → заменена":["Bölege basyň: asyl → ýerli reňklenen → reňklenen → çalşylan","Tap a part: original → touched up → painted → replaced"],
+  "— по желанию, покупатели это очень смотрят":["— islege görä, alyjylar muňa köp seredýär","— optional, buyers check this a lot"],
+  "✓ Все детали родные, без окраса":["✓ Ähli bölekler asyl, reňklenmedik","✓ All parts original, no paint"],
+  "✓ Без окраса":["✓ Reňklenmedik","✓ No paint"],
+  "✓ Без ДТП":["✓ Heläkçiliksiz","✓ No accidents"],
+  "Было ДТП":["Heläkçilik bolupdy","Had an accident"],
+  "Состояние кузова":["Kuzowyň ýagdaýy","Body condition"],
+  "Схема кузова":["Kuzow shemasy","Body diagram"],
+  "Без ДТП":["Heläkçiliksiz","No accidents"],
+  "Без окраса":["Reňklenmedik","No paint"]
+});
 const TR_SUB = Object.keys(TR).filter(k => k.length >= 6 && /[ «»:,.→₽]/.test(k)).sort((a,b) => b.length - a.length);
 
 function trString(s){
@@ -383,10 +441,12 @@ function trString(s){
   if (TR[k]) return s.replace(k, trOf(k));
   if (LANG==='tr' && typeof TR_RE_TK!=='undefined') for (const [re, fn] of TR_RE_TK){ const m = k.match(re); if (m) return s.replace(m[0], fn(...m)); }
   for (const [re, fn] of TR_RE){ const m = k.match(re); if (m) return s.replace(m[0], fn(...m)[i]); }
-  // Строка из частей через « · » или «, » (например «2015 · Ашхабад») — переводим каждую часть
-  if (/ · |, /.test(k)){
-    const parts = k.split(/( · |, )/);
-    const done = parts.map(p => (p===' · ' || p===', ') ? p : trString(p));
+  // Обязательное поле «Название *» — переводим название, звёздочку оставляем
+  const star = k.match(/^(.+?) \*$/); if (star){ const v = trString(star[1]); if (v !== star[1]) return s.replace(k, v+' *'); }
+  // Строка из частей через « · », «, », «: » или « — » (например «2015 · Ашхабад», «Капот: Крашена») — переводим каждую часть
+  if (/ · |, |: | — /.test(k)){
+    const parts = k.split(/( · |, |: | — )/);
+    const done = parts.map(p => [' · ',', ',': ',' — '].includes(p) ? p : trString(p));
     if (done.join('') !== k) return s.replace(k, done.join(''));
   }
   let out = s;
@@ -528,7 +588,7 @@ Object.assign(TR, {
   'Откройте раздел, настройте фильтры и нажмите «Сообщить о новых по этому поиску». Уведомление придёт, даже если приложение закрыто.':['Bölümi açyň, süzgüçleri sazlaň we «Bu gözleg boýunça täzeler barada habar ber» basyň. Programma ýapyk bolsa-da habar geler.','Open a section, set filters and tap «Notify me about new matches». You get a notification even when the app is closed.'],
   'Как удалить аккаунт?':['Hasaby nädip pozmaly?','How do I delete my account?'], 'Профиль → внизу кнопка «Удалить аккаунт». Все ваши объявления тоже удалятся.':['Profil → aşakda «Hasaby poz» düwmesi. Ähli bildirişleriňiz hem pozular.','Profile → «Delete account» at the bottom. All your listings will be deleted too.'],
   'О приложении':['Programma barada','About'],
-  'AlphaCars TM — автомаркет Туркменистана. Только машины и всё, что с ними связано: продажа, пригон из-за рубежа, запчасти, спецтехника, аренда, СТО и работа для водителей.':['AlphaCars TM — Türkmenistanyň awtobazary. Diňe maşynlar we olar bilen baglanyşykly zatlar: satuw, daşary ýurtdan getirmek, şaýlar, ýörite tehnika, kärende, awtoserwis we sürüjiler üçin iş.','AlphaCars TM is the car marketplace of Turkmenistan. Only cars and everything around them: sales, imports, parts, heavy machinery, rental, service and driver jobs.'],
+  'AlphaCars TM — автомаркет Туркменистана. Только машины и всё, что с ними связано: продажа, пригон из-за рубежа, запчасти, спецтехника, аренда, сервисы и работа для водителей.':['AlphaCars TM — Türkmenistanyň awtobazary. Diňe maşynlar we olar bilen baglanyşykly zatlar: satuw, daşary ýurtdan getirmek, şaýlar, ýörite tehnika, kärende, awtoserwis we sürüjiler üçin iş.','AlphaCars TM is the car marketplace of Turkmenistan. Only cars and everything around them: sales, imports, parts, heavy machinery, rental, service and driver jobs.'],
   'Что умеет приложение':['Programma näme edip bilýär','What the app can do'],
   'Объявления о машинах с фото, VIN и ✓ кредитом / обменом':['Surat, VIN we ✓ kredit / çalyşmak bilen maşyn bildirişleri','Car listings with photos, VIN and ✓ credit / trade-in'],
   'Оценка цены: дешевле или дороже рынка':['Baha bahalandyrmasy: bazardan arzanmy ýa gymmatmy','Price check: below or above market'],
@@ -671,3 +731,13 @@ TR_RE.push([/^Проверьте номер\. Пример: (\+\d+ [\d ]+)$/, (m
 TR_RE.push([/^Для связи: (.+)$/, (m,p) => ['Habarlaşmak üçin: '+p, 'Contact: '+p]], [/^Входить по-прежнему по номеру (.+)\.$/, (m,p) => ['Öňküsi ýaly '+p+' belgi bilen giriň.', 'You still sign in with '+p+'.']]);
 TR_RE.push([/^(.+) — весь велаят$/, (m,r) => [r+' — ähli welaýat', r+' — whole province']]);
 TR_RE.push([/^Фото (\d+) из (\d+)$/, (m,a,b) => ['Surat '+a+' / '+b, 'Photo '+a+' of '+b]]);
+// Время «сегодня в 14:30», «вчера в 09:10», «3 ноября»
+const MON_RU = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'], MON_TM = ['ýanwar','fewral','mart','aprel','maý','iýun','iýul','awgust','sentýabr','oktýabr','noýabr','dekabr'], MON_EN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+TR_RE.push([/^сегодня в (\d\d:\d\d)$/, (m,h) => ['şu gün '+h, 'today at '+h]], [/^вчера в (\d\d:\d\d)$/, (m,h) => ['düýn '+h, 'yesterday at '+h]],
+  [/^(\d+) (января|февраля|марта|апреля|мая|июня|июля|августа|сентября|октября|ноября|декабря)( \d{4})?$/, (m,d,mo,y) => { const i = MON_RU.indexOf(mo); return [d+' '+MON_TM[i]+(y||''), MON_EN[i]+' '+d+(y?','+y:'')]; }]);
+Object.assign(TR, {'Нет фото':['Surat ýok','No photo'], 'Вы искали':['Siz gözlediňiz','Recent searches'], 'Очистить историю':['Taryhy arassala','Clear history'], 'Поделиться':['Paýlaş','Share']});
+TR_RE.push([/^Ваше объявление здесь — VIP от (\d+) TMT$/, (m,n) => ['Siziň bildirişiňiz şu ýerde — VIP '+n+' TMT-den', 'Your listing here — VIP from '+n+' TMT']]);
+TR_RE.push([/^Объявление № (\d+) · подано (.+)$/, (m,n,d) => ['Bildiriş № '+n+' · goýlan: '+d, 'Listing No. '+n+' · posted '+d]]);
+Object.assign(TR, {'Предыдущее фото':['Öňki surat','Previous photo'], 'Следующее фото':['Indiki surat','Next photo']});
+TR_RE.push([/^(\d+) л\. с\.$/, (m,n) => [n+' a. g.', n+' hp']], [/^Фото (\d+)$/, (m,n) => ['Surat '+n, 'Photo '+n]]);
+Object.assign(TR, {'Машины из ОАЭ, США, Кореи и Китая — цена под ключ с доставкой и растаможкой':['BAE-den, ABŞ-dan, Koreýadan we Hytaýdan maşynlar — eltip bermek we gümrük bilen doly bahasy','Cars from the UAE, USA, Korea and China — turnkey price with delivery and customs']});

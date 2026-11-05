@@ -251,7 +251,7 @@ const CARGO_TYPES = ['Грузовик','Фура','Газель','Рефриж�
 const PICKS = [
   {k:'vip', n:'VIP', test:l=>isOn(l,'vip')},
   {k:'credit', n:'Под кредит', test:l=>l.specs?.credit==='yes'},
-  {k:'new', n:'Новые машины', test:l=>l.specs?.usage==='new'},
+  {k:'new', n:'Новые машины', test:l=>['cars','import'].includes(l.sec) && l.specs?.usage==='new'},   // только машины, без мото
   {k:'cargo', n:'Грузовые', test:l=>l.sec==='tech' && CARGO_TYPES.includes(l.specs?.ttype)}
 ];
 const pickTest = f => { const p = PICKS.find(x=>x.k===f.pick?.[0]); return p ? p.test : null; };
@@ -346,7 +346,7 @@ Object.assign(TR, {
   'Электромотоцикл':['Elektromotosikl','Electric motorcycle'], 'Питбайк / детский':['Pitbaýk / çagalar üçin','Pit bike / kids'],
   'Авто, мото, импорт, аренда':['Awtoulag, moto, getirmek, kärende','Cars, motorcycles, imports, rental'],
   // «О приложении» и частые вопросы, версия 1.3
-  'AlphaCars TM — автомаркет Туркменистана. Только машины и всё, что с ними связано: продажа авто и мотоциклов, пригон из-за рубежа, запчасти, спецтехника, аренда, СТО и работа для водителей.':['AlphaCars TM — Türkmenistanyň awtobazary. Diňe maşynlar we olar bilen baglanyşykly zatlar: awtoulag we motosikl satuwy, daşary ýurtdan getirmek, şaýlar, ýörite tehnika, kärende, awtoserwis we sürüjiler üçin iş.','AlphaCars TM is the car marketplace of Turkmenistan. Only vehicles and everything around them: cars and motorcycles for sale, imports, parts, heavy machinery, rental, service and driver jobs.'],
+  'AlphaCars TM — автомаркет Туркменистана. Только машины и всё, что с ними связано: продажа авто и мотоциклов, пригон из-за рубежа, запчасти, спецтехника, аренда, сервисы и работа для водителей.':['AlphaCars TM — Türkmenistanyň awtobazary. Diňe maşynlar we olar bilen baglanyşykly zatlar: awtoulag we motosikl satuwy, daşary ýurtdan getirmek, şaýlar, ýörite tehnika, kärende, awtoserwis we sürüjiler üçin iş.','AlphaCars TM is the car marketplace of Turkmenistan. Only vehicles and everything around them: cars and motorcycles for sale, imports, parts, heavy machinery, rental, service and driver jobs.'],
   'Мотоциклы, скутеры и квадроциклы — отдельный раздел':['Motosikller, skuterler we kwadrosikller — aýratyn bölüm','Motorcycles, scooters and ATVs — a separate section'],
   'Новые и с пробегом — переключатель в один клик':['Täze we ulanylan — bir basyşda saýlaň','New or used — one tap to switch'],
   'Чат с продавцом прямо в приложении':['Programmanyň içinde satyjy bilen hat alyşmak','Chat with the seller right in the app'],

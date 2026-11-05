@@ -93,6 +93,7 @@ Object.assign(FEATURE_SCREENS, {
         ${Object.keys(brands).length>1?`<div class="chips"><button class="chip ${sel?'':'on'}" data-a="dbrand" data-v="${esc(d.id)}|"><span>Все</span> <span class="num">(${pool.length})</span></button>${Object.entries(brands).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).map(([b,n])=>`<button class="chip ${sel===b?'on':''}" data-a="dbrand" data-v="${esc(d.id)}|${esc(b)}">${brandIcon(b,'sm')}${esc(b)} <span class="num">(${n})</span></button>`).join('')}</div>`:''}
         <div class="list">${shown.length ? shown.map(listCard).join('') : emptyBox('Машин пока нет', own ? 'Подайте объявление — оно появится здесь' : 'Салон ещё не выставил машины')}</div></div>
       <div class="row" style="flex-wrap:wrap;gap:8px">
+        <button class="btn sm ghost" data-a="dealershare" data-v="${esc(d.id)}">${ic('up')}Поделиться</button>
         ${u && !own?`<button class="btn sm danger" data-a="complain" data-v="dealer:${esc(d.id)}">${ic('flag')}${t('complain')}</button>`:''}
         ${staff?`<button class="btn sm ${d.hidden?'':'danger'}" data-a="dealerhide" data-v="${esc(d.id)}">${d.hidden?'Показать салон':'Скрыть салон'}</button>`:''}</div>`};
   },
@@ -183,6 +184,17 @@ Object.assign(FEATURE_ACTIONS, {
     d.cols = cols; persist(); closeSheet(); toast('Подборка сохранена'); render(); },
   dcoldel(v){ const i = v.indexOf('|'), d = dealerById(v.slice(0,i)), u = me(); if (!d || !u || u.id!==d.uid) return;
     d.cols = (d.cols||[]).filter(x=>x.id!==v.slice(i+1)); state.dCol = {...(state.dCol||{}), [d.id]: ''}; persist(); closeSheet(); toast('Подборка удалена'); render(); },
+  // Поделиться салоном: ссылка на веб-версию (открывает страницу салона), IMO/Telegram/WhatsApp
+  dealershare(id){ const d = dealerById(id); if (!d) return;
+    const link = `${SITE_URL}app/#d=${encodeURIComponent(d.id)}`, text = `${d.name} — автосалон в AlphaCars TM\n${link}`, enc = encodeURIComponent;
+    openSheet(`<div class="between"><h2>Поделиться</h2><button class="icon-btn" data-a="closesheet" aria-label="Закрыть">${ic('x')}</button></div>
+      <div class="card pad small"><b>${esc(d.name)}</b><br><span class="dim">${esc(dealerPlace(d))}</span></div>
+      <div class="copy-row"><span class="small" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(link)}</span><button class="btn sm ghost" data-a="copy" data-v="${esc(link)}" aria-label="Скопировать">${ic('copy')}</button></div>
+      ${NB && NB.share ? `<button class="btn" data-a="dealersharenative" data-v="${esc(d.id)}">${ic('up')}Отправить ссылку (IMO, Telegram, WhatsApp…)</button>` : ''}
+      <div class="grid2"><a class="btn ${NB && NB.share ? 'ghost' : ''}" href="https://wa.me/?text=${enc(text)}" target="_blank" rel="noopener">${ic('chat')}WhatsApp</a>
+        <a class="btn ghost" href="https://t.me/share/url?url=${enc(link)}&text=${enc(d.name)}" target="_blank" rel="noopener">${ic('up')}Telegram</a></div>
+      <button class="btn ghost" data-a="copy" data-v="${esc(link)}">${ic('copy')}Скопировать ссылку</button>`); },
+  dealersharenative(id){ const d = dealerById(id); if (d && NB && NB.share) NB.share(`${d.name} — автосалон в AlphaCars TM\n${SITE_URL}app/#d=${encodeURIComponent(d.id)}`); },
   dsec(v){ const i = v.indexOf('|'), id = v.slice(0,i); state.dSec = {...(state.dSec||{}), [id]: v.slice(i+1)}; state.dBrand = {...(state.dBrand||{}), [id]: ''}; state.dCol = {...(state.dCol||{}), [id]: ''}; state.dUse = {...(state.dUse||{}), [id]: ''}; render(); },
   dbrand(v){ const i = v.indexOf('|'); state.dBrand = {...(state.dBrand||{}), [v.slice(0,i)]: v.slice(i+1)}; render(); },
   dealerhide(id){ const d = dealerById(id); if (!d || !staffOn(me())) return; d.hidden = !d.hidden;

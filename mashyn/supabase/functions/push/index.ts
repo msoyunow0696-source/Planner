@@ -11,7 +11,7 @@
 // на WebCrypto, без сторонних библиотек.
 // =====================================================
 export const VAPID_PUBLIC = 'BMzQNqLFnqa-Ta9dQENS7wI8cdS0bcD0pnCsSBON_yv_BKJjqR1-EcmyVBtJp_jKUySv3trudjdOpFJmGW6UePU';
-const SUBJECT = 'https://alphadrive.pages.dev';
+const SUBJECT = 'https://alphacarstm.pages.dev';
 const FRESH = 10 * 60_000;
 
 const enc = new TextEncoder();

@@ -3,27 +3,29 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Alpha Drive — скачать приложение</title>
-<meta name="description" content="Alpha Drive — машины, техника, запчасти и работа для водителей в Туркменистане. Скачайте приложение для Android.">
-<meta property="og:title" content="Alpha Drive — скачать приложение">
+<title>AlphaCars TM — скачать приложение</title>
+<meta name="description" content="AlphaCars TM — машины, техника, запчасти и работа для водителей в Туркменистане. Скачайте приложение для Android.">
+<meta property="og:title" content="AlphaCars TM — скачать приложение">
 <meta property="og:description" content="Машины, техника и работа — в одном месте. Бесплатно для Android.">
 <link rel="icon" href="logo.png">
+<link rel="apple-touch-icon" href="img/app-192.png">
+<meta property="og:image" content="https://alphacarstm.pages.dev/img/app-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@600;800&display=swap">
 <style>
-/* Те же цвета и шрифты, что в приложении (тема «Alpha») */
+/* Те же цвета и шрифты, что в приложении (тема «Чёрная» AlphaCars TM: чёрный, серые карточки, красный акцент) */
 :root{
   --font-d:'Unbounded','Arial Black',system-ui,sans-serif;
   --font-b:'Onest',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
-  --bg1:#0a0a0a; --bg2:#1f1c10; --bg3:#121210;
-  --card:rgba(255,255,255,.07); --card2:rgba(255,255,255,.13); --line:rgba(255,255,255,.14);
-  --text:#fffbea; --dim:#bdb595; --accent:#ffd60a; --accent2:#ffb703; --ok:#34d399;
+  --bg1:#000000; --bg2:#0b0b0c; --bg3:#111113;
+  --card:#1c1c1e; --card2:#2a2a2d; --line:rgba(255,255,255,.10);
+  --text:#f5f5f7; --dim:#9a9aa1; --accent:#e5383b; --accent2:#b81d24; --ok:#34d399;
 }
 *{box-sizing:border-box;margin:0}
 html{-webkit-text-size-adjust:100%}
 body{min-height:100vh;font-family:var(--font-b);color:var(--text);line-height:1.5;
-  background:radial-gradient(1200px 600px at 85% -10%,rgba(255,183,3,.14),transparent 60%),
-             radial-gradient(900px 500px at -10% 20%,rgba(255,214,10,.12),transparent 60%),
+  background:radial-gradient(1200px 600px at 85% -10%,rgba(229,56,59,.13),transparent 60%),
+             radial-gradient(900px 500px at -10% 20%,rgba(229,56,59,.07),transparent 60%),
              linear-gradient(160deg,var(--bg1),var(--bg3) 55%,var(--bg2));
   background-attachment:fixed}
 a{color:inherit}
@@ -34,7 +36,7 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stro
 .top{display:flex;align-items:center;justify-content:space-between;padding:18px 0}
 .brand{display:flex;align-items:center;gap:10px;font-family:var(--font-d);font-weight:800;font-size:1.05rem;text-decoration:none}
 .brand b{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
-.logo{width:38px;height:38px;border-radius:12px;display:block}
+.wm{height:48px;width:auto;display:block;border-radius:10px}
 .lang{display:flex;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:3px}
 .lang button{font:600 .8rem var(--font-b);color:var(--dim);background:none;border:0;padding:7px 11px;border-radius:9px;cursor:pointer;min-height:36px}
 .lang button.on{background:var(--card2);color:var(--text)}
@@ -45,8 +47,8 @@ h1{font-family:var(--font-d);font-weight:800;font-size:clamp(1.9rem,5.2vw,3.2rem
 h1 span{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
 .lead{color:var(--dim);font-size:1.08rem;margin:16px 0 28px;max-width:34em}
 .cta{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
-.btn{display:inline-flex;align-items:center;gap:12px;min-height:58px;padding:0 26px;border-radius:18px;text-decoration:none;font-weight:700;font-size:1.05rem;color:#141100;
-  background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 12px 32px -10px rgba(255,214,10,.45);transition:transform .15s}
+.btn{display:inline-flex;align-items:center;gap:12px;min-height:58px;padding:0 26px;border-radius:18px;text-decoration:none;font-weight:700;font-size:1.05rem;color:#fff;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 12px 32px -10px rgba(229,56,59,.45);transition:transform .15s}
 .btn:hover{transform:translateY(-2px)}
 .btn.ghost{background:var(--card);color:var(--text);border:1px solid var(--line);box-shadow:none}
 .btn:active{transform:none}
@@ -65,7 +67,8 @@ h1 span{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-b
 h2{font-family:var(--font-d);font-weight:600;font-size:clamp(1.25rem,3vw,1.6rem);margin-bottom:18px}
 .feats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:56px}
 .feat{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px}
-.feat .ci{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:var(--card2);color:var(--accent);margin-bottom:12px}
+.feat .ci{width:64px;height:64px;display:block;margin-bottom:10px}
+.feat .ci img{width:100%;height:100%;object-fit:contain;display:block}
 .feat b{display:block;margin-bottom:4px}
 .feat span{color:var(--dim);font-size:.9rem}
 
@@ -73,7 +76,7 @@ h2{font-family:var(--font-d);font-weight:600;font-size:clamp(1.25rem,3vw,1.6rem)
 .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;counter-reset:s;margin-bottom:20px}
 .step{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px 18px 18px 64px;position:relative;counter-increment:s}
 .step::before{content:counter(s);position:absolute;left:18px;top:18px;width:32px;height:32px;border-radius:10px;display:grid;place-items:center;
-  font:700 .95rem var(--font-d);background:linear-gradient(135deg,var(--accent),var(--accent2));color:#141100}
+  font:700 .95rem var(--font-d);background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
 .step b{display:block;margin-bottom:4px}
 .step span{color:var(--dim);font-size:.9rem}
 .note{display:flex;gap:12px;align-items:flex-start;background:rgba(52,211,153,.09);border:1px solid rgba(52,211,153,.28);border-radius:18px;padding:14px 16px;color:var(--dim);font-size:.9rem;margin-bottom:56px}
@@ -99,14 +102,14 @@ footer{border-top:1px solid var(--line);padding:22px 0 32px;color:var(--dim);fon
 <body>
 <div class="wrap">
   <header class="top">
-    <a class="brand" href="./"><img class="logo" src="logo.png" alt=""><span>Alpha <b>Drive</b></span></a>
+    <a class="brand" href="./" aria-label="AlphaCars TM"><img class="wm" src="img/word-dark.webp" alt="AlphaCars TM"></a>
     <div class="lang" role="group" aria-label="Язык"><button data-l="ru" class="on">RU</button><button data-l="tm">TM</button></div>
   </header>
 
   <section class="hero">
     <div>
       <h1 data-t="h1">Машины, техника и работа — <span>в одном месте</span></h1>
-      <p class="lead" data-t="lead">Покупайте и продавайте авто, заказывайте спецтехнику, ищите запчасти, СТО и работу водителем по всему Туркменистану.</p>
+      <p class="lead" data-t="lead">Покупайте и продавайте авто, заказывайте спецтехнику, ищите запчасти, сервисы и работу водителем по всему Туркменистану.</p>
       <div class="cta">
         <a class="btn" id="dl" href="https://github.com/msoyunow0696-source/Planner/releases/latest/download/MashynBazar.apk">
           <svg class="i" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
@@ -128,10 +131,10 @@ footer{border-top:1px solid var(--line);padding:22px 0 32px;color:var(--dim);fon
 
   <h2 data-t="featT">Что есть в приложении</h2>
   <section class="feats">
-    <div class="feat"><div class="ci"><svg class="i" viewBox="0 0 24 24"><path d="M5 16V11l2-5h10l2 5v5"/><path d="M3 16h18v3H3z"/><path d="M5 11h14"/></svg></div><b data-t="f1">Авто и пригон</b><span data-t="f1p">Машины в Туркменистане и из-за рубежа с расчётом цены под ключ</span></div>
-    <div class="feat"><div class="ci"><svg class="i" viewBox="0 0 24 24"><path d="M2 6h11v10H2zM13 9h4l4 4v3h-8z"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg></div><b data-t="f2">Техника и услуги</b><span data-t="f2p">Краны, самосвалы, эвакуаторы, рефрижераторы</span></div>
-    <div class="feat"><div class="ci"><svg class="i" viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z"/></svg></div><b data-t="f3">Запчасти и СТО</b><span data-t="f3p">Новые и б/у запчасти, ремонт и диагностика</span></div>
-    <div class="feat"><div class="ci"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></div><b data-t="f4">Работа водителям</b><span data-t="f4p">Вакансии и резюме по категориям прав</span></div>
+    <div class="feat"><div class="ci"><img src="img/avto.webp" alt=""></div><b data-t="f1">Авто и пригон</b><span data-t="f1p">Машины в Туркменистане и из-за рубежа с расчётом цены под ключ</span></div>
+    <div class="feat"><div class="ci"><img src="img/tech.webp" alt=""></div><b data-t="f2">Техника и услуги</b><span data-t="f2p">Краны, самосвалы, эвакуаторы, рефрижераторы</span></div>
+    <div class="feat"><div class="ci"><img src="img/parts.webp" alt=""></div><b data-t="f3">Запчасти и сервисы</b><span data-t="f3p">Новые и б/у запчасти, ремонт и диагностика</span></div>
+    <div class="feat"><div class="ci"><img src="img/drivers.webp" alt=""></div><b data-t="f4">Работа водителям</b><span data-t="f4p">Вакансии и резюме по категориям прав</span></div>
   </section>
 
   <h2 data-t="howT">Как установить на Android</h2>
@@ -147,23 +150,23 @@ footer{border-top:1px solid var(--line);padding:22px 0 32px;color:var(--dim);fon
   <section class="steps">
     <div class="step"><b data-t="i1">Откройте в Safari</b><span data-t="i1p">Нажмите «Веб-версия» на этой странице.</span></div>
     <div class="step"><b data-t="i2">«Поделиться» → «На экран „Домой“»</b><span data-t="i2p">Кнопка «Поделиться» — внизу экрана. Если её не видно, сначала нажмите «•••».</span></div>
-    <div class="step"><b data-t="i3">Нажмите «Добавить»</b><span data-t="i3p">Значок Alpha Drive появится рядом с другими приложениями. Вход тот же — по номеру телефона.</span></div>
+    <div class="step"><b data-t="i3">Нажмите «Добавить»</b><span data-t="i3p">Значок AlphaCars TM появится рядом с другими приложениями. Вход тот же — по номеру телефона.</span></div>
   </section>
   <div class="note"><svg class="i" viewBox="0 0 24 24"><path d="M3 5h18v11H3z"/><path d="M8 20h8M12 16v4"/></svg>
-    <span data-t="pc"><b>Компьютер с Windows:</b> откройте «Веб-версию» в Edge или Chrome и нажмите «Установить» — Alpha Drive появится в меню «Пуск» и будет открываться в своём окне.</span></div>
+    <span data-t="pc"><b>Компьютер с Windows:</b> откройте «Веб-версию» в Edge или Chrome и нажмите «Установить» — AlphaCars TM появится в меню «Пуск» и будет открываться в своём окне.</span></div>
 
-  <footer><span>© <span id="y"></span> Alpha Drive</span><span data-t="soon">Скоро в Google Play</span></footer>
+  <footer><span>© <span id="y"></span> AlphaCars TM</span><span data-t="soon">Скоро в Google Play</span></footer>
 </div>
 
 <script>
 const TM = {
   h1:'Maşynlar, tehnika we iş — <span>bir ýerde</span>',
-  lead:'Türkmenistanyň ähli ýerinde awtoulag satyň we satyn alyň, ýörite tehnika sargyt ediň, şaý, awtoserwis we sürüji işini tapyň.',
+  lead:'Türkmenistanyň ähli ýerinde awtoulag satyň we satyn alyň, ýörite tehnika sargyt ediň, şaý, awtohyzmat we sürüji işini tapyň.',
   btn:'Android üçin ýükle', free:'Mugt · APK', webBtn:'Web-wersiýa', webSub:'iPhone we kompýuter · gurnap bolýar',
   qrT:'Kompýuterde açdyňyzmy?', qrP:'Telefonyň kamerasyny koda tutuň — bu sahypa açylar we programmany ýükläp bilersiňiz.',
   featT:'Programmada näme bar', f1:'Awtoulaglar we getirmek', f1p:'Türkmenistandaky we daşary ýurtdan maşynlar, doly bahasy bilen',
   f2:'Tehnika we hyzmatlar', f2p:'Kranlar, samoswallar, ewakuatorlar, refrižeratorlar',
-  f3:'Şaýlar we awtoserwis', f3p:'Täze we ulanylan şaýlar, abatlaýyş we barlag',
+  f3:'Şaýlar we awtohyzmat', f3p:'Täze we ulanylan şaýlar, abatlaýyş we barlag',
   f4:'Sürüjiler üçin iş', f4p:'Sürüjilik şahadatnamasynyň görnüşi boýunça iş we rezýume',
   howT:'Android-a nädip gurnamaly', s1:'Faýly ýükläň', s1p:'«Android üçin ýükle» düwmesine basyň. MashynBazar.apk faýly 1 MB-dan az.',
   s2:'Gurnamaga rugsat beriň', s2p:'Telefon «näbelli çeşmeler» barada sorasa, «Sazlamalar» basyp, brauzer üçin rugsat beriň.',
@@ -171,8 +174,8 @@ const TM = {
   upd:'<b>Täzelenme:</b> täze wersiýany şu sahypadan ýükläp, köne wersiýanyň üstünden gurnaň — bildirişler we hasap saklanar.',
   iosT:'iPhone-a nädip gurnamaly', i1:'Safari-de açyň', i1p:'Bu sahypada «Web-wersiýa» basyň.',
   i2:'«Поделиться» → «На экран „Домой“»', i2p:'Iňlis dilindäki iPhone-da: «Share» → «Add to Home Screen». Düwme ekranyň aşagynda; görünmese, ilki «•••» basyň.',
-  i3:'«Добавить» (Add) basyň', i3p:'Alpha Drive nyşany beýleki programmalaryň ýanynda peýda bolar. Giriş şol bir — telefon belgisi boýunça.',
-  pc:'<b>Windows kompýuteri:</b> «Web-wersiýany» Edge ýa-da Chrome-da açyň we «Gurnamak» basyň — Alpha Drive «Start» menýusynda peýda bolar we aýratyn penjirede açylar.',
+  i3:'«Добавить» (Add) basyň', i3p:'AlphaCars TM nyşany beýleki programmalaryň ýanynda peýda bolar. Giriş şol bir — telefon belgisi boýunça.',
+  pc:'<b>Windows kompýuteri:</b> «Web-wersiýany» Edge ýa-da Chrome-da açyň we «Gurnamak» basyň — AlphaCars TM «Start» menýusynda peýda bolar we aýratyn penjirede açylar.',
   soon:'Ýakynda Google Play-de'
 };
 const RU = {}; document.querySelectorAll('[data-t]').forEach(el => RU[el.dataset.t] = el.innerHTML);

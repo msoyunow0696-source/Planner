@@ -165,7 +165,8 @@ function alertText(a){
   if (f.ymin || f.ymax) parts.push((f.ymin||'…')+'–'+(f.ymax||'…'));
   if (f.loc?.length) parts.push(f.loc.map(locLabel).join(', ')); else if (f.reg) parts.push(f.place || f.reg);
   for (const k of ['credit','swap']) if (f[k]?.length) parts.push('✓ '+YES_NO[k]);
-  for (const k of MULTI_KEYS) if (!['credit','swap'].includes(k) && f[k]?.length) parts.push(f[k].join(', '));
+  if (f.crash?.includes('no')) parts.push('Без ДТП'); if (f.nopaint?.length) parts.push('Без окраса');
+  for (const k of MULTI_KEYS) if (!['credit','swap','crash','nopaint'].includes(k) && f[k]?.length) parts.push(f[k].join(', '));
   return parts.join(' · ');
 }
 
@@ -282,7 +283,7 @@ const FEATURE_ACTIONS = {
    статистика продавца и «Поделиться»
    ===================================================== */
 const APP_VERSION = '1.7';
-const SITE_URL = 'https://alphadrive.pages.dev/';
+const SITE_URL = 'https://alphacarstm.pages.dev/';
 
 /* ===== «Доступна новая версия» — только в Android-приложении =====
    Номер сборки APK = номер выпуска build-N на GitHub. Раз в сутки сверяемся с последним выпуском;
@@ -443,7 +444,7 @@ function shareRow(l){
 
 Object.assign(FEATURE_SCREENS, {
   support(){
-    const u = me(), p = supPhone(), tg = (S.settings.supTg||'').replace(/^@/,''), em = S.settings.supEmail||'';
+    const u = me(), p = supPhone(), tg = (S.settings.supTg||'').replace(/^@/,''), em = S.settings.supEmail||'alphacarstm@gmail.com';
     const mine = u ? S.support.filter(s=>s.uid===u.id).sort((a,b)=>b.time-a.time) : [];
     return {title:'Служба поддержки', html:`
       <div class="hero" style="min-height:0"><h1 style="font-size:1.2rem">Служба поддержки</h1><p>Ответим на вопросы, поможем с объявлением и разберёмся с жалобой</p></div>
@@ -470,7 +471,7 @@ Object.assign(FEATURE_SCREENS, {
     return {title:'О приложении', html:`
       <div class="col" style="align-items:center;text-align:center;gap:8px;padding-top:6px"><img class="logo-full wm-d" src="logo/full-dark.webp" alt=""><img class="logo-full wm-l" src="logo/full-light.webp" alt="">
         <h1 style="font-size:1.4rem">AlphaCars TM</h1><span class="small dim">Версия ${APP_VERSION}${myBuild()?` (${myBuild()})`:''}</span></div>
-      <div class="card pad col" style="gap:6px"><p style="margin:0">AlphaCars TM — автомаркет Туркменистана. Только машины и всё, что с ними связано: продажа авто и мотоциклов, пригон из-за рубежа, запчасти, спецтехника, аренда, СТО и работа для водителей.</p></div>
+      <div class="card pad col" style="gap:6px"><p style="margin:0">AlphaCars TM — автомаркет Туркменистана. Только машины и всё, что с ними связано: продажа авто и мотоциклов, пригон из-за рубежа, запчасти, спецтехника, аренда, сервисы и работа для водителей.</p></div>
       <div class="card pad col" style="gap:8px"><h3>Что умеет приложение</h3>
         ${['Объявления о машинах с фото, VIN и ✓ кредитом / обменом','Мотоциклы, скутеры и квадроциклы — отдельный раздел','Новые и с пробегом — переключатель в один клик','Чат с продавцом прямо в приложении','Оценка цены: дешевле или дороже рынка','История цены и отметка «Цена снижена»','Отзывы и рейтинг продавцов','Уведомления о новых машинах по вашему поиску','Сравнение 2–3 машин рядом','Проверенные продавцы и автосалоны','Установка на iPhone и компьютер, уведомления даже при закрытом приложении','Потяните ленту вниз — объявления обновятся','Четыре языка: Türkmençe, Русский, English, Türkçe'].map(x=>`<div class="row small" style="gap:8px">${ic('check','style="width:18px;height:18px;color:var(--ok);flex:none"')}<span>${x}</span></div>`).join('')}</div>
       <details class="faq"><summary>Правила размещения</summary><div class="small dim col" style="gap:6px">
