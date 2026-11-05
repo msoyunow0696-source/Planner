@@ -53,9 +53,9 @@ const verifiedBadge = l => isVerified(l.uid) ? '<span class="badge b-ok">✓ П�
 let CMP = [];
 try { CMP = JSON.parse(localStorage.getItem('mb_cmp')) || []; } catch {}
 const saveCmp = () => { try { localStorage.setItem('mb_cmp', JSON.stringify(CMP)); } catch {} };
+const cmpCount = () => CMP.filter(id => S.listings.some(l => l.id===id)).length;   // число машин в сравнении (меню ☰, «Каталог»)
 const cmpBar = () => {
-  const n = CMP.filter(id => S.listings.some(l => l.id===id)).length;
-  return n && stack[stack.length-1]?.name!=='compare' ? `<button class="cmp-bar" data-a="cmpopen">${ic('list')}Сравнение · <b class="num">${n}</b></button>` : '';
+  return '';
 };
 
 /* ================== VIN ================== */
@@ -216,6 +216,10 @@ const FEATURE_SCREENS = {
   // Сравнение машин
   compare(){
     const ls = CMP.map(id => S.listings.find(l => l.id===id)).filter(Boolean);
+    // Одна машина: показываем её и кнопку «Убрать», чтобы из сравнения можно было выйти
+    if (ls.length === 1){ const l = ls[0]; return {title:'Сравнение', html:`<div class="between"><h2>Сравнение</h2><button class="btn sm ghost" data-a="cmpclear">${ic('trash')}Очистить всё</button></div>
+      <div class="card pad row" style="gap:12px"><button data-a="open" data-v="${l.id}" style="width:72px;height:54px;border-radius:10px;overflow:hidden;flex:none">${mainPic(l)}</button><b class="small" style="flex:1">${esc(l.title)}</b><button class="btn sm ghost" data-a="cmptoggle" data-v="${l.id}">${ic('x')}Убрать</button></div>
+      <p class="small dim" style="margin:0">Добавьте ещё 1–2 машины: откройте объявление и нажмите «Сравнить с другими».</p>`}; }
     if (ls.length < 2) return {title:'Сравнение', html:emptyBox('Добавьте 2–3 машины', 'Откройте объявление и нажмите «Сравнить»', `<button class="btn" data-a="sec" data-v="cars">${ic('car')}Перейти к авто</button>`)};
     const val = (l, k) => { const v = l.specs?.[k]; if (v==null || v==='') return '—';
       return YES_NO[k] ? (v==='yes'?'✓ Есть':'✗ Нет') : k==='km' ? fmt(v)+' км' : k==='engine' ? v+' л' : v; };
@@ -225,6 +229,7 @@ const FEATURE_SCREENS = {
     const bYear = best('year', 1), bKm = best('km', -1), bPrice = Math.min(...ls.map(l => l.price||Infinity));
     const cell = (html, good) => `<td${good?' class="good"':''}>${html}</td>`;
     return {title:'Сравнение', html:`
+      <div class="between"><h2>Сравнение</h2><button class="btn sm ghost" data-a="cmpclear">${ic('trash')}Очистить всё</button></div>
       <div class="cmp-wrap"><table class="cmp">
         <tr><th></th>${ls.map(l=>`<td><button data-a="open" data-v="${l.id}" style="display:block;width:100%;text-align:left"><div class="cmp-pic">${mainPic(l)}</div><b class="small">${esc(l.title)}</b></button></td>`).join('')}</tr>
         <tr><th>Цена</th>${ls.map(l=>cell(`<b class="num">${esc(priceText(l))}</b>`, l.price===bPrice && ls.length>1)).join('')}</tr>
@@ -256,7 +261,7 @@ const FEATURE_ACTIONS = {
   cmptoggle(id){
     const i = CMP.indexOf(id);
     if (i >= 0) CMP.splice(i, 1);
-    else { if (CMP.length >= 3){ toast('Можно сравнить до 3 машин'); return; } CMP.push(id); toast('Добавлено к сравнению'); }
+    else { if (CMP.length >= 3){ toast('Можно сравнить до 3 машин'); return; } CMP.push(id); toast('Добавлено к сравнению · открыть в меню ☰'); }
     saveCmp(); render();
   },
   cmpopen(){ go('compare'); },

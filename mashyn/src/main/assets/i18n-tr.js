@@ -6,7 +6,7 @@
 const T_TR = {
   home:'Ana sayfa', catalog:'Katalog', post:'İlan ver', favs:'Favoriler', profile:'Profil',
   searchPh:'Ara',
-  menu:'Menü', my_account:'Hesabım', welcome:'Hoş geldiniz!', messages:'Mesajlar', search_alerts:'Arama bildirimleri', estimate_menu:'Arabam ne kadar eder?', dealers_menu:'Galeriler', support:'Destek', settings:'Ayarlar', close:'Kapat',
+  menu:'Menü', compare_menu:'Karşılaştır', my_account:'Hesabım', welcome:'Hoş geldiniz!', messages:'Mesajlar', search_alerts:'Arama bildirimleri', estimate_menu:'Arabam ne kadar eder?', dealers_menu:'Galeriler', support:'Destek', settings:'Ayarlar', close:'Kapat',
   s_cars:'Otomobil', s_moto:'Motosiklet', s_import:'Yurt dışından', s_parts:'Yedek parça', s_tech:'İş makineleri ve hizmetler',
   s_jobs:'Şoför işleri', s_rent:'Kiralama', s_sto:'Hizmetler', s_all:'Tüm ilanlar',
   heroT:'Otomobil, iş makinesi ve iş — tek yerde', heroP:'İlk ilan — 7 gün ücretsiz',
@@ -1458,6 +1458,7 @@ const TR_TK = {
   "Без ДТП":"Hasarsız",
   "Без окраса":"Boyasız",
   'Предыдущее фото':'Önceki fotoğraf', 'Следующее фото':'Sonraki fotoğraf',
-  'Машины из ОАЭ, США, Кореи и Китая — цена под ключ с доставкой и растаможкой':'BAE, ABD, Kore ve Çin’den araçlar — nakliye ve gümrük dahil anahtar teslim fiyat'
+  'Машины из ОАЭ, США, Кореи и Китая — цена под ключ с доставкой и растаможкой':'BAE, ABD, Kore ve Çin’den araçlar — nakliye ve gümrük dahil anahtar teslim fiyat',
+  'Сравнение':'Karşılaştır', 'Очистить всё':'Tümünü temizle', 'Убрать':'Kaldır', 'Добавлено к сравнению · открыть в меню ☰':'Karşılaştırmaya eklendi · ☰ menüden açın', 'Добавьте ещё 1–2 машины: откройте объявление и нажмите «Сравнить с другими».':'1–2 araç daha ekleyin: bir ilan açıp «Diğerleriyle karşılaştır»a dokunun.'
 };
 TR_RE_TK.push([/^(\d+) л\. с\.$/, (m,n) => n+' hp'], [/^Фото (\d+)$/, (m,n) => 'Fotoğraf '+n], [/^Объявление № (\d+) · подано (.+)$/, (m,n,d) => 'İlan No '+n+' · '+d]);

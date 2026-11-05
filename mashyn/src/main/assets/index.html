@@ -646,7 +646,7 @@ const T = {
   myListings:['Мои объявления','Meniň bildirişlerim'], mySubs:['Мои подписки','Meniň abunalarym'], subs:['Подписки','Abunalar'],
   theme:['Тема оформления','Reňk temasy'], language:['Язык','Dil'], logout:['Выйти','Çykmak'], admin:['Админ-панель','Admin paneli'],
   notifs:['Уведомления','Habarnamalar'],
-  menu:['Меню','Menýu'], my_account:['Мой аккаунт','Meniň hasabym'], welcome:['Добро пожаловать!','Hoş geldiňiz!'], messages:['Сообщения','Hatlar'], search_alerts:['Уведомления о поиске','Gözleg habarnamalary'], estimate_menu:['Сколько стоит моя машина?','Maşynym näçe durýar?'], dealers_menu:['Автосалоны','Awtosalonlar'], support:['Служба поддержки','Goldaw gullugy'], settings:['Настройки','Sazlamalar'], close:['Закрыть','Ýap'], month:['мес.','aý'], perMonth:['в месяц','aýda'], save:['Сохранить','Ýatda sakla'],
+  menu:['Меню','Menýu'], compare_menu:['Сравнение','Deňeşdirmek'], my_account:['Мой аккаунт','Meniň hasabym'], welcome:['Добро пожаловать!','Hoş geldiňiz!'], messages:['Сообщения','Hatlar'], search_alerts:['Уведомления о поиске','Gözleg habarnamalary'], estimate_menu:['Сколько стоит моя машина?','Maşynym näçe durýar?'], dealers_menu:['Автосалоны','Awtosalonlar'], support:['Служба поддержки','Goldaw gullugy'], settings:['Настройки','Sazlamalar'], close:['Закрыть','Ýap'], month:['мес.','aý'], perMonth:['в месяц','aýda'], save:['Сохранить','Ýatda sakla'],
   iPaid:['Я оплатил','Töledim'], pay:['Оплатить','Töle'], choose:['Выбрать','Saýla'], back:['Назад','Yza'],
   descr:['Описание','Düşündiriş'], publish:['Опубликовать','Çap et'], free7:['7 дней бесплатно','7 gün mugt'],
   guestTitle:['Войдите в аккаунт','Hasabyňyza giriň'], guestP:['Чтобы звонить продавцам, подавать объявления и писать комментарии','Satyjylara jaň etmek, bildiriş goşmak we teswir ýazmak üçin'],
@@ -1308,7 +1308,7 @@ function render(){
   const fn = SCREENS[cur.name] || SCREENS.home;
   const out = fn(cur.arg);
   document.body.dataset.scr = cur.name;
-  $('#view').innerHTML = `<div class="screen-in col" style="gap:18px">${out.html}</div>${cmpBar()}`;
+  $('#view').innerHTML = `<div class="screen-in col" style="gap:18px">${out.html}</div>`;   // плавающей кнопки «Сравнение» больше нет — вход через меню ☰ и «Каталог» (2026-11-05)
   renderBar(out.title);
   renderNav(cur.name);
   out.after && out.after();
@@ -1487,7 +1487,7 @@ const SCREENS = {
   },
 
   catalog(){
-    return {title:t('catalog'), html:`<h2>${t('catalog')}</h2><div class="list">${[...SECTIONS,{k:'all',icon:'list'}].map(s=>{
+    return {title:t('catalog'), html:`<h2>${t('catalog')}</h2>${cmpCount()?`<button class="card pad row" data-a="cmpopen" style="text-align:left;border-color:var(--accent)">${ic('list')}<b style="flex:1">${t('compare_menu')}</b><span class="badge b-vip num">${cmpCount()}</span></button>`:''}<div class="list">${[...SECTIONS,{k:'all',icon:'list'}].map(s=>{
       const n = S.listings.filter(l=>visible(l) && (s.k==='all'||l.sec===s.k)).length;
       return `<button class="card pad row" data-a="sec" data-v="${s.k}" style="text-align:left">${i3d(s.k)}
         <span style="flex:1"><b>${t('s_'+s.k)}</b><br><span class="small dim">${n} объявл.</span></span>${ic('back','style="width:18px;transform:rotate(180deg);color:var(--dim)"')}</button>`; }).join('')}${dealersHomeCard()}</div>`};
@@ -2128,6 +2128,7 @@ function sideMenu(){
     it('notifs','','bell',t('notifs')),
     it('alerts','','search',t('search_alerts')),
     it('estimate','','card',t('estimate_menu')),
+    it('cmpopen','','list',t('compare_menu'), cmpCount()?`<span class="badge b-vip num">${cmpCount()}</span>`:''),
     it('tab','plans','card',t('subs')),
     it('dealers','','store',t('dealers_menu')),
     it('support','','chat',t('support')),
@@ -2136,6 +2137,7 @@ function sideMenu(){
     it('logout','','out',t('logout')),
   ] : [
     it('estimate','','card',t('estimate_menu')),
+    it('cmpopen','','list',t('compare_menu'), cmpCount()?`<span class="badge b-vip num">${cmpCount()}</span>`:''),
     it('dealers','','store',t('dealers_menu')),
     it('support','','chat',t('support')),
     it('settings','','gear',t('settings')),

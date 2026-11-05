@@ -8,7 +8,7 @@
 const T_EN = {
   home:'Home', catalog:'Catalog', post:'Post', favs:'Favorites', profile:'Profile',
   searchPh:'Search',
-  menu:'Menu', my_account:'My account', welcome:'Welcome!', messages:'Messages', search_alerts:'Search alerts', estimate_menu:'How much is my car worth?', dealers_menu:'Car dealers', support:'Support', settings:'Settings', close:'Close',
+  menu:'Menu', compare_menu:'Compare', my_account:'My account', welcome:'Welcome!', messages:'Messages', search_alerts:'Search alerts', estimate_menu:'How much is my car worth?', dealers_menu:'Car dealers', support:'Support', settings:'Settings', close:'Close',
   s_cars:'Cars', s_moto:'Motorcycles', s_import:'Imported', s_parts:'Parts', s_tech:'Machinery & services',
   s_jobs:'Driver jobs', s_rent:'Rental', s_sto:'Services', s_all:'All listings',
   heroT:'Cars, machinery and jobs — in one place', heroP:'First listing — free for 7 days',
@@ -741,3 +741,6 @@ TR_RE.push([/^Объявление № (\d+) · подано (.+)$/, (m,n,d) => 
 Object.assign(TR, {'Предыдущее фото':['Öňki surat','Previous photo'], 'Следующее фото':['Indiki surat','Next photo']});
 TR_RE.push([/^(\d+) л\. с\.$/, (m,n) => [n+' a. g.', n+' hp']], [/^Фото (\d+)$/, (m,n) => ['Surat '+n, 'Photo '+n]]);
 Object.assign(TR, {'Машины из ОАЭ, США, Кореи и Китая — цена под ключ с доставкой и растаможкой':['BAE-den, ABŞ-dan, Koreýadan we Hytaýdan maşynlar — eltip bermek we gümrük bilen doly bahasy','Cars from the UAE, USA, Korea and China — turnkey price with delivery and customs']});
+Object.assign(TR, {'Сравнение':['Deňeşdirmek','Compare'], 'Очистить всё':['Hemmesini arassala','Clear all'], 'Убрать':['Aýyr','Remove'],
+  'Добавлено к сравнению · открыть в меню ☰':['Deňeşdirmä goşuldy · ☰ menýuda açyň','Added to compare · open in menu ☰'],
+  'Добавьте ещё 1–2 машины: откройте объявление и нажмите «Сравнить с другими».':['Ýene 1–2 maşyn goşuň: bildirişi açyp, «Beýlekiler bilen deňeşdir» basyň.','Add 1–2 more cars: open a listing and tap “Compare with others”.']});
