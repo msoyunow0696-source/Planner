@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <!-- кузов -->
+    <path android:fillColor="#F472B6"
+        android:pathData="M30,64 L30,56 L36,46 Q38,42 42,42 L66,42 Q70,42 72,46 L78,56 L78,64 Q78,67 75,67 L33,67 Q30,67 30,64 Z" />
+    <!-- стёкла -->
+    <path android:fillColor="#E9E5FF"
+        android:pathData="M39,54 L43,46 L52,46 L52,54 Z M56,46 L65,46 L69,54 L56,54 Z" />
+    <!-- колёса -->
+    <path android:fillColor="#FFFFFF"
+        android:pathData="M42,67 m-5,0 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0 M66,67 m-5,0 a5,5 0 1,0 10,0 a5,5 0 1,0 -10,0" />
+</vector>
