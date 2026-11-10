@@ -1,205 +1,212 @@
-# Alpha Drive — тексты для Google Play
+# AlphaCars TM — тексты для Google Play
 
-Google Play не даёт отдельного поля для «тегов» поиска. Магазин ищет по трём полям:
-**название** (до 30 символов), **краткое описание** (до 80) и **полное описание** (до 4000).
-Поэтому слова, по которым люди ищут (машина, авто, cars, maşyn, awto, запчасти…), уже вписаны в эти тексты.
-Копируйте каждое поле целиком в Play Console → «Основная страница приложения».
+Обновлено 2026-11-10: имя AlphaCars TM, разделы «Сервисы», «Аренда», «Автосалоны»; по решению владельца
+**нет слов «бесплатно / mugt / free»**, цен, подписок и VIP.
 
-Ещё в Play Console → «Настройки магазина» есть настоящие **теги** (до 5 штук из списка Google). Выберите:
-1. Автомобили (Cars)
-2. Объявления (Classifieds)
-3. Подержанные автомобили (Used cars)
-4. Автозапчасти (Auto parts)
-5. Покупка и продажа (Buy & sell)
+Google Play ищет по трём полям: **название** (до 30 символов), **краткое описание** (до 80), **полное описание** (до 4000).
+Слова, по которым ищут (машина, авто, maşyn, awto, cars…), уже вписаны в тексты. Копировать каждое поле целиком
+в Play Console → «Развитие → Основная страница приложения». Основной язык страницы — **русский**; туркменский и английский — «Добавить перевод».
+(Если Play Console не даст выбрать туркменский — оставить ru и en, а туркменский текст вставить в конец русского описания.)
 
-Категория приложения: **Автомобили и транспорт** (Auto & Vehicles).
+**Теги** (Play Console → «Настройки магазина», до 5): Автомобили · Объявления · Подержанные автомобили · Автозапчасти · Покупка и продажа.
+**Категория:** Автомобили и транспорт (Auto & Vehicles). **Почта:** alphacarstm@gmail.com. **Сайт:** https://alphacarstm.pages.dev/
+**Политика конфиденциальности:** https://alphacarstm.pages.dev/privacy.html
 
 ---
 
 ## Русский (ru-RU)
 
-**Название** (26 символов)
+**Название** (27 символов)
 ```
-Alpha Drive: Авто и Машины
+AlphaCars TM: Авто и Машины
 ```
 
-**Краткое описание** (75 символов)
+**Краткое описание** (77 символов)
 ```
-Авто и мото в Туркменистане: купить, продать, запчасти, спецтехника, работа
+Автобазар Туркменистана: купить и продать машину, мото, запчасти, спецтехнику
 ```
 
 **Полное описание**
 ```
-Alpha Drive — бесплатный автомаркет Туркменистана. Покупайте и продавайте машины и мотоциклы, ищите запчасти, СТО, спецтехнику и работу водителем — всё в одном приложении.
+AlphaCars TM — автомаркет Туркменистана в вашем телефоне. Покупайте и продавайте машины и мотоциклы, ищите запчасти, сервисы, спецтехнику, аренду и работу водителем — всё в одном приложении.
 
-🚗 АВТО И ПРИГОН
-• Объявления о продаже машин по всему Туркменистану: Ашхабад, Аркадаг, Ахал, Балкан, Дашогуз, Лебап, Мары
-• Машины из-за рубежа с расчётом цены под ключ
-• Новые и с пробегом — переключатель в один клик
-• Фильтры по марке, модели, году, цене, пробегу, коробке, топливу и кузову
-• До 10 фото и видео в каждом объявлении
+🚗 АВТО
+• Объявления по всему Туркменистану: Ашхабад, Аркадаг, Ахал, Балкан, Дашогуз, Лебап, Мары
+• Новые и с пробегом — переключатель в одно касание
+• Фильтры: марка, модель, год, цена, пробег, коробка, топливо, кузов, привод
+• Схема кузова: какие детали крашены или заменены, было ли серьёзное ДТП
+• Фильтры «Без окраса» и «Без ДТП»
+• До 10 фото и видео в объявлении
 
-🏍 МОТОЦИКЛЫ
-• Мотоциклы, скутеры, мопеды, квадроциклы и эндуро
-• Honda, Yamaha, Kawasaki, Bajaj, CFMOTO и другие марки
-• Фильтры по типу, марке, году, объёму двигателя и цене
+🌍 ИЗ-ЗА РУБЕЖА
+• Машины под заказ с расчётом цены под ключ
 
-🚛 СПЕЦТЕХНИКА И УСЛУГИ
-• Краны, самосвалы, эвакуаторы, рефрижераторы, автобусы
-• Аренда техники с водителем
+🏍 МОТО
+• Мотоциклы, скутеры, мопеды, квадроциклы, эндуро
 
-🔧 ЗАПЧАСТИ И СТО
-• Новые и б/у автозапчасти
-• Автосервис, ремонт, диагностика, шиномонтаж
+🔧 ЗАПЧАСТИ И СЕРВИСЫ
+• Новые и б/у запчасти
+• Ремонт, диагностика, шиномонтаж, автомойка
 
-👷 РАБОТА ВОДИТЕЛЯМ
-• Вакансии и резюме по категориям прав: B, C, D, E
+🚛 СПЕЦТЕХНИКА И УСЛУГИ, АРЕНДА
+• Краны, самосвалы, эвакуаторы, автобусы
+• Аренда машин и техники
+
+👷 РАБОТА ВОДИТЕЛЕМ
+• Вакансии и резюме по категориям прав B, C, D, E
+
+🏢 АВТОСАЛОНЫ
+• Страницы автосалонов со всеми их машинами
 
 💡 УДОБНО
-• Чат с продавцом прямо в приложении
+• Чат с продавцом прямо в приложении, звонок, WhatsApp и IMO в одно касание
+• Помощник: напишите «Camry 2015-den täze 200 müň çenli» — он найдёт
 • История цены и уведомление, когда цена снизилась
-• Отзывы и рейтинг продавцов
-• «Сколько стоит моя машина?» — средняя цена по похожим объявлениям
-• Сравнение машин рядом
-• Проверка VIN-кода
+• «Сколько стоит моя машина?» — средняя цена похожих объявлений
+• Сравнение машин рядом, проверка VIN
 • Уведомления о новых объявлениях по вашему поиску
-• Избранное, комментарии, «Поделиться» ссылкой
-• Языки: туркменский, русский, английский
+• Избранное, отзывы о продавцах, «Поделиться» ссылкой
+• Языки: туркменский, русский, английский, турецкий
 • Светлая и тёмная тема
 
-🛡 БЕЗОПАСНО
-• Жалобы на мошенников и проверка объявлений
+🛡 НАДЁЖНО
+• Объявления проверяются, жалобы на мошенников
 • Советы, как не попасться на обман
 
-Подать объявление — бесплатно. Регистрация по номеру телефона: Туркменистан, Россия, Турция и другие страны.
+Подайте объявление за минуту — регистрация по номеру телефона.
+Веб-версия: alphacarstm.pages.dev
 
-Также есть веб-версия: alphadrive.pages.dev
-
-Ключевые слова: авто, машина, машины, автомобиль, купить машину, продать машину, авто бу, мотоцикл, мото, скутер, мопед, автобазар, автомаркет, запчасти, СТО, спецтехника, Туркменистан, Ашхабад, cars, maşyn, awto.
+авто, машина, машины, автомобиль, купить машину, продать машину, авто бу, автобазар, мотоцикл, запчасти, сервисы, спецтехника, аренда, Туркменистан, Ашхабад, maşyn, awto, cars.
 ```
 
 ---
 
 ## Türkmençe (tk-TM)
 
-**Ady** (26 nyşan)
+**Ady** (27 nyşan)
 ```
-Alpha Drive: Maşyn we Awto
+AlphaCars TM: Maşyn we Awto
 ```
 
-**Gysga beýany** (69 nyşan)
+**Gysga beýany** (74 nyşan)
 ```
-Türkmenistanda maşyn we motosikl al-sat: şaýlar, tehnika, iş orunlary
+Türkmenistanyň awtobazary: maşyn, moto, ätiýaçlyk şaýlar, tehnika al-sat
 ```
 
 **Doly beýany**
 ```
-Alpha Drive — Türkmenistanyň mugt awtomarkedi. Maşyn we motosikl satyn alyň we satyň, ätiýaçlyk şaýlary, awtoserwis, ýörite tehnika we sürüjilik işini tapyň — hemmesi bir programmada.
+AlphaCars TM — Türkmenistanyň awtobazary siziň telefonyňyzda. Maşyn we motosikl satyn alyň we satyň, ätiýaçlyk şaýlary, awtohyzmatlary, ýörite tehnikany, arendany we sürüjilik işini tapyň — hemmesi bir programmada.
 
 🚗 MAŞYNLAR
-• Türkmenistanyň ähli ýerinde maşyn bildirişleri: Aşgabat, Arkadag, Ahal, Balkan, Daşoguz, Lebap, Mary
-• Daşary ýurtdan getirilýän maşynlar, doly bahasy hasaplanýar
-• Täze we ulanylan — bir basyşda saýlaň
-• Marka, model, ýyl, baha, geçen ýoly, geçiriji, ýangyç we kuzow boýunça süzgüçler
-• Her bildirişe 10 surat we wideo
+• Türkmenistanyň ähli ýerinden bildirişler: Aşgabat, Arkadag, Ahal, Balkan, Daşoguz, Lebap, Mary
+• Täze we ulanylan — bir basyşda
+• Süzgüçler: marka, model, ýyl, baha, geçen ýoly, geçiriji, ýangyç, kuzow, hereket geçiriji
+• Kuzowyň çyzgysy: haýsy bölekler reňklenen ýa-da çalşylan, uly heläkçilik bolanmy
+• «Reňksiz» we «Heläkçiliksiz» süzgüçleri
+• Her bildirişde 10 surat we wideo
 
-🏍 MOTOSIKLLER
-• Motosikller, skuterler, mopedler, kwadrosikller we enduro
-• Honda, Yamaha, Kawasaki, Bajaj, CFMOTO we beýleki markalar
-• Görnüş, marka, ýyl, hereketlendirijiniň göwrümi we baha boýunça süzgüçler
+🌍 DAŞARY ÝURTDAN
+• Sargyt edilýän maşynlar, doly bahasy hasaplanýar
 
-🚛 ÝÖRITE TEHNIKA WE HYZMATLAR
-• Kranlar, samoswallar, ewakuatorlar, refrižeratorlar, awtobuslar
-• Sürüjili tehnika kärendesi
+🏍 MOTO
+• Motosikller, skuterler, mopedler, kwadrosikller, enduro
 
-🔧 ÄTIÝAÇLYK ŞAÝLAR WE AWTOSERWIS
-• Täze we ulanylan ätiýaçlyk şaýlar
-• Abatlaýyş, diagnostika, şina hyzmaty
+🔧 ÄTIÝAÇLYK ŞAÝLAR WE AWTOHYZMAT
+• Täze we ulanylan şaýlar
+• Abatlaýyş, diagnostika, şina hyzmaty, ýuwuş
 
-👷 SÜRÜJILER ÜÇIN IŞ
+🚛 ÝÖRITE TEHNIKA, HYZMATLAR WE ARENDA
+• Kranlar, samoswallar, ewakuatorlar, awtobuslar
+• Maşyn we tehnika arendasy
+
+👷 SÜRÜJILIK IŞI
 • Sürüjilik şahadatnamasynyň kategoriýasy boýunça iş we rezýume: B, C, D, E
 
+🏢 AWTOSALONLAR
+• Awtosalonlaryň sahypalary ähli maşynlary bilen
+
 💡 AMATLY
-• Programmanyň içinde satyjy bilen hat alyşmak
+• Satyjy bilen programmanyň içinde hat alyşmak, jaň, WhatsApp we IMO bir basyşda
+• Kömekçi: «Camry 2015-den täze 200 müň çenli» ýazyň — ol tapar
 • Bahanyň taryhy we baha arzanlanda habar
-• Satyjylar barada teswirler we reýting
-• «Maşynym näçe durýar?» — meňzeş bildirişler boýunça ortaça baha
-• Maşynlary deňeşdirmek
-• VIN-kody barlamak
+• «Maşynym näçe durýar?» — meňzeş bildirişleriň ortaça bahasy
+• Maşynlary deňeşdirmek, VIN barlamak
 • Gözlegiňiz boýunça täze bildirişler barada habar
-• Halanlarym, teswirler, salgy bilen paýlaşmak
-• Diller: türkmen, rus, iňlis
+• Halanlarym, satyjylar barada teswirler, salgy bilen paýlaşmak
+• Diller: türkmen, rus, iňlis, türk
 • Açyk we garaňky tema
 
-🛡 HOWPSUZ
-• Galyplar barada şikaýat we bildirişleri barlamak
+🛡 YGTYBARLY
+• Bildirişler barlanýar, galyplar barada şikaýat
 
-Bildiriş goýmak — mugt. Telefon belgisi bilen hasaba alyş.
+Bildirişi bir minutda goýuň — telefon belgisi bilen hasaba alyş.
+Web-wersiýa: alphacarstm.pages.dev
 
-Web-wersiýa: alphadrive.pages.dev
-
-Açar sözler: maşyn, maşynlar, motosikl, moto, skuter, awto, awtoulag, maşyn satmak, maşyn satyn almak, awtobazar, ätiýaçlyk şaý, awtoserwis, Türkmenistan, Aşgabat, cars, авто, машина.
+maşyn, maşynlar, awto, awtoulag, maşyn satmak, maşyn almak, awtobazar, motosikl, ätiýaçlyk şaý, awtohyzmat, arenda, Türkmenistan, Aşgabat, авто, машина, cars.
 ```
 
 ---
 
 ## English (en-US)
 
-**Title** (27 characters)
+**Title** (25 characters)
 ```
-Alpha Drive: Cars & Auto TM
+AlphaCars TM: Cars & Auto
 ```
 
-**Short description** (75 characters)
+**Short description** (76 characters)
 ```
-Buy & sell cars and motorcycles in Turkmenistan: parts, trucks, driver jobs
+Turkmenistan car market: buy and sell cars, motorbikes, parts, heavy vehicles
 ```
 
 **Full description**
 ```
-Alpha Drive is a free car marketplace for Turkmenistan. Buy and sell cars and motorcycles, find auto parts, car service, special vehicles and driver jobs — all in one app.
+AlphaCars TM is the car market of Turkmenistan in your pocket. Buy and sell cars and motorcycles, find auto parts, car services, special vehicles, rentals and driver jobs — all in one app.
 
 🚗 CARS
-• Car listings across Turkmenistan: Ashgabat, Arkadag, Ahal, Balkan, Dashoguz, Lebap, Mary
-• Imported cars with the full landed price
+• Listings across Turkmenistan: Ashgabat, Arkadag, Ahal, Balkan, Dashoguz, Lebap, Mary
 • New or used — one tap to switch
-• Filters by make, model, year, price, mileage, gearbox, fuel and body type
+• Filters: make, model, year, price, mileage, gearbox, fuel, body type, drive
+• Body diagram: which parts were painted or replaced, any serious accident
+• "No paint" and "No accidents" filters
 • Up to 10 photos and a video in every listing
 
-🏍 MOTORCYCLES
-• Motorcycles, scooters, mopeds, ATVs and dirt bikes
-• Honda, Yamaha, Kawasaki, Bajaj, CFMOTO and more
-• Filters by type, make, year, engine size and price
+🌍 IMPORTED
+• Cars to order with the full landed price
 
-🚛 SPECIAL VEHICLES & SERVICES
-• Cranes, dump trucks, tow trucks, refrigerated trucks, buses
-• Vehicle rental with a driver
+🏍 MOTO
+• Motorcycles, scooters, mopeds, ATVs, dirt bikes
 
-🔧 AUTO PARTS & CAR SERVICE
+🔧 PARTS & SERVICES
 • New and used auto parts
-• Repair, diagnostics, tyre service
+• Repair, diagnostics, tyre service, car wash
+
+🚛 SPECIAL VEHICLES, SERVICES & RENTAL
+• Cranes, dump trucks, tow trucks, buses
+• Car and vehicle rental
 
 👷 DRIVER JOBS
-• Jobs and CVs by licence category: B, C, D, E
+• Jobs and CVs by licence category B, C, D, E
+
+🏢 DEALERS
+• Dealer pages with all their cars
 
 💡 HANDY
-• Chat with the seller right in the app
-• Price history and alerts when a price drops
-• Seller reviews and ratings
+• Chat with the seller in the app; call, WhatsApp and IMO in one tap
+• Smart helper understands Turkmen and Russian search phrases
+• Price history and price-drop alerts
 • "What is my car worth?" — average price of similar listings
-• Side-by-side car comparison
-• VIN check
+• Side-by-side comparison, VIN check
 • Alerts for new listings that match your search
-• Favourites, comments, share by link
-• Languages: Turkmen, Russian, English
+• Favourites, seller reviews, share by link
+• Languages: Turkmen, Russian, English, Turkish
 • Light and dark theme
 
-🛡 SAFE
-• Report scammers, listings are checked
+🛡 TRUSTED
+• Listings are checked, report scammers
 
-Posting is free. Sign up with your phone number.
+Post a listing in a minute — sign up with your phone number.
+Web version: alphacarstm.pages.dev
 
-Web version: alphadrive.pages.dev
-
-Keywords: cars, car, auto, used cars, motorcycle, scooter, moto, buy car, sell car, car market, auto parts, car service, trucks, Turkmenistan, Ashgabat, maşyn, awto, авто, машина.
+cars, used cars, auto, car market, buy car, sell car, motorcycle, auto parts, car service, trucks, rental, Turkmenistan, Ashgabat, maşyn, awto, авто, машина.
 ```

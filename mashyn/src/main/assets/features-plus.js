@@ -344,9 +344,9 @@ Object.assign(TR, {
   'Спортбайк':['Sport baýk','Sport bike'], 'Круизер / чоппер':['Kruizer / çopper','Cruiser / chopper'], 'Квадроцикл':['Kwadrosikl','ATV / quad'],
   'Мотоцикл с коляской':['Kolýaskaly motosikl','Motorcycle with sidecar'], 'Трицикл / грузовой':['Trisikl / ýük','Trike / cargo'],
   'Электромотоцикл':['Elektromotosikl','Electric motorcycle'], 'Питбайк / детский':['Pitbaýk / çagalar üçin','Pit bike / kids'],
-  'Авто, мото, импорт, аренда':['Awtoulag, moto, getirmek, kärende','Cars, motorcycles, imports, rental'],
+  'Авто, мото, импорт, аренда':['Awtoulag, moto, getirmek, arenda','Cars, motorcycles, imports, rental'],
   // «О приложении» и частые вопросы, версия 1.3
-  'AlphaCars TM — автомаркет Туркменистана. Только машины и всё, что с ними связано: продажа авто и мотоциклов, пригон из-за рубежа, запчасти, спецтехника, аренда, сервисы и работа для водителей.':['AlphaCars TM — Türkmenistanyň awtobazary. Diňe maşynlar we olar bilen baglanyşykly zatlar: awtoulag we motosikl satuwy, daşary ýurtdan getirmek, şaýlar, ýörite tehnika, kärende, awtoserwis we sürüjiler üçin iş.','AlphaCars TM is the car marketplace of Turkmenistan. Only vehicles and everything around them: cars and motorcycles for sale, imports, parts, heavy machinery, rental, service and driver jobs.'],
+  'AlphaCars TM — автомаркет Туркменистана. Только машины и всё, что с ними связано: продажа авто и мотоциклов, пригон из-за рубежа, запчасти, спецтехника, аренда, сервисы и работа для водителей.':['AlphaCars TM — Türkmenistanyň awtobazary. Diňe maşynlar we olar bilen baglanyşykly zatlar: awtoulag we motosikl satuwy, daşary ýurtdan getirmek, şaýlar, ýörite tehnika, arenda, awtoserwis we sürüjiler üçin iş.','AlphaCars TM is the car marketplace of Turkmenistan. Only vehicles and everything around them: cars and motorcycles for sale, imports, parts, heavy machinery, rental, service and driver jobs.'],
   'Мотоциклы, скутеры и квадроциклы — отдельный раздел':['Motosikller, skuterler we kwadrosikller — aýratyn bölüm','Motorcycles, scooters and ATVs — a separate section'],
   'Новые и с пробегом — переключатель в один клик':['Täze we ulanylan — bir basyşda saýlaň','New or used — one tap to switch'],
   'Чат с продавцом прямо в приложении':['Programmanyň içinde satyjy bilen hat alyşmak','Chat with the seller right in the app'],

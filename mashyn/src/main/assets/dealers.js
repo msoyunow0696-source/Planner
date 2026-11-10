@@ -48,7 +48,7 @@ Object.assign(FEATURE_SCREENS, {
       <div class="list">${list.length ? list.map(({d,n})=>`<button class="dcard" data-a="dealer" data-v="${esc(d.id)}">${dealerBanner(d)}
         <span class="dc-body">${dealerLogo(d,52)}<span style="flex:1;min-width:0"><b class="dc-name">${esc(d.name)}</b>${d.hidden?' <span class="badge b-bad">Скрыт</span>':''}
           <span class="small dim">${esc(dealerPlace(d))}</span></span><span class="dc-n"><b class="num">${n}</b><span class="tiny dim">авто</span></span></span></button>`).join('')
-        : emptyBox('Пока нет салонов','Создайте страницу своего салона — это бесплатно')}</div>`};
+        : emptyBox('Пока нет салонов','Создайте страницу своего салона')}</div>`};
   },
 
   dealer(id){
@@ -104,7 +104,7 @@ Object.assign(FEATURE_SCREENS, {
     const pic = (k, label, hint) => `<div class="field"><label>${label}</label><label class="dpic ${k}">${d[k]?`<img src="${esc(d[k])}" alt="">`:`${ic('photo')}<span class="small">${hint}</span>`}<input type="file" accept="image/*" data-dpic="${k}" hidden></label>
       ${d[k]?`<button type="button" class="link small" data-a="dpicdel" data-v="${k}">Убрать</button>`:''}</div>`;
     return {title: d.id ? 'Мой салон' : 'Новый салон', html:`
-      <div class="card pad small dim">Страница салона бесплатная и появляется сразу. За ложные сведения салон могут скрыть по жалобам.</div>
+      <div class="card pad small dim">Страница салона появляется сразу. За ложные сведения салон могут скрыть по жалобам.</div>
       ${pic('banner','Фон сверху (баннер)','Широкое фото салона или площадки')}
       ${pic('logo','Логотип','Квадратная картинка')}
       <div class="field"><label for="de_name">Название салона *</label><input class="inp" id="de_name" maxlength="60" value="${esc(d.name||'')}" placeholder="Например: Ashgabat Motors"></div>
@@ -206,14 +206,14 @@ Object.assign(TR, {
   'Автосалоны':['Awtosalonlar','Car dealers'], 'Автосалон':['Awtosalon','Car dealer'], 'Мой салон':['Meniň salonym','My dealership'], 'Новый салон':['Täze salon','New dealership'],
   'Создать страницу салона':['Salonyň sahypasyny döret','Create a dealer page'], 'Машины от салонов, кредит, обмен и другие услуги':['Salonlardan maşynlar, karz, çalyşmak we beýleki hyzmatlar','Cars from dealers, credit, trade and more'],
   'машины от салонов и их услуги':['salonlardan maşynlar we hyzmatlar','dealer cars and services'], 'салонов':['salon','dealers'], 'авто':['awto','cars'],
-  'Пока нет салонов':['Entek salon ýok','No dealers yet'], 'Создайте страницу своего салона — это бесплатно':['Salonyňyzyň sahypasyny dörediň — mugt','Create your dealer page — it is free'],
+  'Пока нет салонов':['Entek salon ýok','No dealers yet'], 'Создайте страницу своего салона':['Salonyňyzyň sahypasyny dörediň','Create your dealer page'],
   'Скрыт':['Gizlin','Hidden'], 'Салон не найден':['Salon tapylmady','Dealer not found'], 'Возможно, его скрыли или удалили':['Ony gizlän ýa-da pozan bolmagy mümkin','It may have been hidden or deleted'],
   'Салон скрыт администрацией':['Salony administrasiýa gizledi','Hidden by administration'], 'Контакты':['Habarlaşmak','Contacts'], 'Изменить':['Üýtget','Edit'],
   'Добавить авто':['Awto goş','Add a car'], 'Привязать мои объявления к салону · ':['Bildirişlerimi salona birikdir · ','Link my listings to the dealer · '],
   'Машины салона':['Salonyň maşynlary','Dealer cars'], 'Машин пока нет':['Entek maşyn ýok','No cars yet'],
   'Подайте объявление — оно появится здесь':['Bildiriş goýuň — şu ýerde peýda bolar','Post a listing — it will show up here'], 'Салон ещё не выставил машины':['Salon entek maşyn goýmady','The dealer has no cars yet'],
   'Показать салон':['Salony görkez','Show dealer'], 'Скрыть салон':['Salony gizle','Hide dealer'],
-  'Страница салона бесплатная и появляется сразу. За ложные сведения салон могут скрыть по жалобам.':['Salonyň sahypasy mugt we derrew peýda bolýar. Ýalan maglumat üçin şikaýat boýunça gizlenip bilner.','The dealer page is free and appears right away. False information may get it hidden after complaints.'],
+  'Страница салона появляется сразу. За ложные сведения салон могут скрыть по жалобам.':['Salonyň sahypasy derrew peýda bolýar. Ýalan maglumat üçin şikaýat boýunça gizlenip bilner.','The dealer page appears right away. False information may get it hidden after complaints.'],
   'Фон сверху (баннер)':['Ýokarky surat (banner)','Top background (banner)'], 'Широкое фото салона или площадки':['Salonyň ýa-da meýdançanyň giň suraty','A wide photo of the showroom or lot'],
   'Логотип':['Logotip','Logo'], 'Квадратная картинка':['Inedördül surat','Square picture'],
   'Название салона *':['Salonyň ady *','Dealer name *'], 'Телефон салона':['Salonyň telefony','Dealer phone'], 'Услуги':['Hyzmatlar','Services'], 'О салоне':['Salon barada','About the dealer'],

@@ -34,7 +34,20 @@ public class MainActivity extends Activity {
 
         webView = new WebView(this);
         webView.setBackgroundColor(0xFF0A0A0A);
-        setContentView(webView);
+        // Android 15+ (targetSdk 35+) рисует приложение «от края до края»: без отступов шапка уходит под часы,
+        // нижние вкладки — под кнопки телефона, поле ввода — под клавиатуру. Отступы задаёт рамка вокруг WebView.
+        android.widget.FrameLayout root = new android.widget.FrameLayout(this);
+        root.setBackgroundColor(0xFF0A0A0A);
+        root.addView(webView);
+        if (Build.VERSION.SDK_INT >= 35) {
+            root.setOnApplyWindowInsetsListener((v, insets) -> {
+                android.graphics.Insets b = insets.getInsets(android.view.WindowInsets.Type.systemBars()
+                        | android.view.WindowInsets.Type.displayCutout() | android.view.WindowInsets.Type.ime());
+                v.setPadding(b.left, b.top, b.right, b.bottom);
+                return android.view.WindowInsets.CONSUMED;
+            });
+        }
+        setContentView(root);
 
         WebSettings s = webView.getSettings();
         s.setJavaScriptEnabled(true);

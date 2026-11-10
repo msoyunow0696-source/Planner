@@ -5,7 +5,7 @@
    Запросы к Supabase и фото (другие адреса) не трогаем. В Android-приложении не используется.
    ===================================================== */
 importScripts('brands.js');
-const CACHE = 'alpha-drive-3.5';
+const CACHE = 'alpha-drive-3.7';
 // './', а не 'index.html': на сайте index.html отвечает переадресацией на ./
 const SHELL = ['./', 'supabase.js', 'i18n.js', 'i18n-tr.js', 'features.js', 'features-plus.js', 'dealers.js', 'brands.js', 'staff.js', 'helper.js', 'pwa.js', 'refresh.js',
   'manifest.webmanifest', 'kuzov/lines.webp', 'app-192.png', 'app-512.png', 'logo.png', 'banner.webp', 'banner-sm.webp', 'dealers-banner.webp', 'dealers-banner-sm.webp', 'tech-banner.webp', 'tech-banner-sm.webp', 'cars-banner.webp', 'cars-banner-sm.webp', 'import-banner.webp', 'import-banner-sm.webp', 'moto-banner.webp', 'moto-banner-sm.webp',

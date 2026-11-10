@@ -4,20 +4,35 @@ plugins {
 
 android {
     namespace 'com.mashynbazar.app'
-    compileSdk 34
+    compileSdk 36
 
     defaultConfig {
         applicationId 'com.mashynbazar.app'
         minSdk 26
-        targetSdk 34
+        targetSdk 36
         // На GitHub номер сборки = номер выпуска build-N: по нему приложение узнаёт, что вышла новая версия
         versionCode System.getenv('GITHUB_RUN_NUMBER')?.toInteger() ?: 17
-        versionName '1.8.2'
+        versionName '1.8.3'
+    }
+
+    // Ключ для Google Play: на GitHub берётся из секретов (файл восстанавливает build.yml), на компьютере — из _SEKRET.
+    // Ключа нет — release-сборка не подписывается (обычный APK для сайта собирается как раньше, debug).
+    def ksFile = System.getenv('PLAY_KEYSTORE_FILE')
+    signingConfigs {
+        if (ksFile && file(ksFile).exists()) {
+            play {
+                storeFile file(ksFile)
+                storePassword System.getenv('PLAY_KEYSTORE_PASSWORD')
+                keyAlias System.getenv('PLAY_KEY_ALIAS') ?: 'alphacars'
+                keyPassword System.getenv('PLAY_KEY_PASSWORD') ?: System.getenv('PLAY_KEYSTORE_PASSWORD')
+            }
+        }
     }
 
     buildTypes {
         release {
             minifyEnabled false
+            if (ksFile && file(ksFile).exists()) signingConfig signingConfigs.play
         }
     }
 

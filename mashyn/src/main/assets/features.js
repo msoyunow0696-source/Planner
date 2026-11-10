@@ -461,7 +461,7 @@ Object.assign(FEATURE_SCREENS, {
         ${tg?`<a class="btn ghost" href="https://t.me/${esc(tg)}" target="_blank" rel="noopener">${ic('up')}Telegram @${esc(tg)}</a>`:''}
         ${em?`<a class="btn ghost" href="mailto:${esc(em)}">${ic('chat')}${esc(em)}</a>`:''}
         <span class="tiny dim">Работаем каждый день с 09:00 до 21:00</span></div>
-      <div class="col" style="gap:8px"><h3>Частые вопросы</h3>${FAQ.map(([q,a])=>`<details class="faq"><summary>${q}</summary><p class="small dim">${a}</p></details>`).join('')}</div>
+      <div class="col" style="gap:8px"><h3>Частые вопросы</h3>${FAQ.filter(f=>!(S.settings.mode==='free'&&f[0]==='Сколько стоит размещение?')).map(([q,a])=>`<details class="faq"><summary>${q}</summary><p class="small dim">${a}</p></details>`).join('')}</div>
       <div class="card pad col" style="gap:10px"><h3>Написать нам</h3>
         ${u ? `<div class="field"><label for="sup_topic">Тема</label><select class="inp" id="sup_topic">${SUP_TOPICS.map(x=>`<option>${x}</option>`).join('')}</select></div>
           <textarea class="inp" id="sup_text" style="min-height:90px" maxlength="1000" placeholder="Опишите вопрос или проблему. Если про объявление — напишите его название."></textarea>

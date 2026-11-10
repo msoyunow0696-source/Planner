@@ -629,10 +629,10 @@ const T = {
   home:['Главная','Baş sahypa'], catalog:['Каталог','Katalog'], post:['Подать','Goş'], favs:['Избранное','Halanlarym'], profile:['Профиль','Profil'],
   searchPh:['Поиск','Gözleg'],
   s_cars:['Авто','Awtoulaglar'], s_import:['Из-за рубежа','Daşary ýurtdan'], s_parts:['Запчасти','Şaýlar'], s_tech:['Техника и услуги','Tehnika we hyzmatlar'],
-  s_moto:['Мотоциклы','Motosikller'], s_jobs:['Работа водителям','Sürüjiler üçin iş'], s_rent:['Аренда','Kärende'], s_sto:['Сервисы','Awtohyzmat'], s_all:['Все объявления','Ähli bildirişler'],
+  s_moto:['Мотоциклы','Motosikller'], s_jobs:['Работа водителям','Sürüjiler üçin iş'], s_rent:['Аренда','Arenda'], s_sto:['Сервисы','Awtohyzmat'], s_all:['Все объявления','Ähli bildirişler'],
   heroT:['Машины, техника и работа — в одном месте','Maşynlar, tehnika we iş — bir ýerde'],
   heroP:['Первое объявление — бесплатно на 7 дней','Ilkinji bildiriş — 7 gün mugt'],
-  heroFree:['Сейчас все объявления — бесплатно','Häzir ähli bildirişler mugt'],
+  heroFree:['Подайте объявление за пару минут','Bildirişiňizi birnäçe minutda goşuň'],
   heroBtn:['Подать объявление','Bildiriş goş'],
   vip:['VIP-объявления','VIP bildirişler'], fresh:['Новые объявления','Täze bildirişler'], all:['Все','Ählisi'],
   filters:['Фильтры','Süzgüçler'], apply:['Показать','Görkez'], reset:['Сбросить','Arassala'],
@@ -872,7 +872,7 @@ const SEC_TAGS = {
   tech:'спецтехника техника грузовик перевозка груз доставка truck trucks special vehicle tehnika ýük ulag ýük maşyny daşamak',
   jobs:'работа вакансия водитель шофёр резюме job jobs driver vacancy iş sürüji şofýor wakansiýa',
   parts:'запчасти запчасть детали шины диски масло parts spare auto parts tyres zapçast ätiýaçlyk şaý şaýlar teker',
-  rent:'аренда прокат авто машина напрокат rent rental car hire kärende kärendesine maşyn',
+  rent:'аренда прокат авто машина напрокат rent rental car hire kärende kärendesine maşyn arenda',
   sto:'сто автосервис сервис ремонт диагностика шиномонтаж мастер service repair car service garage abatlaýyş awtoserwis ussa'
 };
 const BRAND_CYR = {Toyota:'тойота',Lexus:'лексус',Hyundai:'хендай хундай хюндай',Kia:'киа',Mercedes:'мерседес мерс','Mercedes-Benz':'мерседес мерс',BMW:'бмв бэха',Chevrolet:'шевроле шевролет',
@@ -1261,6 +1261,9 @@ function tick(){
 }
 function notify(u, text){ if (!u) return; S.notifs.unshift({id:uid(),uid:u,text,time:now(),read:false}); }
 const me = () => S.users.find(u => u.id === S.session) || null;
+// Решение 2026-11-09: в режиме free (период запуска) для пользователей скрыто всё платное (VIP, подписки, цены, продвижение) и слова «бесплатно». Включает админ кнопкой в «Админке → Настройки».
+const paidOff = () => S.settings.mode==='free';
+const hidePaid = () => paidOff() && (me()?.role||'user')==='user';
 const userById = id => S.users.find(u => u.id === id);
 const visible = l => l.status==='active' && l.until > now() && !l.hiddenByComplaints;
 const isOn = (l, k) => l[k] && l[k] > now();
@@ -1450,7 +1453,7 @@ function badField(el, msg){ const err = $('#d_err'); if (err) err.textContent = 
   const det = el.closest('details'); if (det) det.open = true;
   el.classList.add('bad'); el.scrollIntoView({block:'center', behavior:'smooth'}); setTimeout(()=>el.classList.remove('bad'), 4000); }
 // Узкая лента VIP под разделами: маленькие карточки (только фото), листается сама; VIP нет — полоска «Ваше объявление здесь»
-const vipStrip = vip => vip.length
+const vipStrip = vip => !vip.length && hidePaid() ? '' : vip.length
   ? `<div class="vstrip"><span class="vs-h">⭐ VIP</span><div class="vs-track" id="vstrip">${vip.map(l=>`<button class="vs-c" data-a="open" data-v="${l.id}"><span class="vs-ph" title="${esc(l.title)}">${mainPic(l)}</span></button>`).join('')}</div></div>`
   : `<button class="vstrip vs-empty" data-a="tab" data-v="${me() && S.listings.some(l=>l.uid===me().id) ? 'profile' : 'post'}"><span class="vs-h">⭐ VIP</span><span style="flex:1;min-width:0">Ваше объявление здесь — VIP от ${(PROMOS.find(p=>p.k==='vip')||{}).price||15} TMT</span>${ic('back','style="width:16px;height:16px;transform:rotate(180deg);flex:none"')}</button>`;
 function vipStripOn(){ const tr = $('#vstrip'); if (!tr || tr.scrollWidth <= tr.clientWidth + 4 || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -1549,7 +1552,7 @@ const SCREENS = {
     const liked = u && l.likes.includes(u.id), disl = u && l.dislikes.includes(u.id);
     const own = u && u.id===l.uid;
     const statusIdx = ['На аукционе','В пути','В Туркменистане'].indexOf(s.status);
-    const phone = contactPhone(sel);
+    const phone = l.tel || contactPhone(sel);
     return {title:t('s_'+l.sec), html:`
       ${isSold(l)?soldBanner(l):!visible(l)?`<div class="card pad small" style="border-color:var(--warn)"><b style="color:var(--warn)">Объявление не опубликовано</b><br><span class="dim">${statusText(l)}</span></div>`:''}
       <div class="gal"><div class="gal-track" id="gal">${pics.join('')}</div>${isVideoUrl(l.video)&&pics.length>1?'<button class="gal-vid" id="gvid" data-a="galvideo">▶ Видео</button>':''}${pics.length>1?`<div class="gal-dots" id="gdots">${pics.map((_,i)=>`<i class="${i?'':'on'}"></i>`).join('')}</div>`:''}
@@ -1585,7 +1588,7 @@ const SCREENS = {
           <div class="grid2"><a class="btn ${own||isSold(l)?'':'ghost'}" href="tel:${esc(phone)}">${ic('phone')}${t('call')}</a><a class="btn ghost" href="https://wa.me/${esc(phone.replace(/\D/g,''))}" target="_blank" rel="noopener">${ic('chat')}WhatsApp</a></div>
           <div class="small dim">IMO: тот же номер — ${esc(fmtPhone(phone))}</div>`
         : `<div class="contact-lock"><span class="phone-num num">${esc(fmtPhone(phone).slice(0,8))} ●● ●● ●●</span>
-          <span class="small dim">Номер, WhatsApp и IMO видны после входа. Регистрация бесплатная.</span>
+          <span class="small dim">Номер, WhatsApp и IMO видны после входа.</span>
           <button class="btn" data-a="auth" data-v="login">${ic('lock')}${t('loginToCall')}</button></div>`}
       </div>
 
@@ -1603,7 +1606,7 @@ const SCREENS = {
           <button class="btn ghost" data-a="addcm" data-v="${l.id}">${ic('chat')}${t('send')}</button></div>`
         : `<button class="btn ghost" data-a="auth" data-v="login">${ic('lock')}Войдите, чтобы комментировать</button>`}
       </div>
-      ${own?`<div class="card pad col"><h3>Продвижение</h3>${PROMOS.map(p=>`<button class="row" style="text-align:left;padding:8px 0" data-a="promo" data-v="${p.k}:${l.id}">
+      ${own&&!hidePaid()?`<div class="card pad col"><h3>Продвижение</h3>${PROMOS.map(p=>`<button class="row" style="text-align:left;padding:8px 0" data-a="promo" data-v="${p.k}:${l.id}">
         <span class="ci" style="width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:var(--card2);color:var(--accent)">${ic(p.icon,'style="width:20px;height:20px"')}</span>
         <span style="flex:1"><b>${p.n}</b><br><span class="small dim">${p.d}</span></span><b class="num">${p.price} TMT</b></button>`).join('')}<div class="tiny dim">Цены продвижения — пример, их можно изменить.</div></div>`:''}
       ${rowBlock('Похожие объявления', similarTo(l))}
@@ -1633,10 +1636,10 @@ const SCREENS = {
     if (!d) return {title:'Новое объявление', html:`${saved?.sec ? `<div class="card pad col" style="gap:10px;border-color:var(--accent)"><b>У вас есть незаконченное объявление</b><span class="small dim">${esc(t('s_'+saved.sec))}${autoTitle(saved)?' · '+esc(autoTitle(saved)):''}${saved.photos?.filter(Boolean).length?' · '+saved.photos.filter(Boolean).length+' фото':''}</span>
         <div class="grid2"><button class="btn ghost sm" data-a="draftdrop">Удалить</button><button class="btn sm" data-a="draftresume">Продолжить</button></div></div>` : ''}
       <h2>Что вы хотите разместить?</h2>
-      ${S.settings.mode==='free'?`<div class="mode-banner">${ic('star')}<div><b>Сейчас все объявления бесплатно</b><br><span class="dim">До 10 фото, 30 дней, продление тоже бесплатное.</span></div></div>`
+      ${paidOff()?''
         : !u.freeUsed?`<div class="card pad row" style="border-color:var(--ok)">${ic('star','style="width:22px;height:22px;color:var(--ok)"')}<div><b>Первое объявление — бесплатно на 7 дней</b><div class="small dim">До 10 фото. Потом — продление подпиской.</div></div></div>`:''}
       <div class="list">${SECTIONS.map(s=>`<button class="card pad row" data-a="draft" data-v="${s.k}" style="text-align:left">${i3d(s.k)}<b style="flex:1">${t('s_'+s.k)}</b>
-        ${s.k==='jobs'?'<span class="badge b-ok">резюме бесплатно</span>':''}</button>`).join('')}</div>`};
+        ${s.k==='jobs'&&!paidOff()?'<span class="badge b-ok">резюме бесплатно</span>':''}</button>`).join('')}</div>`};
     const sec = d.sec, maxPh = maxPhotos(u, sec, d.specs?.kind);
     const field = f => {
       const v = d.specs[f.k] ?? '';
@@ -1666,6 +1669,7 @@ const SCREENS = {
         :`<div class="small dim">Итоговая цена «под ключ» посчитается сама: авто + доставка + растаможка.</div>`}
       <div class="field"><label>Город *</label><button type="button" class="inp pick" data-a="citypick" data-v="post"><span>${esc(placeText(d))}</span>${ic('chev')}</button></div>
       <div class="field"><label for="d_desc">${t('descr')}</label><textarea class="inp" id="d_desc" maxlength="2000" placeholder="Состояние, комплектация, условия">${esc(d.desc||'')}</textarea></div>
+      <div class="field"><label for="d_tel">Номер для звонков</label><input class="inp num" id="d_tel" type="tel" inputmode="tel" maxlength="20" autocomplete="off" placeholder="${esc(fmtPhone(contactPhone(u)))}" value="${esc(d.tel||'')}"><span class="tiny dim">Если продаёте за другого человека — впишите его номер. Пусто — будет ваш номер.</span></div>
       ${myDealers().length && DEALER_SECS.includes(sec) ? (myDealers().length===1
         ? `<label class="check card pad"><input type="checkbox" id="d_dealer" ${d.noDealer?'':'checked'}><span><span>Объявление от салона</span> «${esc(myDealer().name)}»</span></label>`
         : `<div class="field"><label for="d_dealer_sel">Объявление от салона</label><select class="inp" id="d_dealer_sel"><option value="">Без салона</option>${myDealers().map(x=>`<option value="${esc(x.id)}" ${pickDealer(d)===x.id?'selected':''}>${esc(x.name)}</option>`).join('')}</select></div>`) : ''}
@@ -1675,7 +1679,7 @@ const SCREENS = {
         <span class="tiny dim">До 10 фото. Приложение само уменьшит их, чтобы быстро грузилось даже при медленном интернете.</span>
         ${['cars','import','rent'].includes(sec)?`<button type="button" class="link small" style="text-align:left" data-a="phototips">📸 Как сфотографировать машину, чтобы продать быстрее</button>`:''}</div>
       <div class="field"><label>Видео (по желанию, 1 шт., до ${VIDEO_SEC} сек и ${VIDEO_MB} МБ)</label>
-        ${!d.video&&!d.videoUrl&&!canVideo(u, d)?`<div class="card pad row small" style="gap:10px">${ic('lock','style="width:20px;height:20px;flex:none;color:var(--dim)"')}<span style="flex:1"><span>Видео можно добавить с подпиской или в VIP-объявлении.</span></span><button class="btn sm ghost" data-a="tab" data-v="plans">Подписки</button></div>`
+        ${!d.video&&!d.videoUrl&&!canVideo(u, d)?`<div class="card pad row small" style="gap:10px">${ic('lock','style="width:20px;height:20px;flex:none;color:var(--dim)"')}<span style="flex:1"><span>${hidePaid()?'Видео можно добавить в VIP-объявлении.':'Видео можно добавить с подпиской или в VIP-объявлении.'}</span></span>${hidePaid()?'':'<button class="btn sm ghost" data-a="tab" data-v="plans">Подписки</button>'}</div>`
           :!d.video&&d.videoUrl?`<div class="card pad row between small" style="gap:8px"><span>🎬 Видео уже загружено</span><button class="btn sm ghost" data-a="delvid">Убрать</button></div>`
           :d.video?`<div class="card pad row between small" style="gap:8px"><span>🎬 ${esc(d.video.name)} · <span class="num">${(d.video.size/1048576).toFixed(1)} МБ</span></span><button class="btn sm ghost" data-a="delvid">Убрать</button></div>`
           :`<label class="btn ghost">${ic('plus')}Добавить видео<input type="file" id="d_vid" accept="video/*" hidden></label>`}
@@ -1685,7 +1689,7 @@ const SCREENS = {
       <button class="btn wide" data-a="publish">${ic('check')}${d.edit?'Сохранить изменения':t('publish')}</button>`,
       after(){
         document.querySelectorAll('[data-f]').forEach(el=>el.addEventListener('change',()=>{ d.specs[el.dataset.f] = el.type==='checkbox' ? (el.checked?'Да':'') : el.value; }));
-        ['title','unit','desc','tags'].forEach(k=>{ const el=$('#d_'+k); el && el.addEventListener('input',()=>{ d[k]=el.value; draftSave(); }); });
+        ['title','unit','desc','tags','tel'].forEach(k=>{ const el=$('#d_'+k); el && el.addEventListener('input',()=>{ d[k]=el.value; draftSave(); }); });
         // Цена: при вводе — пробелы между тысячами (395 000), в черновике — только цифры
         const pr=$('#d_price'); pr && pr.addEventListener('input',()=>{ const n = pr.value.replace(/\D/g,'').slice(0,10); d.price = n; pr.value = fmtNum(n); draftSave(); });
         // Заголовок-подсказка обновляется, когда выбрали марку, модель, год
@@ -1779,7 +1783,7 @@ const SCREENS = {
     const by = state.authBy || 'phone';
     return {title: reg?t('register'):t('login'), html:`
       <div class="col" style="align-items:center;text-align:center;gap:8px;padding-top:6px"><img class="logo-full wm-d" src="logo/full-dark.webp" alt=""><img class="logo-full wm-l" src="logo/full-light.webp" alt="">
-        <h1 style="font-size:1.3rem">${reg?'Создать аккаунт':'Вход в AlphaCars TM'}</h1><p class="small dim" style="margin:0">${reg?'Регистрация бесплатная. Платить нужно только за объявления.':'Войдите по номеру телефона или почте'}</p></div>
+        <h1 style="font-size:1.3rem">${reg?'Создать аккаунт':'Вход в AlphaCars TM'}</h1><p class="small dim" style="margin:0">${reg?(paidOff()?'Войдите по номеру телефона или почте':'Регистрация бесплатная. Платить нужно только за объявления.'):'Войдите по номеру телефона или почте'}</p></div>
       <div class="seg"><button class="${!reg?'on':''}" data-a="auth" data-v="login">${t('login')}</button><button class="${reg?'on':''}" data-a="auth" data-v="register">${t('register')}</button></div>
       <form id="authf" class="col" novalidate>
         ${reg?`<div class="field"><label for="a_name">${t('name')}</label><input class="inp" id="a_name" autocomplete="name" placeholder="Мердан"></div>
@@ -1813,9 +1817,8 @@ const SCREENS = {
         <div class="row" style="gap:6px;margin-top:4px"><span class="badge b-dim">${u.type==='company'?'Компания':'Частное лицо'}</span>${u.role!=='user'?`<span class="badge b-vip">${roleName(u.role)}</span>`:''}</div></div></div>
       ${emailCard(u)}
       <div class="stat-row"><div class="stat"><b class="num">${mine.filter(visible).length}</b><span class="tiny dim">активных</span></div>
-        <div class="stat"><b class="num">${subs.length}</b><span class="tiny dim">подписок</span></div>
+        ${hidePaid()?'':`<div class="stat"><b class="num">${subs.length}</b><span class="tiny dim">подписок</span></div>`}
         <div class="stat"><b class="num">${(S.favs[u.id]||[]).length}</b><span class="tiny dim">в избранном</span></div></div>
-      ${S.settings.mode==='free'?`<div class="mode-banner">${ic('star')}<div><b>Период запуска: все объявления бесплатно</b></div></div>`:''}
       ${S.settings.mode!=='free'&&!u.freeUsed?`<div class="card pad row" style="border-color:var(--ok)">${ic('star','style="width:22px;height:22px;color:var(--ok)"')}<div class="small"><b>У вас есть бесплатное объявление на 7 дней</b><br><span class="dim">Подайте первое объявление без оплаты</span></div></div>`:''}
       ${pend.length?`<div class="card pad small" style="border-color:var(--warn)"><b style="color:var(--warn)">Оплата на проверке: ${pend.map(p=>p.code).join(', ')}</b><br><span class="dim">Подписка включится после подтверждения администратором</span></div>`:''}
 
@@ -1823,11 +1826,11 @@ const SCREENS = {
         ${mine.length?mine.map(l=>`<div class="card pad col" style="gap:8px"><button class="row" style="text-align:left" data-a="open" data-v="${l.id}">
           <div style="width:64px;height:48px;border-radius:10px;overflow:hidden;flex:none">${mainPic(l)}</div><div style="flex:1;min-width:0"><b class="small" style="display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(l.title)}</b><span class="tiny dim num">${esc(priceText(l))}</span><br>${sellerStats(l)}</div></button>
           <div class="between" style="flex-wrap:wrap;gap:8px"><span class="badge ${isSold(l)?'b-ok':visible(l)?(daysLeft(l.until)<=2?'b-warn':'b-ok'):'b-bad'}">${isSold(l)?'Продано':statusText(l)}</span>
-          <span class="row" style="gap:6px;flex-wrap:wrap;margin-left:auto">${!isSold(l)&&l.status!=='review'?`<button class="btn sm ghost" data-a="ledit" data-v="${l.id}" aria-label="Изменить">${ic('edit','style="width:16px;height:16px"')}</button>`:''}${!isSold(l)&&l.price&&['active','expired'].includes(l.status)?`<button class="btn sm ghost" data-a="pricesheet" data-v="${l.id}">Цена</button>`:''}${['active','expired'].includes(l.status)?`<button class="btn sm ghost" data-a="sold" data-v="${l.id}">${ic('check')}Продано</button>`:''}${!visible(l)&&['expired','nosub'].includes(l.status)?`<button class="btn sm" data-a="renew" data-v="${l.id}">${S.settings.mode==='free'?'Продлить бесплатно':'Продлить'}</button>`:''}<button class="btn sm ghost" data-a="dellist" data-v="${l.id}" aria-label="Удалить">${ic('trash')}</button></span></div></div>`).join('')
+          <span class="row" style="gap:6px;flex-wrap:wrap;margin-left:auto">${!isSold(l)&&l.status!=='review'?`<button class="btn sm ghost" data-a="ledit" data-v="${l.id}" aria-label="Изменить">${ic('edit','style="width:16px;height:16px"')}</button>`:''}${!isSold(l)&&l.price&&['active','expired'].includes(l.status)?`<button class="btn sm ghost" data-a="pricesheet" data-v="${l.id}">Цена</button>`:''}${['active','expired'].includes(l.status)?`<button class="btn sm ghost" data-a="sold" data-v="${l.id}">${ic('check')}Продано</button>`:''}${!visible(l)&&['expired','nosub'].includes(l.status)?`<button class="btn sm" data-a="renew" data-v="${l.id}">${S.settings.mode==='free'?'Продлить':'Продлить'}</button>`:''}<button class="btn sm ghost" data-a="dellist" data-v="${l.id}" aria-label="Удалить">${ic('trash')}</button></span></div></div>`).join('')
         : `<p class="small dim" style="margin:0">Пока нет объявлений.</p>`}</div>
 
       <div class="card menu">
-        <button data-a="tab" data-v="plans">${ic('card')}<span class="grow">${t('subs')}<br><span class="tiny dim">${subs.length?subs.map(s=>`${tierName(s)} до ${dateStr(s.until)}`).join('; '):'Нет активных подписок'}</span></span></button>
+        ${hidePaid()?'':`<button data-a="tab" data-v="plans">${ic('card')}<span class="grow">${t('subs')}<br><span class="tiny dim">${subs.length?subs.map(s=>`${tierName(s)} до ${dateStr(s.until)}`).join('; '):'Нет активных подписок'}</span></span></button>`}
         <button data-a="chats">${ic('chat')}<span class="grow">Сообщения</span>${unreadChats()?`<span class="badge b-vip num">${unreadChats()}</span>`:''}</button>
         <button data-a="notifs">${ic('bell')}<span class="grow">${t('notifs')}</span></button>
         <button data-a="alerts">${ic('search')}<span class="grow">Уведомления о поиске<br><span class="tiny dim">Сохранено: ${S.alerts.filter(a=>a.uid===u.id).length}</span></span></button>
@@ -1887,7 +1890,10 @@ const SCREENS = {
     else if (tab==='staff') body = staffAdmin();
     else {
       const st = S.settings;
-      body = `<div class="card pad col"><h3>Режим оплаты объявлений</h3>
+      body = `<div class="card pad col" style="border-color:${st.mode==='free'?'var(--warn)':'var(--ok)'}"><h3>VIP, подписки и цены</h3>
+        <span class="small">${st.mode==='free'?'<b>Скрыты от пользователей.</b> Все объявления размещаются без оплаты, слов «бесплатно», цен, подписок и VIP-продвижения пользователи не видят. VIP ставит только администратор.':'<b>Показаны пользователям.</b> Объявления платные по выбранному режиму ниже.'}</span>
+        <button class="btn ${st.mode==='free'?'':'ghost'} wide" data-a="paidtoggle">${st.mode==='free'?'Показать платное (включить оплату)':'Скрыть платное'}</button></div>
+        <div class="card pad col"><h3>Режим оплаты объявлений</h3>
         <div class="seg">${['free','per','subs'].map(m=>`<button class="${st.mode===m?'on':''}" data-a="setmode" data-v="${m}">${m==='free'?'Бесплатно':m==='per'?'За объявление':'Подписки'}</button>`).join('')}</div>
         <span class="small dim">${st.mode==='free'?'Период запуска: все объявления бесплатные, продление тоже.':st.mode==='per'?'Каждое объявление оплачивается отдельно на 30 дней. Подписки тоже доступны.':'Объявления размещаются по подпискам. Первое — бесплатно на 7 дней.'}</span>
         <div class="grid2"><div class="field"><label for="s_pp">За объявление: частное лицо, TMT</label><input class="inp num" id="s_pp" type="number" value="${st.perPerson}"></div>
@@ -1931,8 +1937,8 @@ function statusText(l){
   return `Активно · осталось ${daysLeft(l.until)} дн.`;
 }
 function postTerms(u, sec, seek){
+  if (paidOff()) return 'Объявление публикуется на 30 дней, потом его можно продлить.';
   if (seek) return '<b>Бесплатно.</b> Резюме «Ищу работу» публикуется на 30 дней, продление тоже бесплатное.';
-  if (S.settings.mode==='free') return '<b>Бесплатно на 30 дней.</b> Сейчас период запуска: все объявления бесплатные, продление тоже.';
   if (!u.freeUsed) return '<b>Бесплатно на 7 дней.</b> За 2 дня до конца придёт напоминание. Потом объявление скроется, и его можно продлить подпиской.';
   const sub = freeSlot(u, sec);
   if (sub) return `<b>По вашей подписке</b> «${tierName(sub)}» до ${dateStr(sub.until)}.`;
@@ -2090,7 +2096,7 @@ async function doRegister(){
   err.textContent='';
   const u = {id:data.user.id,name,phone,email:em||'',type:state.acType||'person',company:state.acType==='company'?($('#a_comp')?.value.trim()||name):'',role:'user',created:now(),freeUsed:false,blocked:false};
   if (u.type==='company' && u.company) u.name = u.company;
-  S.users.push(u); S.session = u.id; notify(u.id,'Добро пожаловать! Первое объявление — бесплатно на 7 дней.'); persist();
+  S.users.push(u); S.session = u.id; notify(u.id, paidOff() ? 'Добро пожаловать в AlphaCars TM!' : 'Добро пожаловать! Первое объявление — бесплатно на 7 дней.'); persist();
   await refresh(); deviceOn();
   toast('Аккаунт создан'); afterAuth();
   if (em) sendVerify(em.toLowerCase());
@@ -2129,7 +2135,7 @@ function sideMenu(){
     it('alerts','','search',t('search_alerts')),
     it('estimate','','card',t('estimate_menu')),
     it('cmpopen','','list',t('compare_menu'), cmpCount()?`<span class="badge b-vip num">${cmpCount()}</span>`:''),
-    it('tab','plans','card',t('subs')),
+    hidePaid() ? '' : it('tab','plans','card',t('subs')),
     it('dealers','','store',t('dealers_menu')),
     it('support','','chat',t('support')),
     it('settings','','gear',t('settings')),
@@ -2290,6 +2296,10 @@ async function publish(){
   const u = me(), d = state.draft, err = $('#d_err'); err.textContent='';
   const sec = d.sec, specs = {...d.specs};
   d.title = $('#d_title').value.trim(); d.desc = $('#d_desc').value.trim(); d.tags = (d.tags||'').slice(0,200);
+  // Решение 2026-11-09: свой номер для звонков в объявлении (продают за другого человека); пусто — номер из профиля
+  const telRaw = ($('#d_tel')?.value||'').trim(), ltel = telRaw ? normTel(telRaw) : '';
+  if (ltel===null) return badField($('#d_tel').closest('.field'), 'Номер: 8 цифр (например 61234567) или с кодом страны, например +99361234567');
+  d.tel = ltel;
   if ($('#d_price')) d.price = $('#d_price').value.replace(/\D/g,''); if ($('#d_unit')) d.unit = $('#d_unit').value;
   if (d.video && !canVideo(u, d)) return err.textContent='Видео можно добавить с подпиской или в VIP-объявлении.';
   for (const f of FIELDS[sec]) if (f.req && !specs[f.k]) return badField(document.querySelector(`[data-f="${f.k}"], [data-a="pick"][data-v="${f.k}"], [data-a="dseg"][data-v^="${f.k}:"]`)?.closest('.field') || null, `Заполните поле «${f.l}»`);
@@ -2321,7 +2331,7 @@ async function publish(){
   busyOff(); err.textContent = '';
   if (!video && d.videoUrl && !d.edit) video = d.videoUrl;
   if (d.edit) return saveEdit(d, u, {specs, price, photos, video: video || d.videoUrl || ''});
-  const l = {id:uid(),sec,uid:u.id,title:d.title,price,unit:d.unit||'',reg:d.reg||REGIONS[0].k,place:d.place||'',specs,desc:d.desc,tags:d.tags||'',photos,video,created:now(),views:0,likes:[],dislikes:[],
+  const l = {id:uid(),sec,uid:u.id,title:d.title,price,unit:d.unit||'',reg:d.reg||REGIONS[0].k,place:d.place||'',specs,desc:d.desc,tags:d.tags||'',...(d.tel?{tel:d.tel}:{}),photos,video,created:now(),views:0,likes:[],dislikes:[],
     art:{k:({moto:'moto',cars:'sedan',import:'sedan',rent:'sedan',parts:'gear',sto:'wrench',jobs:'job'})[sec] || (/(кран)/i.test(specs.ttype||'')?'crane':/реф/i.test(specs.ttype||'')?'fridge':'truck'), c:['#7c6cf0','#e67e22','#16a085','#2e86de','#c0392b'][Math.floor(Math.random()*5)]}};
   // Объявление от своего салона (галочка в форме; база проверяет, что салон свой)
   const did = DEALER_SECS.includes(sec) ? pickDealer(d) : ''; if (did) l.dealer = did;
@@ -2330,8 +2340,8 @@ async function publish(){
   const mode = S.settings.mode;
   // Решение 2026-11-04: объявление администратора — сразу VIP на 30 дней, без оплаты и подписки
   if (u.role==='admin'){ l.until=now()+30*DAY; l.status='active'; l.free=1; l.vip=l.until; msg='Опубликовано как VIP на 30 дней'; flags.length=0; }
-  else if (seek){ l.until=now()+30*DAY; l.status='active'; msg='Резюме опубликовано бесплатно на 30 дней'; }
-  else if (mode==='free'){ l.until=now()+30*DAY; l.status='active'; l.free=1; msg='Опубликовано бесплатно на 30 дней'; }
+  else if (seek){ l.until=now()+30*DAY; l.status='active'; msg=mode==='free'?'Опубликовано на 30 дней':'Резюме опубликовано бесплатно на 30 дней'; }
+  else if (mode==='free'){ l.until=now()+30*DAY; l.status='active'; l.free=1; msg='Опубликовано на 30 дней'; }
   else if (!u.freeUsed){ l.until=now()+7*DAY; l.status='active'; u.freeUsed=true; l.free=1; msg='Опубликовано бесплатно на 7 дней'; }
   else { const sub=freeSlot(u,sec); if (sub){ l.until=sub.until; l.subId=sub.id; l.status='active'; msg='Опубликовано по подписке'; } else { l.until=now(); l.status='nosub'; msg='Сохранено. Объявление включится после оплаты подписки'; } }
   if (flags.length){ l.flags=flags; l.prev=l.status; l.status='review'; msg='Отправлено на проверку модератору: '+flags.join(', ').toLowerCase(); }
@@ -2348,6 +2358,7 @@ function saveEdit(d, u, {specs, price, photos, video}){
   for (const k of Object.keys(d.lock||{})) specs[k] = d.lock[k];
   if (price && l.price && price!==l.price){ l.ph = l.ph?.length ? l.ph : [{p:l.price, t:l.created}]; l.ph.push({p:price, t:now()}); l.ph = l.ph.slice(-20); }
   Object.assign(l, {title:d.title, price, unit:d.unit||'', reg:d.reg||l.reg, place:d.place||'', specs, desc:d.desc, tags:d.tags||'', photos, video, edited:now()});
+  if (d.tel) l.tel = d.tel; else delete l.tel;
   if (myDealers().length && DEALER_SECS.includes(l.sec)) { const did = pickDealer(d); if (did) l.dealer = did; else delete l.dealer; }
   const flags = botCheck(d.title+' '+d.desc+' '+(d.tags||''), u, l);
   let msg = 'Изменения сохранены';
@@ -2383,7 +2394,7 @@ function activatePayment(p){
 const A = {
   ...FEATURE_ACTIONS,
   exitapp(){ closeSheet(); if (NB && NB.exitApp) NB.exitApp(); else if (window.pwaExit) pwaExit(); },
-  back, tab(v){ const [n,a]=v.split(':'); if (n==='plans'){ stack=[{name:'profile'}]; go('plans',a); return; } if (n==='admin'){ go('admin'); return; } if (n==='post') state.draft=null;
+  back, tab(v){ const [n,a]=v.split(':'); if (n==='plans'){ if (hidePaid()){ go('home'); return; } stack=[{name:'profile'}]; go('plans',a); return; } if (n==='admin'){ go('admin'); return; } if (n==='post') state.draft=null;
     // Каждая нижняя вкладка помнит свои экраны; повторное нажатие на ту же вкладку — в её начало
     const cur = stack[0].name; if (cur===n || n==='post'){ root(n); return; }
     TAB_STACKS[cur] = stack; const sv = TAB_STACKS[n]; if (sv){ stack = sv; render(); window.scrollTo(0,0); } else root(n); },
@@ -2435,7 +2446,7 @@ const A = {
   ledit(id){ const u = me(), l = S.listings.find(x=>x.id===id); if (!u || !l || l.uid!==u.id) return;
     const lock = {}; for (const f of FIELDS[l.sec]) if ((f.type==='brand' || f.type==='model') && l.specs?.[f.k]) lock[f.k] = l.specs[f.k];
     state.draft = {edit:l.id, lock, sec:l.sec, specs:JSON.parse(JSON.stringify(l.specs||{})), photos:[...(l.photos||[])], videoUrl:l.video||'', video:null,
-      title:l.title, desc:l.desc||'', tags:l.tags||'', reg:l.reg, place:l.place||'', price:l.sec==='import'?'':(l.price||''), unit:l.unit||'', noDealer:!l.dealer, dealerId:l.dealer||''};
+      title:l.title, desc:l.desc||'', tags:l.tags||'', tel:l.tel||'', reg:l.reg, place:l.place||'', price:l.sec==='import'?'':(l.price||''), unit:l.unit||'', noDealer:!l.dealer, dealerId:l.dealer||''};
     go('post'); scrollTo(0,0); },
   profedit(){ profileSheet(); },
   async profsave(){ const u = me(); if (!u) return; const err = $('#pe_err');
@@ -2459,7 +2470,7 @@ const A = {
   ffchip(v, el){ const i=v.indexOf('|'), k=v.slice(0,i), x=v.slice(i+1); const a=state.ff[k]=state.ff[k]||[]; const j=a.indexOf(x); j<0?a.push(x):a.splice(j,1); el.classList.toggle('on', j<0); },
   eye(v, el){ const inp=$('#'+v); const show = inp.type==='password'; inp.type = show?'text':'password'; el.innerHTML = ic(show?'eyeoff':'eye'); el.setAttribute('aria-label', show?'Скрыть пароль':'Показать пароль'); },
   renew(v){ const l=S.listings.find(x=>x.id===v), u=me(); const mode=S.settings.mode;
-    if (mode==='free'){ l.status='active'; l.until=Math.max(l.until,now())+30*DAY; l.remind=0; persist(); toast('Продлено бесплатно на 30 дней'); render(); return; }
+    if (mode==='free'){ l.status='active'; l.until=Math.max(l.until,now())+30*DAY; l.remind=0; persist(); toast('Продлено на 30 дней'); render(); return; }
     if (mode==='per'){ state.order=newOrder({kind:'listing',lid:l.id,amount:perPrice(u)}); state.payMethod='tm'; go('pay'); return; }
     stack=[{name:'profile'}]; go('plans', l.sec); },
   promo(v){ const [k,lid]=v.split(':'); const pr=PROMOS.find(x=>x.k===k);
@@ -2486,6 +2497,9 @@ const A = {
     const {error} = await sb.rpc('mb_reset_password', {p_user:x.id, p_password:np}); if (error){ toast('Не удалось сбросить пароль: '+error.message); return; }
     openSheet(`<h2>Новый пароль для ${esc(x.name)}</h2><div class="copy-row"><b class="num phone-num">${np}</b><button class="btn sm ghost" data-a="copy" data-v="${np}">${ic('copy')}</button></div><p class="small dim" style="margin:0">Сообщите его пользователю и попросите сменить после входа.</p><button class="btn" data-a="closesheet">Готово</button>`); },
   setmode(v){ S.settings.mode=v; persist(); toast('Режим: '+MODE_TEXT[v]); render(); },
+  paidtoggle(){ const on = S.settings.mode==='free';
+    if (on && !confirm('Включить оплату? Пользователи увидят подписки, цены и VIP. Новые объявления станут платными.')) return;
+    S.settings.mode = on ? 'subs' : 'free'; persist(); toast(on ? 'Платное включено' : 'Платное скрыто'); render(); },
   saveset(){ const st=S.settings; st.supPhone=$('#s_sp').value.trim(); st.supTg=$('#s_tg').value.trim().replace(/^@/,''); st.supEmail=$('#s_em').value.trim(); st.rub=Number($('#s_rub').value)||st.rub; st.perPerson=Math.max(0,Number($('#s_pp').value)||0); st.perCompany=Math.max(0,Number($('#s_pc').value)||0); st.tmNumber=$('#s_tm').value.trim()||st.tmNumber; st.rubNumber=$('#s_rf').value.trim()||st.rubNumber; persist(); toast('Сохранено'); render(); },
   async reload(){ await refresh(); toast('Данные обновлены'); render(); }
 };
