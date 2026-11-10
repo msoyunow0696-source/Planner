@@ -59,7 +59,7 @@ jobs:
           cp stairs/build/outputs/apk/debug/stairs-debug.apk StairBuilder.apk
           cp mashyn/build/outputs/apk/debug/mashyn-debug.apk MashynBazar.apk
 
-      # AlphaCars TM для Google Play: подписанный AAB, если в Settings → Secrets заданы PLAY_KEYSTORE_B64 и PLAY_KEYSTORE_PASSWORD
+      # AlphaCars TM: подписанный AAB для Google Play + APK для RuStore, если в Settings → Secrets заданы PLAY_KEYSTORE_B64 и PLAY_KEYSTORE_PASSWORD
       - name: Build AAB for Google Play
         env:
           PLAY_KEYSTORE_B64: ${{ secrets.PLAY_KEYSTORE_B64 }}
@@ -67,8 +67,9 @@ jobs:
         run: |
           if [ -z "$PLAY_KEYSTORE_B64" ]; then echo "Нет ключа Google Play — AAB пропущен"; exit 0; fi
           echo "$PLAY_KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/play.jks"
-          PLAY_KEYSTORE_FILE="$RUNNER_TEMP/play.jks" gradle :mashyn:bundleRelease --no-daemon
+          PLAY_KEYSTORE_FILE="$RUNNER_TEMP/play.jks" gradle :mashyn:bundleRelease :mashyn:assembleRelease --no-daemon
           cp mashyn/build/outputs/bundle/release/mashyn-release.aab AlphaCarsTM-play.aab
+          cp mashyn/build/outputs/apk/release/mashyn-release.apk AlphaCarsTM-release.apk
           rm -f "$RUNNER_TEMP/play.jks"
 
       - uses: actions/upload-artifact@v4
